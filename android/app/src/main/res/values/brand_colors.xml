@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Marka geçişinin ortası (#3D5AFE → #7C4DFF): Android 12+ açılış ekranı zemini. -->
+    <color name="splash_background">#5C53FE</color>
+</resources>

@@ -1,0 +1,102 @@
+# TDLib'i (Telegram'ın resmi istemci kütüphanesi) Android için resmi kaynak
+# koddan ve resmi betiklerle (td/example/android) derler, sonucu bu deponun
+# Releases bölümüne SHA256 ile yayınlar. Hazır, kimin derlediği belirsiz
+# ikili dosya kullanılmaz: kütüphane Telegram oturum anahtarlarına erişir.
+#
+# Sürüm yükseltmek: TDLIB_COMMIT ve TDLIB_VERSION'ı değiştirip iş akışını çalıştır,
+# sonra scripts/tdlib_indir.sh içindeki etiketi güncelle.
+name: TDLib Android
+
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/tdlib-android.yml']
+
+env:
+  TDLIB_COMMIT: c15d3f5a5de6e3ba5839822c451152e5e18bb700 # "Update version to 1.8.68."
+  TDLIB_VERSION: 1.8.68
+  NDK_VERSION: 23.2.8568313 # resmi betiklerin varsayılanı
+  OPENSSL_VERSION: OpenSSL_1_1_1w # resmi betiklerin varsayılanı
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Derle (${{ matrix.abi }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    strategy:
+      fail-fast: true
+      matrix:
+        # Özel depoda makineler 2 çekirdekli; mimariler paralel derlenir.
+        abi: [arm64-v8a, armeabi-v7a, x86_64]
+    steps:
+      - name: Araçlar (resmi Dockerfile'daki paketler)
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq default-jdk g++ git gperf make perl php-cli unzip wget
+
+      - name: TDLib kaynak kodu
+        run: |
+          git clone https://github.com/tdlib/td.git
+          cd td
+          git checkout "$TDLIB_COMMIT"
+          test "$(git rev-parse HEAD)" = "$TDLIB_COMMIT"
+
+      - name: Android SDK ve NDK
+        working-directory: td/example/android
+        run: ./fetch-sdk.sh SDK "$NDK_VERSION"
+
+      - name: OpenSSL
+        working-directory: td/example/android
+        run: ./build-openssl.sh SDK "$NDK_VERSION" openssl "$OPENSSL_VERSION"
+
+      - name: TDLib
+        working-directory: td/example/android
+        run: ./build-tdlib.sh SDK "$NDK_VERSION" openssl c++_static Java '' "${{ matrix.abi }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tdlib-${{ matrix.abi }}
+          path: td/example/android/tdlib/tdlib.zip
+          if-no-files-found: error
+
+  release:
+    name: Birleştir ve yayınla
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: parts
+
+      - name: Birleştir
+        run: |
+          set -euo pipefail
+          for z in parts/*/tdlib.zip; do
+            d="x/$(basename "$(dirname "$z")")"
+            mkdir -p "$d" && unzip -q "$z" -d "$d"
+          done
+          # Java kaynakları her mimaride aynı üretilmeli; değilse yayınlama.
+          sums=$(for d in x/*; do (cd "$d/tdlib/java" && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum); done | sort -u | wc -l)
+          test "$sums" = "1"
+          mkdir -p out/tdlib
+          cp -r "$(ls -d x/* | head -1)/tdlib/java" out/tdlib/
+          for d in x/*; do cp -r "$d/tdlib/libs" out/tdlib/; done
+          find out -type f | sort
+          ZIP="tdlib-android-$TDLIB_VERSION.zip"
+          (cd out && zip -qr "../$ZIP" tdlib)
+          sha256sum "$ZIP" > "$ZIP.sha256"
+          cat "$ZIP.sha256"
+
+      - name: Yayınla
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="tdlib-$TDLIB_VERSION-${TDLIB_COMMIT:0:7}"
+          gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "$TAG" tdlib-android-*.zip tdlib-android-*.zip.sha256 \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "TDLib $TDLIB_VERSION (Android)" \
+            --notes "Kaynak: tdlib/td@$TDLIB_COMMIT · NDK $NDK_VERSION · $OPENSSL_VERSION · Java arayüzü · c++_static. Resmi td/example/android betikleriyle derlendi (iş akışı: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."

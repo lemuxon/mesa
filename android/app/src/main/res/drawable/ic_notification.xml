@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mesa bildirim simgesi (tek renk). Üretildi: tool/branding/make_icons.py -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="58"
+    android:viewportHeight="58">
+    <group android:translateX="-25" android:translateY="-25.5">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M38,30h32a10,10 0,0 1,10 10v20a10,10 0,0 1,-10 10h-20l-12,9v-9a10,10 0,0 1,-10 -10v-20a10,10 0,0 1,10 -10zM39,38h26a3,3 0,0 1,0 6h-26a3,3 0,0 1,0 -6zM39,47h18a3,3 0,0 1,0 6h-18a3,3 0,0 1,0 -6zM39,56h22a3,3 0,0 1,0 6h-22a3,3 0,0 1,0 -6z" />
+    </group>
+</vector>

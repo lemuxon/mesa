@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Yalnizca gonderim klasoru paylasilir (cache/outbox). -->
+<paths>
+    <cache-path name="outbox" path="outbox/" />
+</paths>

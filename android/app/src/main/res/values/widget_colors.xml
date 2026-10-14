@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ana ekran bileşeni (açık tema). Uygulamanın marka rengiyle aynı mavi. -->
+<resources>
+    <color name="widget_bg">#F2F6F4FF</color>
+    <color name="widget_text">#1B1B1F</color>
+    <color name="widget_secondary">#5F5E6B</color>
+    <color name="widget_accent">#3D5AFE</color>
+    <color name="widget_divider">#1F1B1B1F</color>
+</resources>

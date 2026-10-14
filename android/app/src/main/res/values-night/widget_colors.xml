@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ana ekran bileşeni (koyu tema). -->
+<resources>
+    <color name="widget_bg">#F21B1B22</color>
+    <color name="widget_text">#E6E1E9</color>
+    <color name="widget_secondary">#A9A6B4</color>
+    <color name="widget_accent">#8C9EFF</color>
+    <color name="widget_divider">#24FFFFFF</color>
+</resources>
