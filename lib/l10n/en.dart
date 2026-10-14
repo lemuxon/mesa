@@ -673,4 +673,8 @@ const en = <String, String>{
   'Bildirim erişimini aç': 'Turn on notification access',
   'Mesa mesajları uygulamaların bildirimlerinden okur. Açılan listede Mesa\'yı bulup izin verin.':
       'Mesa reads messages from apps\' notifications. Find Mesa in the list that opens and allow it.',
+  'İzin verilemiyor mu?': 'Can\'t turn it on?',
+  'Android, mağaza dışından kurulan uygulamalarda bu izni kısıtlar. Mesa\'nın anahtarına bir kez dokunun, sonra Uygulama bilgileri → ⋮ → Kısıtlanmış ayarlara izin ver\'i seçip tekrar deneyin.':
+      'Android restricts this permission for apps installed from outside an app store. Tap Mesa\'s switch once, then open App info → ⋮ → Allow restricted settings and try again.',
+  'Uygulama bilgileri': 'App info',
 };

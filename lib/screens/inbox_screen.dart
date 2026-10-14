@@ -262,7 +262,11 @@ class _InboxScreenState extends State<InboxScreen> with WidgetsBindingObserver {
     }
     if (!status.enabled) {
       return Scaffold(
-        body: WelcomeScreen(onGrant: widget.bridge.openListenerSettings),
+        body: WelcomeScreen(
+          onGrant: widget.bridge.openListenerSettings,
+          restrictedSettings: status.restrictedSettings,
+          onAppInfo: widget.bridge.openAppSettings,
+        ),
       );
     }
     final unreadTotal = _conversations.fold<int>(0, (n, c) => n + c.unread);

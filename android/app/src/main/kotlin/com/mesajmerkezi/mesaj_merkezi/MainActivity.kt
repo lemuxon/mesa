@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -204,6 +205,7 @@ class MainActivity : FlutterFragmentActivity() {
                         "enabled" to enabled,
                         "connected" to Hub.listenerConnected,
                         "xiaomi" to isXiaomi(),
+                        "restrictedSettings" to restrictedSettingsPossible(),
                     )
                 )
             }
@@ -633,6 +635,21 @@ class MainActivity : FlutterFragmentActivity() {
 
     // Redmi ve POCO cihazlar da üretici olarak "Xiaomi" bildirir.
     private fun isXiaomi() = Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true)
+
+    /**
+     * Android 13+ mağaza dışından (tarayıcı, dosya yöneticisi) kurulan
+     * uygulamalarda bildirim erişimini "kısıtlanmış ayar" yapar: anahtar gri
+     * kalır, kullanıcı önce uygulama bilgilerinden izin vermeli.
+     */
+    private fun restrictedSettingsPossible(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return false
+        val source = try {
+            packageManager.getInstallSourceInfo(packageName).packageSource
+        } catch (e: PackageManager.NameNotFoundException) {
+            return true
+        }
+        return source != PackageInstaller.PACKAGE_SOURCE_STORE
+    }
 
     /**
      * Servis bileşenini kapatıp açar. Paket değişikliği sayılır ve sistem

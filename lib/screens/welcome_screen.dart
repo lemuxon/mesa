@@ -5,9 +5,19 @@ import '../ui/mesa_logo.dart';
 
 /// Bildirim erişimi verilmemişken gösterilen tanıtım ve izin ekranı.
 class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key, required this.onGrant});
+  const WelcomeScreen({
+    super.key,
+    required this.onGrant,
+    this.restrictedSettings = false,
+    this.onAppInfo,
+  });
 
   final VoidCallback onGrant;
+
+  /// Android 13+ mağaza dışı kurulum: erişim anahtarı gri kalabilir, önce
+  /// uygulama bilgilerinden kısıtlanmış ayarlara izin verilmeli.
+  final bool restrictedSettings;
+  final VoidCallback? onAppInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +95,42 @@ class WelcomeScreen extends StatelessWidget {
               color: theme.colorScheme.outline,
             ),
           ),
+          if (restrictedSettings) ...[
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tr('İzin verilemiyor mu?'),
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    tr(
+                      'Android, mağaza dışından kurulan uygulamalarda bu izni kısıtlar. Mesa\'nın anahtarına bir kez dokunun, sonra Uygulama bilgileri → ⋮ → Kısıtlanmış ayarlara izin ver\'i seçip tekrar deneyin.',
+                    ),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: TextButton.icon(
+                      onPressed: onAppInfo,
+                      icon: const Icon(Icons.info_outline_rounded),
+                      label: Text(tr('Uygulama bilgileri')),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

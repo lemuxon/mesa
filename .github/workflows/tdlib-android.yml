@@ -10,6 +10,9 @@ name: TDLib Android
 on:
   workflow_dispatch:
   push:
+    # Yalnızca dallar: etiketlerde yol süzgeci çalışmaz, her sürüm etiketi
+    # derlemeyi gereksiz yere başlatıyordu.
+    branches: ['**']
     paths: ['.github/workflows/tdlib-android.yml']
 
 env:

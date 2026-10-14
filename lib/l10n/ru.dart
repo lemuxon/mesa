@@ -682,4 +682,8 @@ const ru = <String, String>{
   'Bildirim erişimini aç': 'Включить доступ к уведомлениям',
   'Mesa mesajları uygulamaların bildirimlerinden okur. Açılan listede Mesa\'yı bulup izin verin.':
       'Mesa читает сообщения из уведомлений приложений. Найдите Mesa в открывшемся списке и разрешите доступ.',
+  'İzin verilemiyor mu?': 'Не получается включить?',
+  'Android, mağaza dışından kurulan uygulamalarda bu izni kısıtlar. Mesa\'nın anahtarına bir kez dokunun, sonra Uygulama bilgileri → ⋮ → Kısıtlanmış ayarlara izin ver\'i seçip tekrar deneyin.':
+      'Android ограничивает это разрешение для приложений, установленных не из магазина. Нажмите один раз на переключатель Mesa, затем откройте «О приложении» → ⋮ → «Разрешить доступ к ограниченным настройкам» и попробуйте снова.',
+  'Uygulama bilgileri': 'О приложении',
 };

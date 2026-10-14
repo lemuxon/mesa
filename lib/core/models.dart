@@ -179,12 +179,14 @@ class ListenerStatus {
     required this.enabled,
     required this.connected,
     this.xiaomi = false,
+    this.restrictedSettings = false,
   });
 
   factory ListenerStatus.fromMap(Map<Object?, Object?> m) => ListenerStatus(
     enabled: m['enabled']! as bool,
     connected: m['connected']! as bool,
     xiaomi: m['xiaomi'] as bool? ?? false,
+    restrictedSettings: m['restrictedSettings'] as bool? ?? false,
   );
 
   /// Kullanıcı bildirim erişimini verdi.
@@ -196,8 +198,16 @@ class ListenerStatus {
   /// Xiaomi/Redmi/POCO: otomatik başlatma izni ayrıca gerekir.
   final bool xiaomi;
 
-  ListenerStatus withConnected(bool value) =>
-      ListenerStatus(enabled: enabled, connected: value, xiaomi: xiaomi);
+  /// Android 13+ ve mağaza dışından kurulum: bildirim erişimi önce uygulama
+  /// bilgilerinden "kısıtlanmış ayarlara izin ver" ister.
+  final bool restrictedSettings;
+
+  ListenerStatus withConnected(bool value) => ListenerStatus(
+    enabled: enabled,
+    connected: value,
+    xiaomi: xiaomi,
+    restrictedSettings: restrictedSettings,
+  );
 }
 
 class Message {

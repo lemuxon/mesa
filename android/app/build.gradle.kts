@@ -11,6 +11,19 @@ val telegramApiId = localProperties.getProperty("telegram.apiId", "0").trim().to
 val telegramApiHash = localProperties.getProperty("telegram.apiHash", "").trim()
 require(telegramApiHash.all { it.isLetterOrDigit() }) { "telegram.apiHash yalnizca harf ve rakam icermeli" }
 
+// GitHub'da yayinlanan APK'lar kalici yayin anahtariyla imzalanir: MESA_RELEASE_SIGNING=1
+// ve android/key.properties (depoya girmez) gerekir. Diger derlemeler debug anahtariyla
+// imzalanir; gelistirme telefonundaki kurulum da oyle kalir (imza degisirse uzerine
+// kurulamaz, veri silinmesi gerekirdi).
+val publicSigning = System.getenv("MESA_RELEASE_SIGNING") == "1"
+val keyProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (publicSigning) {
+        require(file.exists()) { "MESA_RELEASE_SIGNING=1 ama android/key.properties yok" }
+        file.inputStream().use { load(it) }
+    }
+}
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -44,11 +57,20 @@ android {
         buildConfigField("String", "TELEGRAM_API_HASH", "\"$telegramApiHash\"")
     }
 
+    signingConfigs {
+        if (publicSigning) {
+            create("public") {
+                storeFile = file(keyProperties.getProperty("storeFile"))
+                storePassword = keyProperties.getProperty("storePassword")
+                keyAlias = keyProperties.getProperty("keyAlias")
+                keyPassword = keyProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName(if (publicSigning) "public" else "debug")
             // TDLib'in yerel kodu Java siniflarini adiyla arar (bkz. proguard-rules.pro).
             proguardFiles("proguard-rules.pro")
         }

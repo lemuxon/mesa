@@ -6,6 +6,15 @@
 
 **All your chats. One inbox.** WhatsApp, Telegram, Instagram, Discord and more, together in one Android app. Mesa has no servers and no account: your messages stay on your phone.
 
+## Download
+
+Get the APK from [Releases](https://github.com/lemuxon/mesa/releases/latest) (Android 7.0 or later). Most phones need `arm64-v8a`; older 32-bit phones need `armeabi-v7a`.
+
+**Android 13 and later:** Android restricts notification access for apps installed from outside an app store. If Mesa's switch is greyed out ("Restricted setting"), tap it once, then open **Settings → Apps → Mesa → ⋮ → Allow restricted settings** and turn it on again. Mesa shows these steps on its first screen too.
+
+Release APKs are signed with this certificate (SHA-256):
+`31:74:AB:2A:5A:56:77:BD:53:4C:CB:65:FA:1C:26:BE:28:91:FC:C1:9A:1C:C6:67:30:ED:A4:51:BD:82:70:27`
+
 ## Features
 
 - **One inbox** for WhatsApp, WhatsApp Business, Telegram, Instagram, Messenger, Signal, Viber, LINE, KakaoTalk, SMS and more, plus Discord, Slack, X, Teams, LinkedIn, Reddit, Snapchat and TikTok through their official web versions.

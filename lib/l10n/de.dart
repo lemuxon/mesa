@@ -684,4 +684,8 @@ const de = <String, String>{
   'Bildirim erişimini aç': 'Benachrichtigungszugriff erlauben',
   'Mesa mesajları uygulamaların bildirimlerinden okur. Açılan listede Mesa\'yı bulup izin verin.':
       'Mesa liest Nachrichten aus den Benachrichtigungen der Apps. Suche Mesa in der Liste, die sich öffnet, und erlaube den Zugriff.',
+  'İzin verilemiyor mu?': 'Lässt sich nicht aktivieren?',
+  'Android, mağaza dışından kurulan uygulamalarda bu izni kısıtlar. Mesa\'nın anahtarına bir kez dokunun, sonra Uygulama bilgileri → ⋮ → Kısıtlanmış ayarlara izin ver\'i seçip tekrar deneyin.':
+      'Android schränkt diese Berechtigung bei Apps ein, die nicht aus einem App-Store installiert wurden. Tippe einmal auf den Schalter von Mesa, öffne dann App-Info → ⋮ → Eingeschränkte Einstellungen zulassen und versuche es erneut.',
+  'Uygulama bilgileri': 'App-Info',
 };
