@@ -138,8 +138,7 @@ object UnifiedNotifier {
             PendingIntent.getActivity(
                 context,
                 requestCode,
-                Intent(context, MainActivity::class.java)
-                    .putExtra(EXTRA_KEY, key)
+                LaunchToken.conversationIntent(context, key, "notification")
                     .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
@@ -192,11 +191,7 @@ object UnifiedNotifier {
             .setLongLived(true)
             .setIcon(icon)
             .setLocusId(LocusIdCompat(key))
-            .setIntent(
-                Intent(context, MainActivity::class.java)
-                    .setAction(Intent.ACTION_VIEW)
-                    .putExtra(EXTRA_KEY, key)
-            )
+            .setIntent(LaunchToken.conversationIntent(context, key, "shortcut").setAction(Intent.ACTION_VIEW))
             .apply { if (!isGroup) setPerson(Person.Builder().setName(title).setKey(key).setIcon(icon).build()) }
             .build()
             .also { ShortcutManagerCompat.pushDynamicShortcut(context, it) }
@@ -244,8 +239,17 @@ object UnifiedNotifier {
         )
     }
 
+    /**
+     * Veri adresi sohbete özgü: istek kodu key.hashCode() iki sohbette çakışırsa
+     * PendingIntent'ler (ekstralara bakılmadığı için) aynı sayılır ve
+     * FLAG_UPDATE_CURRENT öncekinin anahtarını ezerdi; bir sohbete yazılan
+     * yanıt başka bir sohbete gidebilirdi.
+     */
     private fun actionIntent(context: Context, action: String, key: String) =
-        Intent(context, NotificationActionReceiver::class.java).setAction(action).putExtra(EXTRA_KEY, key)
+        Intent(context, NotificationActionReceiver::class.java)
+            .setAction(action)
+            .setData(LaunchToken.uniqueData("action", key))
+            .putExtra(EXTRA_KEY, key)
 
     // RemoteInput yanıtı PendingIntent'e eklenebilsin diye değiştirilebilir olmalı (API 31+ zorunlu bayrak).
     private fun mutableFlag() = if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
@@ -280,10 +284,14 @@ object UnifiedNotifier {
                     }
                 }
                 ACTION_MARK_READ -> Hub.io.execute {
-                    Hub.store(context).markRead(key)
-                    Hub.notifyChanged(key)
-                    cancel(context, key)
-                    pending.finish()
+                    try {
+                        Hub.store(context).markRead(key)
+                        Hub.notifyChanged(key)
+                        cancel(context, key)
+                    } finally {
+                        // Hata olsa da yayın bitmiş sayılmalı (yoksa sistem ANR sayar).
+                        pending.finish()
+                    }
                 }
                 else -> pending.finish()
             }

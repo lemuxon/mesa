@@ -52,7 +52,12 @@ object Reminders {
     private fun snoozeIntent(context: Context, key: String) = PendingIntent.getBroadcast(
         context,
         "snooze|$key".hashCode(),
-        Intent(context, ReminderReceiver::class.java).setAction(ACTION_SNOOZE).putExtra(EXTRA_KEY, key),
+        // Veri adresi sohbete özgü: istek kodları çakışsa da bir sohbetin
+        // alarmı başkasınınkini ezmez.
+        Intent(context, ReminderReceiver::class.java)
+            .setAction(ACTION_SNOOZE)
+            .setData(LaunchToken.uniqueData("snooze", key))
+            .putExtra(EXTRA_KEY, key),
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )
 
@@ -112,6 +117,9 @@ object Reminders {
 
     internal fun remindNow(context: Context, key: String) {
         val store = Hub.store(context)
+        // Erteleme kaldırıldıysa ya da hatırlatma zaten gösterildiyse (eski
+        // sürümün alarmı da çalabilir) ikinci kez hatırlatılmaz.
+        if (!store.isSnoozed(key)) return
         store.unsnooze(key, remind = true)
         Hub.notifyChanged(key)
         val info = store.conversation(key) ?: return
@@ -120,8 +128,7 @@ object Reminders {
         val open = PendingIntent.getActivity(
             context,
             "remind|$key".hashCode(),
-            Intent(context, MainActivity::class.java)
-                .putExtra(UnifiedNotifier.EXTRA_KEY, key)
+            LaunchToken.conversationIntent(context, key, "reminder")
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )

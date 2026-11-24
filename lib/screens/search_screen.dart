@@ -2,6 +2,7 @@ import 'package:mesaj_merkezi/l10n/l10n.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../l10n/stored_labels.dart';
 import '../core/bridge.dart';
@@ -46,7 +47,15 @@ class _SearchScreenState extends State<SearchScreen> {
       setState(() => _hits = null);
       return;
     }
-    final hits = await widget.bridge.search(text);
+    final List<SearchHit> hits;
+    try {
+      hits = await widget.bridge.search(text);
+    } on PlatformException {
+      // Veritabanı o an meşgul ya da kapalı (ör. geri yükleme): boş sonuç,
+      // yakalanmamış hata yerine. Kullanıcı yazmaya devam edince yeniden aranır.
+      if (mounted && request == _request) setState(() => _hits = const []);
+      return;
+    }
     if (mounted && request == _request) setState(() => _hits = hits);
   }
 

@@ -202,8 +202,7 @@ class MessagesWidget : AppWidgetProvider() {
         private fun openConversation(context: Context, key: String): PendingIntent = PendingIntent.getActivity(
             context,
             "widget|$key".hashCode(),
-            Intent(context, MainActivity::class.java)
-                .putExtra(UnifiedNotifier.EXTRA_KEY, key)
+            LaunchToken.conversationIntent(context, key, "widget")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )

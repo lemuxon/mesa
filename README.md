@@ -12,8 +12,10 @@ Get the APK from [Releases](https://github.com/lemuxon/mesa/releases/latest) (An
 
 **Android 13 and later:** Android restricts notification access for apps installed from outside an app store. If Mesa's switch is greyed out ("Restricted setting"), tap it once, then open **Settings → Apps → Mesa → ⋮ → Allow restricted settings** and turn it on again. Mesa shows these steps on its first screen too.
 
-Release APKs are signed with this certificate (SHA-256):
+v1.0.0 was signed with this certificate (SHA-256):
 `31:74:AB:2A:5A:56:77:BD:53:4C:CB:65:FA:1C:26:BE:28:91:FC:C1:9A:1C:C6:67:30:ED:A4:51:BD:82:70:27`
+
+**From v1.0.1 on, releases use a new signing certificate** (its SHA-256 is published with each release). Android cannot update 1.0.0 to 1.0.1 in place: back up from Settings → Backup, uninstall, install the new APK, restore. See [CHANGELOG](CHANGELOG.md).
 
 ## Features
 

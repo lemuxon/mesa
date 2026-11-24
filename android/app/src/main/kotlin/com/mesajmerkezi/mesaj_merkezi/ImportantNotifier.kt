@@ -35,11 +35,13 @@ object ImportantNotifier {
                 .setDescription(Lang.str(context, R.string.channel_important_desc))
                 .build()
         )
+        // Dokununca uygulama değil doğrudan o sohbet açılır.
         val open = PendingIntent.getActivity(
             context,
-            0,
-            Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
-            PendingIntent.FLAG_IMMUTABLE,
+            conversation.key.hashCode(),
+            LaunchToken.conversationIntent(context, conversation.key, "important")
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.btn_star_big_on)

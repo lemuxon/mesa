@@ -27,11 +27,16 @@ object MediaCache {
         messageId: String,
         source: String = "?",
     ): String? {
+        val parsed = Uri.parse(uri)
+        if (!isForeignContent(context, parsed)) {
+            Log.w(TAG, "Bildirim görseli reddedildi: ${parsed.scheme} adresi ($source)")
+            return null
+        }
         val target = File(dir(context), fileName(messageId, mime))
         if (target.exists()) return target.absolutePath
         val partial = File(target.path + ".part")
         return try {
-            val input = context.contentResolver.openInputStream(Uri.parse(uri)) ?: return null
+            val input = context.contentResolver.openInputStream(parsed) ?: return null
             input.use { source ->
                 partial.outputStream().use { sink ->
                     val buffer = ByteArray(64 * 1024)
@@ -45,7 +50,10 @@ object MediaCache {
                     }
                 }
             }
-            if (!partial.renameTo(target)) return null
+            if (!partial.renameTo(target)) {
+                partial.delete()
+                return null
+            }
             logSize(target, source)
             target.absolutePath
         } catch (e: Exception) {
@@ -54,6 +62,18 @@ object MediaCache {
             partial.delete()
             null
         }
+    }
+
+    /**
+     * Yalnızca başka bir uygulamanın paylaştığı içerik adresi okunur. Bildirimin
+     * taşıdığı adres kaynağın kontrolünde: "file://" ya da Mesa'nın kendi
+     * sağlayıcısı verilseydi Mesa kendi özel dosyalarını (veritabanı, Telegram
+     * oturumu) "görsel" diye kopyalayıp paylaşılabilir hale getirebilirdi.
+     */
+    internal fun isForeignContent(context: Context, uri: Uri): Boolean {
+        if (uri.scheme?.lowercase() != "content") return false
+        val authority = uri.authority?.lowercase()?.takeIf { it.isNotEmpty() } ?: return false
+        return !authority.startsWith(context.packageName.lowercase())
     }
 
     /**

@@ -117,10 +117,21 @@ object Backup {
             }
             // Dosya değişimi yazma kuyruğunda: o sırada hiçbir iş veritabanına dokunmaz.
             onIo {
-                Hub.closeStore()
                 val live = app.getDatabasePath(DB)
-                listOf("", "-wal", "-shm", "-journal").forEach { File(live.path + it).delete() }
-                db.copyTo(live, overwrite = true)
+                // Önce canlı veritabanının yanına kopyalanır: disk dolarsa ya da
+                // kopya yarıda kalırsa bu telefondaki mesajlar yerinde kalır.
+                // Eskiden önce silinip sonra kopyalanıyordu; hata tüm veriyi götürürdü.
+                val staged = File(live.path + ".geri")
+                try {
+                    db.copyTo(staged, overwrite = true)
+                    Hub.closeStore()
+                    // Aynı klasörde yeniden adlandırma tek adımda olur (yarım dosya kalmaz).
+                    if (!staged.renameTo(live)) throw java.io.IOException("veritabanı yerine konamadı")
+                } finally {
+                    staged.delete()
+                }
+                // Eski veritabanının günlük dosyaları yenisine uygulanmasın (bozulma olurdu).
+                listOf("-wal", "-shm", "-journal").forEach { File(live.path + it).delete() }
                 for (folder in FOLDERS) {
                     val destination = File(app.filesDir, folder).apply { mkdirs() }
                     File(temp, folder).listFiles()?.forEach { it.copyTo(File(destination, it.name), overwrite = true) }

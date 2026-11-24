@@ -242,7 +242,7 @@ class WebServiceActivity : AppCompatActivity(), WebHostUi {
     /** Kilitliyken sayfanın üstünü tamamen örten ekran (dokunuşları da yutar). */
     private fun buildLockCover(): View {
         lockMessage = TextView(this).apply {
-            text = "Mesa kilitli"
+            text = Lang.str(this@WebServiceActivity, R.string.locked_title)
             setTextColor(onSurface)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
             gravity = Gravity.CENTER
@@ -497,7 +497,10 @@ class WebServiceActivity : AppCompatActivity(), WebHostUi {
             PendingIntent.getActivity(
                 context,
                 "web|$id|$clickId".hashCode(),
-                intent(context, id, clickId).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                intent(context, id, clickId)
+                    // İstek kodu çakışsa da başka bildirimin sohbetini açmasın.
+                    .setData(LaunchToken.uniqueData("web", "$id|${clickId.orEmpty()}"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
     }

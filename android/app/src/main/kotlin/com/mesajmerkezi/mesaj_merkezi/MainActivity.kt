@@ -49,14 +49,15 @@ class MainActivity : FlutterFragmentActivity() {
     /** Yedek alınır; iptal edilirse null, hata olursa yarım dosya silinir. */
     private fun createBackup(password: String, result: MethodChannel.Result) {
         val day = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ROOT).format(java.util.Date())
-        pendingBackupUri = { uri ->
+        awaitDocument { uri ->
             if (uri == null) {
                 result.success(null)
             } else {
                 Thread {
                     try {
                         val out = contentResolver.openOutputStream(uri, "w") ?: error(Lang.str(this, R.string.file_write_failed))
-                        val summary = Backup.export(this, out, password.toCharArray())
+                        // export akışı kapatır; ondan önce hata olursa da kapansın.
+                        val summary = out.use { Backup.export(this, it, password.toCharArray()) }
                         runOnUiThread { result.success(summary.toMap()) }
                     } catch (e: Exception) {
                         Log.w(TAG, "Yedek alınamadı: ${e.javaClass.simpleName}")
@@ -71,6 +72,15 @@ class MainActivity : FlutterFragmentActivity() {
             }
         }
         createBackupDocument.launch("mesa-$day.mmyedek")
+    }
+
+    /**
+     * Dosya seçicinin sonucunu bekler. Önceki seçim hiç dönmediyse (ör. iki
+     * kez dokunuldu) onun çağrısı boş sonuçla kapatılır; Dart tarafı asılı kalmaz.
+     */
+    private fun awaitDocument(onResult: (Uri?) -> Unit) {
+        pendingBackupUri?.invoke(null)
+        pendingBackupUri = onResult
     }
 
     private fun restoreBackup(uri: String, password: String, result: MethodChannel.Result) {
@@ -168,7 +178,8 @@ class MainActivity : FlutterFragmentActivity() {
     private var openSink: EventChannel.EventSink? = null
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
-        launchConversation = intent?.getStringExtra(UnifiedNotifier.EXTRA_KEY)
+        // Yalnızca Mesa'nın kendi niyetleri sohbet açabilir (bkz. LaunchToken).
+        launchConversation = LaunchToken.conversationKey(this, intent)
         AppLock.install(application)
         super.onCreate(savedInstanceState)
     }
@@ -187,7 +198,7 @@ class MainActivity : FlutterFragmentActivity() {
     // Uygulama açıkken bildirime dokunuldu.
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val key = intent.getStringExtra(UnifiedNotifier.EXTRA_KEY) ?: return
+        val key = LaunchToken.conversationKey(this, intent) ?: return
         openSink?.success(key) ?: run { launchConversation = key }
     }
 
@@ -393,7 +404,7 @@ class MainActivity : FlutterFragmentActivity() {
             }
             "createBackup" -> createBackup(call.argument<String>("password")!!, result)
             "pickBackupFile" -> {
-                pendingBackupUri = { uri -> result.success(uri?.toString()) }
+                awaitDocument { uri -> result.success(uri?.toString()) }
                 openBackupDocument.launch(arrayOf("*/*"))
             }
             "restoreBackup" -> restoreBackup(
@@ -522,8 +533,9 @@ class MainActivity : FlutterFragmentActivity() {
         val packageName = call.argument<String>("package")!!
         val caption = call.argument<String>("caption")?.trim()?.takeIf { it.isNotEmpty() }
         val items = call.argument<List<Map<String, Any?>>>("items").orEmpty()
-        val outbox = MediaTools.outbox(this).canonicalPath
-        // Yalnızca uygulamanın gönderim klasöründeki dosyalar gönderilir.
+        val outbox = MediaTools.outbox(this).canonicalPath + java.io.File.separator
+        // Yalnızca uygulamanın gönderim klasöründeki dosyalar gönderilir
+        // (ayraçla: "outbox2/…" gibi kardeş klasörler eşleşmesin).
         val files = items.mapNotNull { item ->
             val file = java.io.File(item["path"] as String? ?: return@mapNotNull null)
             if (file.canonicalPath.startsWith(outbox) && file.exists()) file to item else null

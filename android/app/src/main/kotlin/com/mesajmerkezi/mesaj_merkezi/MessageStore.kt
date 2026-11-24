@@ -707,6 +707,13 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
     }
 
     /** Hatırlatma zamanı geldi (ya da kullanıcı erken getirdi): en üste ⏰ ile döner. */
+    /** Sohbet hâlâ ertelenmiş mi (hatırlatması henüz gösterilmedi). */
+    fun isSnoozed(key: String): Boolean =
+        readableDatabase.rawQuery(
+            "SELECT snoozed_until FROM conversations WHERE key = ?",
+            arrayOf(key),
+        ).use { c -> c.moveToFirst() && c.getLong(0) > 0 }
+
     fun unsnooze(key: String, remind: Boolean) {
         writableDatabase.execSQL(
             "UPDATE conversations SET snoozed_until = 0, reminded = ? WHERE key = ?",

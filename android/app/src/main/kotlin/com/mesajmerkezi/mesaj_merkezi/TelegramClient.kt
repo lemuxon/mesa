@@ -662,7 +662,8 @@ object TelegramClient {
         useSecretChats = false
         apiId = TelegramConfig.apiId
         apiHash = TelegramConfig.apiHash
-        systemLanguageCode = "tr"
+        // Giriş kodu mesajları ve Telegram'ın sunucu metinleri uygulamanın dilinde.
+        systemLanguageCode = Lang.code(appContext) ?: java.util.Locale.getDefault().language.ifEmpty { "en" }
         deviceModel = "${Build.MANUFACTURER} ${Build.MODEL}"
         systemVersion = "Android ${Build.VERSION.RELEASE}"
         applicationVersion = "Mesa"

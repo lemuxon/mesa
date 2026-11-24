@@ -74,6 +74,12 @@ object WebHost {
     private const val UNREAD_NOTIFICATION_ID = 8
     private const val ALERT_PREFS = "web_alerts"
 
+    // Sayfadan gelen bildirim alanlarının üst sınırları: bozuk ya da ele
+    // geçirilmiş bir sayfa veritabanını ve bildirimleri dev metinle şişiremesin.
+    private const val MAX_TITLE = 200
+    private const val MAX_BODY = 4_000
+    private const val MAX_CLICK_ID = 100
+
     private val main = Handler(Looper.getMainLooper())
     private lateinit var appContext: Context
 
@@ -491,9 +497,9 @@ object WebHost {
             "ready" -> Log.i(TAG, "Web köprüsü hazır: ${tag(id)} (izin=${json.optString("permission")})")
             "notification" -> onSiteNotification(
                 id,
-                json.optString("id"),
-                json.optString("title"),
-                json.optString("body"),
+                json.optString("id").take(MAX_CLICK_ID),
+                json.optString("title").take(MAX_TITLE),
+                json.optString("body").take(MAX_BODY),
             )
         }
     }

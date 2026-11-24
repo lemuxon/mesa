@@ -98,8 +98,13 @@ class MediaTools(private val activity: FragmentActivity) {
         val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
             if (c.moveToFirst()) c.getString(0) else null
         }
+        // Dosya adı seçilen uygulamadan gelir: uzantıda yalnızca harf ve rakam
+        // ("/" ile alt klasöre yazma denemesi olmasın).
         val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime)
-            ?: name?.substringAfterLast('.', "")?.takeIf { it.isNotEmpty() }
+            ?: name?.substringAfterLast('.', "")
+                ?.filter { it.isLetterOrDigit() }
+                ?.take(10)
+                ?.takeIf { it.isNotEmpty() }
             ?: "bin"
         val file = File(outbox(activity), "${UUID.randomUUID()}.$ext")
         return try {
