@@ -582,8 +582,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       }
       if (_mode == ReplyMode.app) {
         final key = _active.key;
-        final id = await _recordHandoff(key, text);
-        if (await widget.bridge.sendViaApp(_active, text)) {
+        // Kayıt ile WhatsApp'ın açılması birlikte başlar (kayıt önce çağrılır).
+        final saving = _recordHandoff(key, text);
+        final opened = await widget.bridge.sendViaApp(_active, text);
+        final id = await saving;
+        if (opened) {
           _input.clear();
           if (id != null) _handoff = (key, id, text);
         } else {

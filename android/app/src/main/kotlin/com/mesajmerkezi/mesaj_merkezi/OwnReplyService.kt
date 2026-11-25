@@ -163,6 +163,8 @@ class OwnReplyService : AccessibilityService() {
         }
         windowCheck = check
         main.postDelayed(check, WINDOW_DELAY_MS)
+        // Otomatik gönderim okundu bilgisini beklemez: sohbet çizilir çizilmez denenir.
+        if (OwnReplies.pendingSend != null) main.postDelayed({ maybeAutoSend(ids) }, AUTO_WINDOW_DELAY_MS)
     }
 
     // ---- Mesa'dan yazılan mesajı WhatsApp'ta gönderme ----
@@ -185,9 +187,9 @@ class OwnReplyService : AccessibilityService() {
     private fun maybeAutoSend(ids: ChatIds) {
         if (sending != null) return
         val pending = OwnReplies.pendingSend ?: return
-        // İçerik olayları sık gelir; ekran en fazla 150 ms'de bir okunur.
+        // İçerik olayları sık gelir; ekran en fazla 80 ms'de bir okunur.
         val tick = SystemClock.uptimeMillis()
-        if (tick - lastSendCheck < 150) return
+        if (tick - lastSendCheck < 80) return
         lastSendCheck = tick
         val root = appRoot(ids) ?: return
         val entry = root.findAccessibilityNodeInfosByViewId(ids.entry).firstOrNull()
@@ -199,14 +201,14 @@ class OwnReplyService : AccessibilityService() {
             OwnReplies.Step.FILL -> {
                 // Eski bir taslak ya da paylaşımın eklemediği metin: kutu tam olarak Mesa'nın metni olur.
                 setEntryText(entry, pending.text)
-                main.postDelayed({ maybeAutoSend(ids) }, 250)
+                main.postDelayed({ maybeAutoSend(ids) }, 120)
             }
             OwnReplies.Step.PRESS -> {
                 // Metin yazılınca WhatsApp "send" düğmesini oluşturur; kısa bir süre beklenir.
                 val ready = sendButton(root, ids) != null
                 if (matchedAt == 0L) matchedAt = now
                 if (!ready && now - matchedAt < SEND_BUTTON_WAIT_MS) {
-                    main.postDelayed({ maybeAutoSend(ids) }, 200)
+                    main.postDelayed({ maybeAutoSend(ids) }, 100)
                     return
                 }
                 OwnReplies.pendingSend = null
@@ -214,7 +216,8 @@ class OwnReplyService : AccessibilityService() {
                 // Basmadan önce: kutu boşalınca yakalanan metin ikinci kez kaydedilmesin.
                 OwnReplies.markSending(pending.key, pending.text)
                 tracker.onAutoSend(pending.text)
-                main.postDelayed({ press(ids, pending, attempt = 1) }, SETTLE_MS)
+                // Erişilebilir tıklama düğmenin yerine bakmaz: beklemeden basılır.
+                press(ids, pending, attempt = 1)
             }
         }
     }
@@ -246,8 +249,12 @@ class OwnReplyService : AccessibilityService() {
             }
         }
         Log.i(TAG, "Otomatik gönderim: deneme $attempt ($how, gönder düğmesi ${if (send != null) "var" else "yok"})")
-        main.postDelayed({ confirm(ids, pending, attempt) }, VERIFY_DELAY_MS)
+        pressedAt = SystemClock.uptimeMillis()
+        main.postDelayed({ confirm(ids, pending, attempt) }, CONFIRM_POLL_MS)
     }
+
+    /** Son basış anı; sonuç bundan sonra 100 ms'de bir yoklanır. */
+    private var pressedAt = 0L
 
     private fun confirm(ids: ChatIds, pending: OwnReplies.PendingSend, attempt: Int) {
         if (sending !== pending) return
@@ -257,9 +264,13 @@ class OwnReplyService : AccessibilityService() {
         val empty = entry != null && isEmptyEntry(entry)
         val stillInBox = entry != null && !empty && OwnReplies.sameMessage(entry.text, pending.text)
         val sent = !stillInBox && (empty || listedNearBottom(root, ids, pending.text))
+        val waited = SystemClock.uptimeMillis() - pressedAt
         when {
-            sent -> finish(pending, sent = true, how = "deneme $attempt")
-            attempt < 3 -> press(ids, pending, attempt + 1)
+            sent -> finish(pending, sent = true, how = "deneme $attempt, $waited ms")
+            // WhatsApp kutuyu genelde hemen boşaltır; biraz daha yoklanır.
+            waited < CONFIRM_MAX_MS -> main.postDelayed({ confirm(ids, pending, attempt) }, CONFIRM_POLL_MS)
+            // Dokunma denemesinden önce düzen otursun.
+            attempt < 3 -> main.postDelayed({ press(ids, pending, attempt + 1) }, SETTLE_MS)
             else -> {
                 Log.w(TAG, "Otomatik gönderim başarısız; ${describeSendArea(root, ids)}")
                 // Taslak WhatsApp'ta kalmasın; mesaj Mesa'nın yazma alanına geri konur.
@@ -296,8 +307,29 @@ class OwnReplyService : AccessibilityService() {
             packageManager.getLaunchIntentForPackage(this.packageName)
                 ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
                 ?.let(::startActivity)
+            // Örtü, Mesa'nın ekranı çizilince kalkar ([onMesaDisplayed]); haber gelmezse bu süre sonunda.
+            awaitingMesa = true
+            main.postDelayed(liftOverlay, OVERLAY_FALLBACK_MS)
+        } else {
+            main.postDelayed(liftOverlay, OVERLAY_LINGER_MS)
         }
-        main.postDelayed({ removeOverlay() }, OVERLAY_LINGER_MS)
+    }
+
+    private var awaitingMesa = false
+    private val liftOverlay = Runnable {
+        awaitingMesa = false
+        removeOverlay()
+    }
+
+    /** Mesa'nın Flutter ekranı yeniden çizildi (MainActivity bildirir): örtü kalkabilir. */
+    internal fun onMesaDisplayed() {
+        main.post {
+            if (!awaitingMesa) return@post
+            awaitingMesa = false
+            main.removeCallbacks(liftOverlay)
+            // Çizilen kare ekrana gelsin diye birkaç kare beklenir.
+            main.postDelayed(liftOverlay, 48)
+        }
     }
 
     /** Görünür "send" düğmesi (metin yazılınca oluşur). */
@@ -531,10 +563,14 @@ class OwnReplyService : AccessibilityService() {
         private const val TAG = "MesajMerkezi"
         private const val VERIFY_DELAY_MS = 800L
         private const val WINDOW_DELAY_MS = 400L
-        private const val SETTLE_MS = 300L
+        private const val AUTO_WINDOW_DELAY_MS = 100L
+        private const val SETTLE_MS = 200L
         private const val SEND_BUTTON_WAIT_MS = 1_500L
+        private const val CONFIRM_POLL_MS = 100L
+        private const val CONFIRM_MAX_MS = 1_000L
         private const val TAP_MS = 100L
         private const val OVERLAY_LINGER_MS = 700L
+        private const val OVERLAY_FALLBACK_MS = 1_200L
 
         /** Bağlı servis; Mesa göndermeden önce örtüyü açtırır. */
         @Volatile
