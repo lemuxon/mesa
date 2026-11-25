@@ -106,6 +106,8 @@
     <string name="focus_channel">Fokusmodus</string>
     <string name="focus_tile_on">Nur VIPs erreichen dich</string>
     <string name="focus_and_more">%1$s und %2$d weitere</string>
+    <string name="own_replies_label">Mesa: meine WhatsApp-Antworten</string>
+    <string name="own_replies_desc">Fügt Nachrichten, die du in WhatsApp sendest, demselben Chat in Mesa hinzu und markiert Chats, die du in WhatsApp öffnest, als gelesen. Gelesen wird nur WhatsApp: das Nachrichtenfeld, die Senden-Taste und der Chatname. Nichts verlässt dein Telefon.</string>
     <string name="backup_channel">Sicherungen</string>
     <string name="backup_auto_failed">Automatische Sicherung fehlgeschlagen</string>
     <string name="backup_auto_failed_text">Öffne Mesa → Einstellungen → Sicherung, um den Ordner zu prüfen.</string>

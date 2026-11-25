@@ -849,4 +849,11 @@ const ru = <String, String>{
   'İçe aktar': 'Импортировать',
   'Şimdi yedekle': 'Создать копию сейчас',
   '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
+  // 1.2.1: WhatsApp'ta yazılan yanıtlar
+  'Ayarı aç': 'Открыть настройку',
+  'WhatsApp\'ta Gönder\'e bastığınızda yazdığınız mesaj Mesa\'daki aynı sohbete eklenir; WhatsApp\'ta açtığınız sohbet burada da okunmuş sayılır.\n\nAçılan sayfada "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.': 'Когда вы нажимаете «Отправить» в WhatsApp, сообщение добавляется в тот же чат в Mesa, а чаты, открытые в WhatsApp, и здесь отмечаются прочитанными.\n\nНа следующей странице включите «Mesa: мои ответы в WhatsApp». Читается только WhatsApp, и ничего не покидает телефон.\n\nЕсли настройка неактивна: О приложении → ⋮ → Разрешить настройки с ограниченным доступом.',
+  'WhatsApp\'ta yazdıklarım': 'Мои сообщения из WhatsApp',
+  'WhatsApp\'ta yazdıklarınız da görünsün': 'Показывать и то, что вы пишете в WhatsApp',
+  'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; orada açtığınız sohbet burada da okunur': 'Ответы, отправленные из WhatsApp, тоже видны в чате; чаты, открытые там, здесь отмечаются прочитанными',
+  'WhatsApp\'tan yazdığınız yanıtlar burada görünmüyor. Görünsün mü?': 'Ответы, которые вы пишете в WhatsApp, здесь не видны. Показывать?',
 };

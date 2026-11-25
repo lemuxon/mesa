@@ -862,4 +862,11 @@ const fr = <String, String>{
   'İçe aktar': 'Importer',
   'Şimdi yedekle': 'Sauvegarder maintenant',
   '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
+  // 1.2.1: WhatsApp'ta yazılan yanıtlar
+  'Ayarı aç': 'Ouvrir le réglage',
+  'WhatsApp\'ta Gönder\'e bastığınızda yazdığınız mesaj Mesa\'daki aynı sohbete eklenir; WhatsApp\'ta açtığınız sohbet burada da okunmuş sayılır.\n\nAçılan sayfada "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.': 'Quand vous touchez Envoyer dans WhatsApp, votre message est ajouté à la même discussion dans Mesa, et les discussions ouvertes dans WhatsApp sont aussi marquées comme lues ici.\n\nSur la page suivante, activez « Mesa : mes réponses WhatsApp ». Seul WhatsApp est lu et rien ne quitte votre téléphone.\n\nSi le réglage est grisé : Infos sur l\'appli → ⋮ → Autoriser les paramètres restreints.',
+  'WhatsApp\'ta yazdıklarım': 'Ce que j\'écris dans WhatsApp',
+  'WhatsApp\'ta yazdıklarınız da görünsün': 'Afficher aussi ce que vous écrivez dans WhatsApp',
+  'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; orada açtığınız sohbet burada da okunur': 'Les réponses envoyées depuis WhatsApp apparaissent aussi dans la discussion ; les discussions ouvertes là-bas sont marquées comme lues ici',
+  'WhatsApp\'tan yazdığınız yanıtlar burada görünmüyor. Görünsün mü?': 'Les réponses écrites dans WhatsApp n\'apparaissent pas ici. Les afficher ?',
 };

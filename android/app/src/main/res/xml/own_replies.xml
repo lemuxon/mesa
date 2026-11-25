@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Yalnizca WhatsApp ve WhatsApp Business: mesaj kutusu, Gonder dugmesi, sohbet adi (OwnReplies.kt). -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeViewClicked|typeViewTextChanged|typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagReportViewIds"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/own_replies_desc"
+    android:isAccessibilityTool="false"
+    android:notificationTimeout="50"
+    android:packageNames="com.whatsapp,com.whatsapp.w4b" />

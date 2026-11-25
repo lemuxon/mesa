@@ -831,4 +831,11 @@ const ar = <String, String>{
   'İçe aktar': 'استيراد',
   'Şimdi yedekle': 'نسخ احتياطي الآن',
   '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
+  // 1.2.1: WhatsApp'ta yazılan yanıtlar
+  'Ayarı aç': 'فتح الإعداد',
+  'WhatsApp\'ta Gönder\'e bastığınızda yazdığınız mesaj Mesa\'daki aynı sohbete eklenir; WhatsApp\'ta açtığınız sohbet burada da okunmuş sayılır.\n\nAçılan sayfada "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.': 'عندما تلمس إرسال في WhatsApp، تُضاف رسالتك إلى المحادثة نفسها في Mesa، وتُعلَّم المحادثات التي تفتحها في WhatsApp كمقروءة هنا أيضًا.\n\nفي الصفحة التالية، شغّل "Mesa: ردودي في WhatsApp". يُقرأ WhatsApp فقط ولا يغادر أي شيء هاتفك.\n\nإذا كان الإعداد باهتًا: معلومات التطبيق ← ⋮ ← السماح بالإعدادات المحظورة.',
+  'WhatsApp\'ta yazdıklarım': 'ما أكتبه في WhatsApp',
+  'WhatsApp\'ta yazdıklarınız da görünsün': 'أظهر ما تكتبه في WhatsApp أيضًا',
+  'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; orada açtığınız sohbet burada da okunur': 'تظهر الردود التي ترسلها من WhatsApp في المحادثة أيضًا، وتُعلَّم المحادثات التي تفتحها هناك كمقروءة هنا',
+  'WhatsApp\'tan yazdığınız yanıtlar burada görünmüyor. Görünsün mü?': 'الردود التي تكتبها في WhatsApp لا تظهر هنا. هل تريد إظهارها؟',
 };

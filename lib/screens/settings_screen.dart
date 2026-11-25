@@ -13,6 +13,7 @@ import '../ui/text_dialog.dart';
 import 'backup_card.dart';
 import 'focus_screen.dart';
 import 'language_tile.dart';
+import 'own_replies.dart';
 import 'secure_connection_screen.dart';
 import 'storage_card.dart';
 import 'telegram_screen.dart';
@@ -31,6 +32,9 @@ class _SettingsScreenState extends State<SettingsScreen>
     with WidgetsBindingObserver {
   AppSettings? _settings;
   SystemHealth? _health;
+
+  /// WhatsApp'ta yazılan yanıtlar Mesa'ya ekleniyor mu (erişilebilirlik servisi).
+  bool _ownReplies = false;
 
   @override
   void initState() {
@@ -58,6 +62,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     try {
       final health = await widget.bridge.health();
       if (mounted) setState(() => _health = health);
+      final ownReplies = await widget.bridge.ownRepliesEnabled();
+      if (mounted) setState(() => _ownReplies = ownReplies);
     } catch (_) {
       // Eski yerel taraf ya da test: kart gösterilmez.
     }
@@ -403,6 +409,23 @@ class _SettingsScreenState extends State<SettingsScreen>
                         ),
                         onChanged: (v) => _toggleApp(packages, v),
                       ),
+                    SwitchListTile(
+                      secondary: const Icon(Icons.forum_outlined),
+                      title: Text(tr('WhatsApp\'ta yazdıklarım')),
+                      subtitle: Text(
+                        tr(
+                          'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; orada açtığınız sohbet burada da okunur',
+                        ),
+                      ),
+                      value: _ownReplies,
+                      onChanged: (v) async {
+                        if (v) {
+                          await enableOwnReplies(context, widget.bridge);
+                        } else {
+                          await widget.bridge.openOwnRepliesSettings();
+                        }
+                      },
+                    ),
                   ],
                 ),
                 SectionCard(

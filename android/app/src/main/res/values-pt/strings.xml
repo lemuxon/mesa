@@ -106,6 +106,8 @@
     <string name="focus_channel">Modo foco</string>
     <string name="focus_tile_on">Só os VIPs conseguem falar com você</string>
     <string name="focus_and_more">%1$s e mais %2$d</string>
+    <string name="own_replies_label">Mesa: minhas respostas do WhatsApp</string>
+    <string name="own_replies_desc">Adiciona ao Mesa as mensagens que você envia no WhatsApp, na mesma conversa, e marca como lidas as conversas que você abre no WhatsApp. Só o WhatsApp é lido: a caixa de mensagem, o botão Enviar e o nome da conversa. Nada sai do seu telefone.</string>
     <string name="backup_channel">Backups</string>
     <string name="backup_auto_failed">O backup automático falhou</string>
     <string name="backup_auto_failed_text">Abra Mesa → Configurações → Backup para verificar a pasta.</string>

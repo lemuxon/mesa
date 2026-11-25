@@ -853,4 +853,11 @@ const pt = <String, String>{
   'İçe aktar': 'Importar',
   'Şimdi yedekle': 'Fazer backup agora',
   '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
+  // 1.2.1: WhatsApp'ta yazılan yanıtlar
+  'Ayarı aç': 'Abrir configuração',
+  'WhatsApp\'ta Gönder\'e bastığınızda yazdığınız mesaj Mesa\'daki aynı sohbete eklenir; WhatsApp\'ta açtığınız sohbet burada da okunmuş sayılır.\n\nAçılan sayfada "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.': 'Quando você toca em Enviar no WhatsApp, sua mensagem é adicionada à mesma conversa no Mesa, e as conversas que você abre no WhatsApp também ficam como lidas aqui.\n\nNa próxima página, ative "Mesa: minhas respostas do WhatsApp". Só o WhatsApp é lido e nada sai do seu telefone.\n\nSe a opção estiver esmaecida: Informações do app → ⋮ → Permitir configurações restritas.',
+  'WhatsApp\'ta yazdıklarım': 'O que escrevo no WhatsApp',
+  'WhatsApp\'ta yazdıklarınız da görünsün': 'Mostrar também o que você escreve no WhatsApp',
+  'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; orada açtığınız sohbet burada da okunur': 'As respostas que você envia pelo WhatsApp também aparecem na conversa; as conversas que você abre lá ficam como lidas aqui',
+  'WhatsApp\'tan yazdığınız yanıtlar burada görünmüyor. Görünsün mü?': 'As respostas que você escreve no WhatsApp não aparecem aqui. Mostrar?',
 };

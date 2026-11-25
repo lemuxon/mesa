@@ -39,7 +39,7 @@ object Reminders {
     /** Hub.io iş parçacığında çağrılmalı. */
     fun snooze(context: Context, key: String, until: Long) {
         Hub.store(context).snooze(key, until)
-        UnifiedNotifier.cancel(context, key)
+        UnifiedNotifier.cancel(context, key, keepBubble = false)
         alarm(context, snoozeIntent(context, key), until)
         Log.i(TAG, "Sohbet ertelendi: ${(until - System.currentTimeMillis()) / 60_000} dk")
     }

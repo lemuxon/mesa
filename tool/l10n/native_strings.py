@@ -176,6 +176,18 @@ p("focus_summary", en={"one": "Focus ended · %d message arrived", "other": "Foc
   ar={"zero": "انتهى التركيز · لم تصل رسائل", "one": "انتهى التركيز · وصلت رسالة واحدة", "two": "انتهى التركيز · وصلت رسالتان", "few": "انتهى التركيز · وصلت %d رسائل", "many": "انتهى التركيز · وصلت %d رسالة", "other": "انتهى التركيز · وصلت %d رسالة"},
   ru={"one": "Фокус завершён · пришло %d сообщение", "few": "Фокус завершён · пришло %d сообщения", "many": "Фокус завершён · пришло %d сообщений", "other": "Фокус завершён · пришло %d сообщения"})
 
+# ---- WhatsApp'ta yazılan yanıtlar (erişilebilirlik servisi) ----
+s("own_replies_label", en="Mesa: my WhatsApp replies", tr="Mesa: WhatsApp yanıtlarım", es="Mesa: mis respuestas de WhatsApp", pt="Mesa: minhas respostas do WhatsApp", de="Mesa: meine WhatsApp-Antworten", fr="Mesa : mes réponses WhatsApp", ar="Mesa: ردودي في WhatsApp", ru="Mesa: мои ответы в WhatsApp")
+s("own_replies_desc",
+  en="Adds the messages you send in WhatsApp to the same chat in Mesa, and marks chats you open in WhatsApp as read. Only WhatsApp is read: the message box, the Send button and the chat name. Nothing leaves your phone.",
+  tr="WhatsApp'ta gönderdiğiniz mesajları Mesa'daki aynı sohbete ekler, WhatsApp'ta açtığınız sohbeti okundu sayar. Yalnızca WhatsApp okunur: mesaj kutusu, Gönder düğmesi ve sohbet adı. Hiçbir şey telefondan çıkmaz.",
+  es="Añade a Mesa los mensajes que envías en WhatsApp, en el mismo chat, y marca como leídos los chats que abres en WhatsApp. Solo se lee WhatsApp: el cuadro de mensaje, el botón Enviar y el nombre del chat. Nada sale de tu teléfono.",
+  pt="Adiciona ao Mesa as mensagens que você envia no WhatsApp, na mesma conversa, e marca como lidas as conversas que você abre no WhatsApp. Só o WhatsApp é lido: a caixa de mensagem, o botão Enviar e o nome da conversa. Nada sai do seu telefone.",
+  de="Fügt Nachrichten, die du in WhatsApp sendest, demselben Chat in Mesa hinzu und markiert Chats, die du in WhatsApp öffnest, als gelesen. Gelesen wird nur WhatsApp: das Nachrichtenfeld, die Senden-Taste und der Chatname. Nichts verlässt dein Telefon.",
+  fr="Ajoute dans Mesa, dans la même discussion, les messages que vous envoyez dans WhatsApp, et marque comme lues les discussions que vous ouvrez dans WhatsApp. Seul WhatsApp est lu : la zone de saisie, le bouton Envoyer et le nom de la discussion. Rien ne quitte votre téléphone.",
+  ar="يضيف الرسائل التي ترسلها في WhatsApp إلى المحادثة نفسها في Mesa، ويعلّم المحادثات التي تفتحها في WhatsApp كمقروءة. يُقرأ WhatsApp فقط: مربع الرسالة وزر الإرسال واسم المحادثة. لا يغادر أي شيء هاتفك.",
+  ru="Добавляет сообщения, отправленные вами в WhatsApp, в тот же чат в Mesa и отмечает прочитанными чаты, открытые в WhatsApp. Читается только WhatsApp: поле сообщения, кнопка «Отправить» и название чата. Ничего не покидает телефон.")
+
 # ---- Otomatik yedek ----
 s("backup_channel", en="Backups", tr="Yedekler", es="Copias de seguridad", pt="Backups", de="Sicherungen", fr="Sauvegardes", ar="النسخ الاحتياطية", ru="Резервные копии")
 s("backup_auto_failed", en="Automatic backup failed", tr="Otomatik yedek alınamadı", es="La copia automática falló", pt="O backup automático falhou", de="Automatische Sicherung fehlgeschlagen", fr="La sauvegarde automatique a échoué", ar="فشل النسخ الاحتياطي التلقائي", ru="Не удалось создать автоматическую копию")

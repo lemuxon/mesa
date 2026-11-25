@@ -1,6 +1,8 @@
 package com.mesajmerkezi.mesaj_merkezi
 
 import android.Manifest
+import android.app.Notification
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -262,8 +264,46 @@ object UnifiedNotifier {
         ShortcutManagerCompat.removeLongLivedShortcuts(context, listOf(shortcutId(key)))
     }
 
-    fun cancel(context: Context, key: String) {
+    /**
+     * Sohbetin bildirimini kaldırır. Bildirim balon olarak gösteriliyorsa
+     * iptal etmek balonu da kapatır: balonda sohbet açılınca okundu sayılıp
+     * bildirim kalkıyor, balon tam açılırken kapanıyordu (2026-11-26, cihazda).
+     * Bu yüzden balonu olan bildirim yalnızca çubuktan gizlenir; sohbet
+     * silinince ya da ertelenince ([keepBubble] = false) balon da kapanır.
+     */
+    fun cancel(context: Context, key: String, keepBubble: Boolean = true) {
+        if (keepBubble && hideKeepingBubble(context, key)) return
         NotificationManagerCompat.from(context).cancel(key, NOTIFICATION_ID)
+    }
+
+    /** @return bildirim balondu ve bırakıldı (çubuktan gizlendi). */
+    private fun hideKeepingBubble(context: Context, key: String): Boolean {
+        if (Build.VERSION.SDK_INT < 30) return false
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return false
+        val current = try {
+            manager.activeNotifications.firstOrNull { it.id == NOTIFICATION_ID && it.tag == key }
+        } catch (e: RuntimeException) {
+            null
+        } ?: return false
+        val notification = current.notification
+        if (notification.flags and Notification.FLAG_BUBBLE == 0) return false
+        val meta = notification.bubbleMetadata
+        // Balon açıkken sistem bildirimi zaten çubuktan gizler.
+        if (meta == null || meta.isNotificationSuppressed) return true
+        val intent = meta.intent
+        val icon = meta.icon
+        if (intent == null || icon == null) return true
+        val hidden = Notification.BubbleMetadata.Builder(intent, icon)
+            .setDesiredHeight(meta.desiredHeight)
+            .setAutoExpandBubble(false)
+            .setSuppressNotification(true)
+            .build()
+        val rebuilt = Notification.Builder.recoverBuilder(context, notification)
+            .setBubbleMetadata(hidden)
+            .setOnlyAlertOnce(true)
+            .build()
+        manager.notify(key, NOTIFICATION_ID, rebuilt)
+        return true
     }
 
     private fun showSummary(context: Context, manager: NotificationManagerCompat) {
@@ -308,7 +348,7 @@ object UnifiedNotifier {
     // RemoteInput yanıtı PendingIntent'e eklenebilsin diye değiştirilebilir olmalı (API 31+ zorunlu bayrak).
     private fun mutableFlag() = if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
 
-    private const val NOTIFICATION_ID = 7
+    internal const val NOTIFICATION_ID = 7
 
     /** Bildirimdeki "Yanıtla" ve "Okundu" düğmeleri. */
     class NotificationActionReceiver : BroadcastReceiver() {

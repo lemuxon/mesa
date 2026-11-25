@@ -23,6 +23,7 @@ import '../ui/theme.dart';
 import 'engagement.dart';
 import 'media_gallery_screen.dart';
 import 'media_viewer.dart';
+import 'own_replies.dart';
 import 'setup_checklist.dart';
 import 'telegram_picker_sheet.dart';
 
@@ -76,6 +77,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   /// Bu sohbetin planlı mesajları.
   List<ScheduledMessage> _scheduled = const [];
+
+  /// WhatsApp'ta yazılan yanıtlar Mesa'ya ekleniyor mu; öğrenilene dek açık
+  /// sayılır ki öneri bir an görünüp kaybolmasın.
+  bool _ownRepliesOn = true;
 
   /// Telegram'da gizli okuma açık ("görüldü" gönderilmez).
   bool _telegramGhost = false;
@@ -196,6 +201,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _load();
     _loadShareKinds();
+    _loadOwnReplies();
     _setActive(true);
     // Telegram sohbetlerinde son mesajlar sunucudan indirilir; gelince
     // değişiklik olayı listeyi yeniler.
@@ -232,8 +238,22 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (foreground) {
       _load();
       _confirmHandoff();
+      _loadOwnReplies();
     }
   }
+
+  /// WhatsApp sohbetinde: oradan yazılan yanıtlar Mesa'ya ekleniyor mu.
+  Future<void> _loadOwnReplies() async {
+    if (!_members.any((m) => ownReplyPackages.contains(m.packageName))) return;
+    final on = await ownRepliesEnabled(widget.bridge);
+    if (mounted && on != _ownRepliesOn) setState(() => _ownRepliesOn = on);
+  }
+
+  bool _showOwnRepliesNudge(MessagingApp app) =>
+      !_ownRepliesOn &&
+      ownReplyPackages.contains(_active.packageName) &&
+      !_showKeepNudge(app) &&
+      !(AppScope.maybeOf(context)?.prefs.ownRepliesNudgeDismissed ?? true);
 
   /// Kaynak uygulamada gönderilmek üzere açılan son mesaj: (sohbet, kayıt).
   (String, String)? _handoff;
@@ -896,6 +916,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   await AppScope.maybeOf(
                     context,
                   )?.prefs.dismissKeepNudge(_active.packageName);
+                  if (mounted) setState(() {});
+                },
+              ),
+            if (_showOwnRepliesNudge(app))
+              OwnRepliesNudge(
+                onEnable: () => enableOwnReplies(context, widget.bridge),
+                onDismiss: () async {
+                  await AppScope.maybeOf(
+                    context,
+                  )?.prefs.dismissOwnRepliesNudge();
                   if (mounted) setState(() {});
                 },
               ),

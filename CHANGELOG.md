@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.1 (unreleased)
+
+### New
+- **Your WhatsApp replies show up in Mesa.** Until now, a reply you typed inside WhatsApp never reached Mesa, so chats
+  looked one-sided. An optional accessibility service ("Mesa: my WhatsApp replies") adds what you send in WhatsApp to the
+  same chat in Mesa and marks chats you open in WhatsApp as read. It only receives WhatsApp and WhatsApp Business events,
+  reads only the message box, the Send button and the chat name, and only adds to chats that are already in Mesa. Turn it
+  on from Settings → Apps being read, or from the tip in a WhatsApp chat.
+
+### Fixed
+- **Chat bubbles closed right as they opened.** Opening the chat in the bubble marked it read, which removed its
+  notification, and Android closes a bubble together with its notification. A bubbling chat now keeps its bubble and is only
+  hidden from the notification shade. Deleting or snoozing the chat still closes the bubble.
+
 ## 1.2.0 (unreleased)
 
 Full VPN, focus mode, automatic backups and chat bubbles.

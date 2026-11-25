@@ -291,6 +291,11 @@ open class MainActivity : FlutterFragmentActivity() {
                 result.success(null)
             }
             "health" -> result.success(health())
+            "ownRepliesEnabled" -> result.success(OwnReplies.isEnabled(this))
+            "openOwnRepliesSettings" -> {
+                OwnReplies.openSettings(this)
+                result.success(null)
+            }
             "openBatterySettings" -> {
                 openBatterySettings()
                 result.success(null)
@@ -553,7 +558,7 @@ open class MainActivity : FlutterFragmentActivity() {
             "deleteConversation" -> background(result) {
                 val key = call.argument<String>("key")!!
                 store.deleteConversation(key)
-                UnifiedNotifier.cancel(this, key)
+                UnifiedNotifier.cancel(this, key, keepBubble = false)
                 UnifiedNotifier.removeShortcut(this, key)
             }
             "sendReply" -> {

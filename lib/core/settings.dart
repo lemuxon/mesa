@@ -190,6 +190,15 @@ class LocalPrefs {
     {...keepNudgeDismissed, packageName}.toList(),
   );
 
+  static const _ownRepliesNudgeKey = 'own_replies_nudge_dismissed';
+
+  /// WhatsApp sohbetlerindeki "yazdıklarınız da görünsün" önerisi kapatıldı.
+  bool get ownRepliesNudgeDismissed =>
+      _prefs.getBool(_ownRepliesNudgeKey) ?? false;
+
+  Future<void> dismissOwnRepliesNudge() =>
+      _prefs.setBool(_ownRepliesNudgeKey, true);
+
   // ---- Yedek ----
 
   static const _lastBackupKey = 'last_backup_at';

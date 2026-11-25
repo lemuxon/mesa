@@ -144,6 +144,14 @@ class CoreBridge {
   Future<void> openNotificationSettings() =>
       _channel.invokeMethod<void>('openNotificationSettings');
 
+  /// "WhatsApp'ta yazdıklarım da görünsün" (erişilebilirlik servisi) açık mı.
+  Future<bool> ownRepliesEnabled() async =>
+      await _channel.invokeMethod<bool>('ownRepliesEnabled') ?? false;
+
+  /// Servisin Android Erişilebilirlik ayarı.
+  Future<void> openOwnRepliesSettings() =>
+      _channel.invokeMethod<void>('openOwnRepliesSettings');
+
   /// Sistemin sohbet balonu ayarı (Android 11+).
   Future<void> openBubbleSettings() =>
       _channel.invokeMethod<void>('openBubbleSettings');
