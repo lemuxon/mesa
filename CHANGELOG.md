@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.1 (unreleased)
+## 1.0.1 (2026-11-25)
 
 Security and reliability fixes from a full code audit (November 2026).
 
