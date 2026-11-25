@@ -41,6 +41,9 @@ class _FakeBridge implements CoreBridge {
   final List<Message> messageList;
   bool unified;
   final ReplyMode mode;
+
+  /// WhatsApp yanıt servisi; null: eski yerel taraf gibi okunamaz.
+  bool? ownReplies;
   final opened = <String>[];
   final sentViaApp = <String>[];
   final replies = <String>[];
@@ -85,6 +88,10 @@ class _FakeBridge implements CoreBridge {
     sentViaApp.add(text);
     return true;
   }
+
+  @override
+  Future<bool> ownRepliesEnabled() async =>
+      ownReplies ?? (throw UnimplementedError());
 
   @override
   Future<void> sendReply(String key, String text) async => replies.add(text);
@@ -153,8 +160,10 @@ void main() {
       WidgetTester tester,
       List<Message> messages, {
       ReplyMode mode = ReplyMode.direct,
+      bool? ownReplies,
     }) async {
-      final bridge = _FakeBridge(messageList: messages, mode: mode);
+      final bridge = _FakeBridge(messageList: messages, mode: mode)
+        ..ownReplies = ownReplies;
       await tester.pumpWidget(
         MaterialApp(
           home: ChatScreen(
@@ -227,6 +236,29 @@ void main() {
         expect(bridge.replies, isEmpty);
       },
     );
+
+    testWidgets('yanıt servisi açıksa mesaj WhatsApp\'ta kendiliğinden gider', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        [_msg('1', 'selam')],
+        mode: ReplyMode.app,
+        ownReplies: true,
+      );
+      expect(find.textContaining('kendiliğinden gönderilir'), findsOneWidget);
+      expect(find.text('Otomatik gönder'), findsNothing);
+
+      await tester.pumpWidget(const SizedBox());
+      await pump(
+        tester,
+        [_msg('1', 'selam')],
+        mode: ReplyMode.app,
+        ownReplies: false,
+      );
+      expect(find.textContaining('hazır açılır'), findsOneWidget);
+      expect(find.text('Otomatik gönder'), findsOneWidget);
+    });
 
     testWidgets('web servisinde yazma alanı yerine servis sayfası', (
       tester,

@@ -42,13 +42,13 @@ Future<void> enableOwnReplies(BuildContext context, CoreBridge bridge) async {
   }
 }
 
-/// Servis açık mı; okunamazsa (eski yerel taraf, test) açık sayılır ki
-/// öneri boşuna görünmesin.
-Future<bool> ownRepliesEnabled(CoreBridge bridge) async {
+/// Servis açık mı; okunamazsa (eski yerel taraf, test) null: ne öneri
+/// gösterilir ne de "kendiliğinden gönderilir" denir.
+Future<bool?> ownRepliesEnabled(CoreBridge bridge) async {
   try {
     return await bridge.ownRepliesEnabled();
   } catch (_) {
-    return true;
+    return null;
   }
 }
 

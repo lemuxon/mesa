@@ -90,9 +90,9 @@ void main() {
     expect(bridge.opens, 1);
   });
 
-  test('durum okunamazsa açık sayılır (öneri boşuna çıkmasın)', () async {
+  test('durum okunamazsa bilinmiyor sayılır', () async {
     final bridge = _FakeBridge()..throws = true;
-    expect(await ownRepliesEnabled(bridge), isTrue);
+    expect(await ownRepliesEnabled(bridge), isNull);
     bridge.throws = false;
     expect(await ownRepliesEnabled(bridge), isFalse);
   });

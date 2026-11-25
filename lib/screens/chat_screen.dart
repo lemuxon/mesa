@@ -78,9 +78,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   /// Bu sohbetin planlı mesajları.
   List<ScheduledMessage> _scheduled = const [];
 
-  /// WhatsApp'ta yazılan yanıtlar Mesa'ya ekleniyor mu; öğrenilene dek açık
-  /// sayılır ki öneri bir an görünüp kaybolmasın.
-  bool _ownRepliesOn = true;
+  /// WhatsApp yanıt servisi açık mı; bilinmiyorsa null (öneri de otomatik
+  /// gönderim yazısı da gösterilmez).
+  bool? _ownReplies;
 
   /// Telegram'da gizli okuma açık ("görüldü" gönderilmez).
   bool _telegramGhost = false;
@@ -246,15 +246,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Future<void> _loadOwnReplies() async {
     if (!_members.any((m) => ownReplyPackages.contains(m.packageName))) return;
     final on = await ownRepliesEnabled(widget.bridge);
-    if (mounted && on != _ownRepliesOn) setState(() => _ownRepliesOn = on);
+    if (mounted && on != _ownReplies) setState(() => _ownReplies = on);
   }
 
   /// Yanıt servisi açık: WhatsApp'ta hazır açılan mesajı kendisi gönderir.
   bool get _autoSends =>
-      _ownRepliesOn && ownReplyPackages.contains(_active.packageName);
+      _ownReplies == true && ownReplyPackages.contains(_active.packageName);
 
   bool _showOwnRepliesNudge(MessagingApp app) =>
-      !_ownRepliesOn &&
+      _ownReplies == false &&
       ownReplyPackages.contains(_active.packageName) &&
       !_showKeepNudge(app) &&
       !(AppScope.maybeOf(context)?.prefs.ownRepliesNudgeDismissed ?? true);
@@ -1104,7 +1104,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       ),
                     ),
                     if (ownReplyPackages.contains(_active.packageName) &&
-                        !_autoSends)
+                        _ownReplies == false)
                       TextButton(
                         onPressed: () =>
                             enableOwnReplies(context, widget.bridge),
