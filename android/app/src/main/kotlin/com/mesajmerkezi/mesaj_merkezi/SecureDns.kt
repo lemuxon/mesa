@@ -80,6 +80,8 @@ object SecureDns {
      */
     fun start(context: Context): Boolean {
         if (!isPrepared(context)) return false
+        // Aynı anda tek VPN: açık WireGuard tüneli kapanır (sistem de zaten geri alırdı).
+        if (WireGuardVpn.activeId != null) WireGuardVpn.disconnect(context) { }
         prefs(context).edit().putBoolean(KEY_ENABLED, true).apply()
         lastStop = null
         client.provider = provider(context)

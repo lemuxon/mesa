@@ -37,7 +37,7 @@ class DnsTileService : TileService() {
     }
 
     private fun openPermissionScreen() {
-        val intent = Intent(this, DnsPermissionActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent = VpnPermissionActivity.intent(this).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         if (Build.VERSION.SDK_INT >= 34) {
             startActivityAndCollapse(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE))
         } else {

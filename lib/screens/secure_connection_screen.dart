@@ -4,20 +4,26 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/format.dart';
 import '../core/secure.dart';
 import '../ui/large_title.dart';
+import '../ui/text_dialog.dart';
 
-/// Şifreli DNS (bütün telefon), web servisleri için erişim kalkanı ve
-/// Telegram proxy'leri. Sunucu ya da hesap gerekmez.
+/// Şifreli DNS (bütün telefon), tam VPN (WireGuard), web servisleri için
+/// erişim kalkanı ve Telegram proxy'leri. Mesa'nın sunucusu ya da hesabı yok.
 class SecureConnectionScreen extends StatefulWidget {
   const SecureConnectionScreen({
     super.key,
     required this.bridge,
     this.onOpenTelegram,
+    this.pickFile,
     this.refreshInterval = const Duration(seconds: 2),
   });
 
   final SecureBridge bridge;
+
+  /// Dosya seçici (WireGuard .conf içe aktarma); içerik adresi ya da null.
+  final Future<String?> Function()? pickFile;
 
   /// Telegram henüz açılmadıysa proxy bölümündeki bağlantı buraya gider;
   /// dönünce proxy listesi yeniden okunur.
@@ -34,8 +40,12 @@ class _SecureConnectionScreenState extends State<SecureConnectionScreen> {
   SecureStatus? _status;
   List<TelegramProxy>? _proxies;
   bool _proxiesLoaded = false;
+  List<WireGuardTunnel> _tunnels = const [];
   Timer? _timer;
   bool _busy = false;
+
+  /// Bağlanılmakta olan tünel (düğme dönerken).
+  String? _connecting;
 
   /// Proxy kimliği (null: doğrudan) → ms; -1 ölçülüyor, -2 ulaşılamadı.
   final Map<int?, int> _pings = {};
@@ -45,7 +55,93 @@ class _SecureConnectionScreenState extends State<SecureConnectionScreen> {
     super.initState();
     _refresh();
     _loadProxies();
+    _loadTunnels();
     _timer = Timer.periodic(widget.refreshInterval, (_) => _refresh());
+  }
+
+  Future<void> _loadTunnels() async {
+    List<WireGuardTunnel> tunnels;
+    try {
+      tunnels = await widget.bridge.wireGuardTunnels();
+    } on PlatformException {
+      tunnels = const [];
+    }
+    if (mounted) setState(() => _tunnels = tunnels);
+  }
+
+  /// Yerel hata kodunun kullanıcıya gösterilecek açıklaması.
+  String _vpnError(String code) {
+    if (code.startsWith('BAD_CONFIG')) {
+      return tr(
+        'Yapılandırma okunamadı. Dosyanın bir WireGuard (.conf) dosyası olduğundan emin olun.',
+      );
+    }
+    return switch (code) {
+      'PERMISSION' => tr(
+        'Açılan pencerede "Tamam"a dokunarak VPN iznini verin.',
+      ),
+      'VPN_NOT_AUTHORIZED' => tr(
+        'VPN izni verilmedi. Açmak için yeniden deneyin.',
+      ),
+      'DNS_RESOLUTION_FAILURE' => tr(
+        'Sunucunun adresi çözülemedi. İnternet bağlantınızı kontrol edin.',
+      ),
+      'NO_PEER' => tr('Yapılandırmada sunucu ([Peer]) yok.'),
+      'TOO_LARGE' || 'READ' => tr('Dosya okunamadı.'),
+      _ => tr('Tünel açılamadı ({code}).', {'code': code}),
+    };
+  }
+
+  Future<void> _imported(WireGuardImport result) async {
+    if (!mounted) return;
+    if (result.error != null) {
+      _snack(_vpnError(result.error!));
+      return;
+    }
+    _snack(tr('WireGuard yapılandırması eklendi.'));
+    await _loadTunnels();
+  }
+
+  Future<void> _importFile() async {
+    final uri = await widget.pickFile?.call();
+    if (uri == null) return;
+    await _imported(await widget.bridge.importWireGuardFile(uri));
+  }
+
+  Future<void> _importPaste() async {
+    final clip = (await Clipboard.getData(Clipboard.kTextPlain))?.text ?? '';
+    if (!mounted) return;
+    final text = await showTextDialog(
+      context,
+      title: tr('WireGuard yapılandırması'),
+      confirmLabel: tr('İçe aktar'),
+      hint: '[Interface]\nPrivateKey = …\n\n[Peer]\n…',
+      initial: looksLikeWireGuardConfig(clip) ? clip.trim() : '',
+      maxLines: 8,
+    );
+    if (text == null || text.trim().isEmpty) return;
+    await _imported(await widget.bridge.importWireGuard('', text));
+  }
+
+  Future<void> _toggleTunnel(WireGuardTunnel tunnel, bool on) async {
+    setState(() => _connecting = tunnel.id);
+    final error = on
+        ? await widget.bridge.connectWireGuard(tunnel.id)
+        : await widget.bridge.disconnectWireGuard();
+    if (error != null && mounted) _snack(_vpnError(error));
+    if (error == 'PERMISSION') {
+      // İzin penceresinden sonra tünel arka planda açılır.
+      await Future<void>.delayed(const Duration(seconds: 2));
+    }
+    await _refresh();
+    await _loadTunnels();
+    if (mounted) setState(() => _connecting = null);
+  }
+
+  Future<void> _removeTunnel(WireGuardTunnel tunnel) async {
+    await widget.bridge.removeWireGuard(tunnel.id);
+    await _refresh();
+    await _loadTunnels();
   }
 
   @override
@@ -191,6 +287,7 @@ class _SecureConnectionScreenState extends State<SecureConnectionScreen> {
               children: [
                 _intro(context),
                 _dnsSection(context, status.dns),
+                _vpnSection(context, status.vpn),
                 _shieldSection(context, status.shield),
                 _telegramSection(context),
                 _about(context),
@@ -341,6 +438,118 @@ class _SecureConnectionScreenState extends State<SecureConnectionScreen> {
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  /// Açık tünelin canlı durum satırı.
+  String _vpnLine(VpnStatus vpn) {
+    final handshake = vpn.handshake;
+    if (handshake == null) {
+      return tr('Bağlanıyor… sunucudan henüz yanıt yok');
+    }
+    final seconds = DateTime.now().difference(handshake).inSeconds;
+    final traffic = tr('↓ {rx} · ↑ {tx}', {
+      'rx': formatSize(vpn.rx),
+      'tx': formatSize(vpn.tx),
+    });
+    // WireGuard en geç ~2 dakikada bir yeniden el sıkışır.
+    if (seconds > 180) {
+      return '${tr('Sunucudan uzun süredir yanıt yok')} · $traffic';
+    }
+    return '${tr('Bağlı')} · $traffic';
+  }
+
+  Widget _vpnSection(BuildContext context, VpnStatus vpn) {
+    return SectionCard(
+      title: tr('Tam VPN (WireGuard)'),
+      children: [
+        if (_tunnels.isEmpty)
+          ListTile(
+            leading: const Icon(Icons.vpn_key_outlined),
+            title: Text(
+              tr(
+                'Bütün trafiğiniz kendi WireGuard sunucunuz ya da bir VPN sağlayıcısı üzerinden geçer; IP adresiniz değişir.',
+              ),
+            ),
+            subtitle: Text(
+              tr(
+                'Yapılandırma dosyasını kendi sunucunuzdan ya da WireGuard dosyası veren bir sağlayıcıdan (ör. Proton VPN\'in ücretsiz planı) alabilirsiniz.',
+              ),
+            ),
+          ),
+        for (final tunnel in _tunnels)
+          ListTile(
+            leading: Icon(
+              tunnel.id == vpn.activeId
+                  ? Icons.vpn_lock_rounded
+                  : Icons.vpn_key_outlined,
+              color: tunnel.id == vpn.activeId
+                  ? Theme.of(context).colorScheme.primary
+                  : null,
+            ),
+            title: Text(tunnel.name),
+            subtitle: Text(
+              tunnel.broken
+                  ? tr(
+                      'Bu yapılandırma bu telefonda açılamıyor; silip yeniden içe aktarın.',
+                    )
+                  : tunnel.id == vpn.activeId
+                  ? _vpnLine(vpn)
+                  : [
+                      ...tunnel.endpoints,
+                      if (!tunnel.fullTunnel) tr('yalnızca bazı adresler'),
+                    ].join(' · '),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_connecting == tunnel.id)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else if (!tunnel.broken)
+                  Switch(
+                    value: tunnel.id == vpn.activeId,
+                    onChanged: _connecting == null
+                        ? (v) => _toggleTunnel(tunnel, v)
+                        : null,
+                  ),
+                PopupMenuButton<String>(
+                  onSelected: (_) => _removeTunnel(tunnel),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 'remove', child: Text(tr('Sil'))),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        if (widget.pickFile != null)
+          ListTile(
+            leading: const Icon(Icons.file_open_outlined),
+            title: Text(tr('Dosyadan içe aktar')),
+            subtitle: const Text('.conf'),
+            onTap: _importFile,
+          ),
+        ListTile(
+          leading: const Icon(Icons.content_paste_rounded),
+          title: Text(tr('Panodan yapıştır')),
+          onTap: _importPaste,
+        ),
+        if (_tunnels.isNotEmpty)
+          ListTile(
+            leading: const Icon(Icons.block_rounded),
+            title: Text(tr('Bağlantı yoksa interneti kes')),
+            subtitle: Text(
+              tr(
+                'Sistemin VPN ayarlarında Mesa için "Her zaman açık VPN" ve "VPN olmadan bağlantıları engelle"yi açın.',
+              ),
+            ),
+            trailing: const Icon(Icons.open_in_new_rounded),
+            onTap: widget.bridge.openVpnSettings,
+          ),
       ],
     );
   }

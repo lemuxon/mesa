@@ -151,6 +151,10 @@ dependencies {
     implementation("androidx.webkit:webkit:1.14.0")
     // Web servisi ekrani da uygulama kilidine uysun (local_auth ile ayni surum).
     implementation("androidx.biometric:biometric:1.1.0")
+    // Tam VPN: kullanicinin WireGuard yapilandirmasi (resmi kitaplik, Apache 2.0).
+    implementation("com.wireguard.android:tunnel:1.0.20260102")
+    // Otomatik sifreli yedek: duzenli arka plan isi.
+    implementation("androidx.work:work-runtime-ktx:2.12.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.14.1")
     testImplementation("androidx.test:core:1.6.1")

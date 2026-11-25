@@ -128,9 +128,9 @@
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
         </service>
-        <!-- VPN izni penceresini açan görünmez ara ekran. -->
+        <!-- VPN izni penceresini açan görünmez ara ekran (şifreli DNS ve WireGuard). -->
         <activity
-            android:name=".DnsPermissionActivity"
+            android:name=".VpnPermissionActivity"
             android:excludeFromRecents="true"
             android:exported="false"
             android:taskAffinity=""

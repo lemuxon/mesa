@@ -116,17 +116,108 @@ class ShieldStatus {
   final int failures;
 }
 
+/// WireGuard tünelinin canlı durumu.
+class VpnStatus {
+  const VpnStatus({
+    this.activeId,
+    this.rx = 0,
+    this.tx = 0,
+    this.handshake,
+    this.lastError,
+  });
+
+  factory VpnStatus.fromMap(Map<Object?, Object?> m) => VpnStatus(
+    activeId: m['activeId'] as String?,
+    rx: _int(m['rx']),
+    tx: _int(m['tx']),
+    handshake: _int(m['handshake']) > 0
+        ? DateTime.fromMillisecondsSinceEpoch(_int(m['handshake']))
+        : null,
+    lastError: m['lastError'] as String?,
+  );
+
+  /// Açık tünelin kimliği; kapalıysa null.
+  final String? activeId;
+  final int rx;
+  final int tx;
+
+  /// Sunucuyla son el sıkışma; hiç olmadıysa null (sunucu yanıt vermiyor).
+  final DateTime? handshake;
+  final String? lastError;
+}
+
+/// İçe aktarılmış WireGuard yapılandırması (özel anahtar arayüze gelmez).
+class WireGuardTunnel {
+  const WireGuardTunnel({
+    required this.id,
+    required this.name,
+    this.endpoints = const [],
+    this.addresses = const [],
+    this.dns = const [],
+    this.fullTunnel = true,
+    this.active = false,
+    this.broken = false,
+  });
+
+  factory WireGuardTunnel.fromMap(Map<Object?, Object?> m) => WireGuardTunnel(
+    id: m['id'] as String? ?? '',
+    name: m['name'] as String? ?? '',
+    endpoints: [...?(m['endpoints'] as List?)?.cast<String>()],
+    addresses: [...?(m['addresses'] as List?)?.cast<String>()],
+    dns: [...?(m['dns'] as List?)?.cast<String>()],
+    fullTunnel: m['fullTunnel'] as bool? ?? true,
+    active: m['active'] as bool? ?? false,
+    broken: m['broken'] as bool? ?? false,
+  );
+
+  final String id;
+  final String name;
+  final List<String> endpoints;
+  final List<String> addresses;
+  final List<String> dns;
+
+  /// Bütün trafik tünelden mi geçiyor (0.0.0.0/0).
+  final bool fullTunnel;
+  final bool active;
+
+  /// Bu telefonda açılamıyor (ör. sıfırlama sonrası); silinip yeniden eklenmeli.
+  final bool broken;
+}
+
+/// İçe aktarma sonucu: başarılıysa kimlik, değilse hata kodu.
+class WireGuardImport {
+  const WireGuardImport({this.id, this.error});
+
+  factory WireGuardImport.fromMap(Map<Object?, Object?> m) =>
+      WireGuardImport(id: m['id'] as String?, error: m['error'] as String?);
+
+  final String? id;
+
+  /// BAD_CONFIG…, NO_PEER, TOO_LARGE, READ.
+  final String? error;
+}
+
 class SecureStatus {
-  const SecureStatus({required this.dns, required this.shield});
+  const SecureStatus({
+    required this.dns,
+    required this.shield,
+    this.vpn = const VpnStatus(),
+  });
 
   factory SecureStatus.fromMap(Map<Object?, Object?> m) => SecureStatus(
     dns: SecureDnsStatus.fromMap((m['dns'] as Map?) ?? const {}),
     shield: ShieldStatus.fromMap((m['shield'] as Map?) ?? const {}),
+    vpn: VpnStatus.fromMap((m['vpn'] as Map?) ?? const {}),
   );
 
   final SecureDnsStatus dns;
   final ShieldStatus shield;
+  final VpnStatus vpn;
 }
+
+/// Metin bir WireGuard yapılandırmasına benziyor mu (panodan önerirken).
+bool looksLikeWireGuardConfig(String text) =>
+    text.contains('[Interface]') && text.contains('PrivateKey');
 
 /// TDLib'e eklenmiş Telegram proxy'si (anahtar ve parola arayüze gelmez).
 class TelegramProxy {
@@ -302,4 +393,39 @@ class SecureBridge {
   /// Telegram'a gidiş-dönüş (ms); [id] null ise proxy'siz. Ulaşılamazsa null.
   Future<int?> pingTelegram(int? id) async =>
       (await _channel.invokeMethod<num>('tgProxyPing', {'id': id}))?.toInt();
+
+  Future<List<WireGuardTunnel>> wireGuardTunnels() async =>
+      (await _channel.invokeListMethod<Map<Object?, Object?>>('wgTunnels') ??
+              const [])
+          .map(WireGuardTunnel.fromMap)
+          .toList();
+
+  Future<WireGuardImport> importWireGuard(String name, String text) async =>
+      WireGuardImport.fromMap(
+        (await _channel.invokeMapMethod<Object?, Object?>('wgImport', {
+              'name': name,
+              'text': text,
+            })) ??
+            const {},
+      );
+
+  /// Seçilen .conf dosyasını (içerik adresi) içe aktarır.
+  Future<WireGuardImport> importWireGuardFile(String uri) async =>
+      WireGuardImport.fromMap(
+        (await _channel.invokeMapMethod<Object?, Object?>('wgImportUri', {
+              'uri': uri,
+            })) ??
+            const {},
+      );
+
+  /// null: açıldı; "PERMISSION": sistemin VPN izni penceresi açıldı;
+  /// diğer: hata kodu (VPN_NOT_AUTHORIZED, DNS_RESOLUTION_FAILURE, …).
+  Future<String?> connectWireGuard(String id) =>
+      _channel.invokeMethod<String>('wgConnect', {'id': id});
+
+  Future<String?> disconnectWireGuard() =>
+      _channel.invokeMethod<String>('wgDisconnect');
+
+  Future<void> removeWireGuard(String id) =>
+      _channel.invokeMethod<void>('wgRemove', {'id': id});
 }

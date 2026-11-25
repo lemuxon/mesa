@@ -301,6 +301,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                         MaterialPageRoute<void>(
                           builder: (_) => SecureConnectionScreen(
                             bridge: SecureBridge(),
+                            pickFile: widget.bridge.pickBackupFile,
                             onOpenTelegram: () => Navigator.of(context).push(
                               MaterialPageRoute<void>(
                                 builder: (_) =>

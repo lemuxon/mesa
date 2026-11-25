@@ -60,6 +60,44 @@ class _FakeSecureBridge extends SecureBridge {
     calls.add('ping:$id');
     return id == null ? null : 120;
   }
+
+  List<WireGuardTunnel> tunnels = [];
+  String? activeTunnel;
+
+  @override
+  Future<List<WireGuardTunnel>> wireGuardTunnels() async => tunnels;
+
+  @override
+  Future<String?> connectWireGuard(String id) async {
+    calls.add('wg:$id');
+    activeTunnel = id;
+    running = false; // aynı anda tek VPN
+    return null;
+  }
+
+  @override
+  Future<String?> disconnectWireGuard() async {
+    calls.add('wg:off');
+    activeTunnel = null;
+    return null;
+  }
+}
+
+class _VpnFakeBridge extends _FakeSecureBridge {
+  @override
+  Future<SecureStatus> status() async {
+    final base = await super.status();
+    return SecureStatus(
+      dns: base.dns,
+      shield: base.shield,
+      vpn: VpnStatus(
+        activeId: activeTunnel,
+        rx: 2 * 1024 * 1024,
+        tx: 512 * 1024,
+        handshake: activeTunnel == null ? null : DateTime.now(),
+      ),
+    );
+  }
 }
 
 Future<void> _open(WidgetTester tester, _FakeSecureBridge bridge) async {
@@ -160,6 +198,40 @@ void main() {
     expect(find.text('Açık · AdGuard DNS'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('WireGuard tüneli bağlanır ve durumu görünür', (tester) async {
+    final bridge = _VpnFakeBridge()
+      ..tunnels = const [
+        WireGuardTunnel(
+          id: '1',
+          name: 'Ev sunucusu',
+          endpoints: ['vpn.example.com:51820'],
+        ),
+      ];
+    await _open(tester, bridge);
+    expect(find.text('Tam VPN (WireGuard)'), findsOneWidget);
+    expect(find.text('Ev sunucusu'), findsOneWidget);
+    expect(find.text('vpn.example.com:51820'), findsOneWidget);
+
+    await tester.tap(
+      find.descendant(
+        of: find.widgetWithText(ListTile, 'Ev sunucusu'),
+        matching: find.byType(Switch),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(bridge.calls, contains('wg:1'));
+    expect(find.textContaining('Bağlı'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  test('WireGuard yapılandırması panodan tanınır', () {
+    expect(
+      looksLikeWireGuardConfig('[Interface]\nPrivateKey = abc\n[Peer]'),
+      isTrue,
+    );
+    expect(looksLikeWireGuardConfig('tg://proxy?server=a'), isFalse);
   });
 
   testWidgets('erişim kalkanı açılır', (tester) async {
