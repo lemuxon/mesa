@@ -3,12 +3,16 @@ package com.mesajmerkezi.mesaj_merkezi
 import android.content.Context
 import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
+import android.os.Build
 import android.util.Log
 import org.json.JSONObject
 import java.io.File
 import java.io.FilterOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 import java.util.zip.ZipEntry
@@ -126,7 +130,7 @@ object Backup {
                     db.copyTo(staged, overwrite = true)
                     Hub.closeStore()
                     // Aynı klasörde yeniden adlandırma tek adımda olur (yarım dosya kalmaz).
-                    if (!staged.renameTo(live)) throw java.io.IOException("veritabanı yerine konamadı")
+                    replaceAtomically(staged, live)
                 } finally {
                     staged.delete()
                 }
@@ -146,6 +150,26 @@ object Backup {
         } finally {
             temp.deleteRecursively()
             password.fill('\u0000')
+        }
+    }
+
+    /**
+     * [source]'u tek adımda [target]'ın yerine koyar (ikisi aynı klasörde).
+     * Android'de (Linux) yeniden adlandırma var olan hedefi zaten değiştirir,
+     * ama File.renameTo Windows'ta hedef varsa başarısız olur; Robolectric
+     * testleri bilgisayarda bu yoldan geçer. Files.move (API 26+) her iki
+     * sistemde de atomik değiştirir ve hata olursa sebebini söyler.
+     */
+    internal fun replaceAtomically(source: File, target: File) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Files.move(
+                source.toPath(),
+                target.toPath(),
+                StandardCopyOption.ATOMIC_MOVE,
+                StandardCopyOption.REPLACE_EXISTING,
+            )
+        } else if (!source.renameTo(target)) {
+            throw IOException("veritabanı yerine konamadı: ${target.name}")
         }
     }
 

@@ -87,4 +87,21 @@ class BackupTest {
         assertTrue(error is WrongPasswordException)
         assertEquals(listOf("Eski", "Yeni"), Hub.store(context).messages(key).map { it["text"] })
     }
+
+    @Test
+    fun `hazirlanan veritabani var olan dosyanin yerine tek adimda gecer`() {
+        val dir = File(context.cacheDir, "degisim").apply {
+            deleteRecursively()
+            mkdirs()
+        }
+        val live = File(dir, "mesajlar.db").apply { writeText("eski") }
+        val staged = File(dir, "mesajlar.db.geri").apply { writeText("yeni") }
+
+        // Windows'ta File.renameTo burada false döner; değişim her sistemde çalışmalı.
+        Backup.replaceAtomically(staged, live)
+
+        assertEquals("yeni", live.readText())
+        assertTrue(!staged.exists())
+        dir.deleteRecursively()
+    }
 }
