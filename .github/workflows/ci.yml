@@ -56,6 +56,27 @@ jobs:
         working-directory: android
         run: ./gradlew :app:testDebugUnitTest --no-daemon
 
+      - name: Başarısız testleri özetle
+        if: failure()
+        # Her başarısız test, adı ve hatasının ilk satırlarıyla iş özetinde görünür.
+        run: |
+          python3 - <<'EOF'
+          import glob
+          import xml.etree.ElementTree as ET
+
+          def prop(value):
+              return value.replace('%', '%25').replace('\r', '').replace('\n', '%0A').replace(':', '%3A').replace(',', '%2C')
+
+          for path in sorted(glob.glob('build/app/test-results/testDebugUnitTest/*.xml')):
+              suite = ET.parse(path).getroot()
+              for case in suite.iter('testcase'):
+                  for bad in case.findall('failure') + case.findall('error'):
+                      lines = (bad.text or bad.get('message') or '').strip().splitlines()[:12]
+                      message = '\n'.join(lines).replace('%', '%25').replace('\r', '').replace('\n', '%0A')
+                      title = prop(f"{suite.get('name', '').rsplit('.', 1)[-1]} > {case.get('name', '')}")
+                      print(f'::error title={title}::{message}')
+          EOF
+
       - name: Test raporları
         if: failure()
         uses: actions/upload-artifact@v7
