@@ -249,6 +249,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (mounted && on != _ownRepliesOn) setState(() => _ownRepliesOn = on);
   }
 
+  /// Yanıt servisi açık: WhatsApp'ta hazır açılan mesajı kendisi gönderir.
+  bool get _autoSends =>
+      _ownRepliesOn && ownReplyPackages.contains(_active.packageName);
+
   bool _showOwnRepliesNudge(MessagingApp app) =>
       !_ownRepliesOn &&
       ownReplyPackages.contains(_active.packageName) &&
@@ -270,11 +274,23 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _confirmHandoff() {
+  Future<void> _confirmHandoff() async {
     final handoff = _handoff;
     if (handoff == null || !mounted) return;
     _handoff = null;
     final (key, id) = handoff;
+    // Yanıt servisi WhatsApp'ta Gönder'e kendisi bastıysa sormaya gerek yok.
+    var autoSent = false;
+    try {
+      autoSent = await widget.bridge.takeAutoSent(key);
+    } catch (_) {
+      // Eski yerel taraf ya da test.
+    }
+    if (!mounted) return;
+    if (autoSent) {
+      _snack(tr('Gönderildi'));
+      return;
+    }
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -1073,15 +1089,27 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        tr(
-                          'Mesajınız {name}\'ta hazır açılır; orada ➤ ile gönderin.',
-                          {'name': app.name},
-                        ),
+                        _autoSends
+                            ? tr(
+                                'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.',
+                                {'name': app.name},
+                              )
+                            : tr(
+                                'Mesajınız {name}\'ta hazır açılır; orada ➤ ile gönderin.',
+                                {'name': app.name},
+                              ),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
                       ),
                     ),
+                    if (ownReplyPackages.contains(_active.packageName) &&
+                        !_autoSends)
+                      TextButton(
+                        onPressed: () =>
+                            enableOwnReplies(context, widget.bridge),
+                        child: Text(tr('Otomatik gönder')),
+                      ),
                   ],
                 ),
               ),

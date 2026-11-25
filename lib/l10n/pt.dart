@@ -855,9 +855,17 @@ const pt = <String, String>{
   '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
   // 1.2.1: WhatsApp'ta yazılan yanıtlar
   'Ayarı aç': 'Abrir configuração',
-  'WhatsApp\'ta Gönder\'e bastığınızda yazdığınız mesaj Mesa\'daki aynı sohbete eklenir; WhatsApp\'ta açtığınız sohbet burada da okunmuş sayılır.\n\nAçılan sayfada "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.': 'Quando você toca em Enviar no WhatsApp, sua mensagem é adicionada à mesma conversa no Mesa, e as conversas que você abre no WhatsApp também ficam como lidas aqui.\n\nNa próxima página, ative "Mesa: minhas respostas do WhatsApp". Só o WhatsApp é lido e nada sai do seu telefone.\n\nSe a opção estiver esmaecida: Informações do app → ⋮ → Permitir configurações restritas.',
   'WhatsApp\'ta yazdıklarım': 'O que escrevo no WhatsApp',
-  'WhatsApp\'ta yazdıklarınız da görünsün': 'Mostrar também o que você escreve no WhatsApp',
-  'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; orada açtığınız sohbet burada da okunur': 'As respostas que você envia pelo WhatsApp também aparecem na conversa; as conversas que você abre lá ficam como lidas aqui',
-  'WhatsApp\'tan yazdığınız yanıtlar burada görünmüyor. Görünsün mü?': 'As respostas que você escreve no WhatsApp não aparecem aqui. Mostrar?',
+  'WhatsApp\'ta yazdıklarınız da görünsün':
+      'Mostrar também o que você escreve no WhatsApp',
+  'WhatsApp\'tan yazdığınız yanıtlar burada görünmüyor. Görünsün mü?':
+      'As respostas que você escreve no WhatsApp não aparecem aqui. Mostrar?',
+  // 1.2.1: otomatik gönderim
+  'Bu servis iki şey yapar:\n• WhatsApp\'ta yazdığınız yanıtlar Mesa\'daki aynı sohbete eklenir; orada açtığınız sohbet burada da okunur.\n• Mesa\'dan yazdığınız mesaj WhatsApp\'ta hazır açılınca Gönder\'e kendisi basar ve sizi Mesa\'ya geri getirir.\n\nAçılan sayfada "İndirilen uygulamalar"a girip "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.':
+      'Este serviço faz duas coisas:\n• As respostas que você escreve no WhatsApp são adicionadas à mesma conversa no Mesa, e as conversas que você abre lá ficam como lidas aqui.\n• Quando uma mensagem que você escreveu no Mesa abre no WhatsApp, ele toca em Enviar por você e traz você de volta ao Mesa.\n\nNa próxima página, abra "Apps baixados" e ative "Mesa: minhas respostas do WhatsApp". Só o WhatsApp é lido e nada sai do seu telefone.\n\nSe a opção estiver esmaecida: Informações do app → ⋮ → Permitir configurações restritas.',
+  'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; Mesa\'dan yazdıklarınız WhatsApp\'ta kendiliğinden gönderilir':
+      'As respostas que você envia pelo WhatsApp também aparecem na conversa; as mensagens que você escreve no Mesa são enviadas sozinhas no WhatsApp',
+  'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
+      'Sua mensagem é enviada sozinha no {name} e depois você volta para cá.',
+  'Otomatik gönder': 'Envio automático',
 };

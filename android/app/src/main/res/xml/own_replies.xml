@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Yalnizca WhatsApp ve WhatsApp Business: mesaj kutusu, Gonder dugmesi, sohbet adi (OwnReplies.kt). -->
+<!-- Yalnizca WhatsApp ve WhatsApp Business: mesaj kutusu, Gonder dugmesi, sohbet adi (OwnReplies.kt).
+     Hareket izni: Mesa'dan yazilan mesajda Gonder'e dokunmak icin (2.26'da dugme erisilebilir tiklama kabul etmiyor). -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeViewClicked|typeViewTextChanged|typeWindowStateChanged"
+    android:accessibilityEventTypes="typeViewClicked|typeViewTextChanged|typeWindowStateChanged|typeWindowContentChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagReportViewIds"
+    android:canPerformGestures="true"
     android:canRetrieveWindowContent="true"
     android:description="@string/own_replies_desc"
     android:isAccessibilityTool="false"

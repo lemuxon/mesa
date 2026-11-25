@@ -94,6 +94,14 @@ class ReplyTrackerTest {
     }
 
     @Test
+    fun autoSendIsNotCapturedAgain() {
+        type("Yoldayım")
+        tracker.onAutoSend("Yoldayım")
+        clock += 300
+        assertNull(clear("Yoldayım"))
+    }
+
+    @Test
     fun screenChangeDropsDraft() {
         type("Taslak")
         tracker.reset()
@@ -138,7 +146,7 @@ class OwnRepliesTest {
         incoming("Akşam geliyor musun?")
         assertEquals(1, unread())
         // WhatsApp başlığı görünmez yön işaretiyle başlayabilir.
-        assertTrue(OwnReplies.record(context, wa, "‎Ayşe", "Geliyorum"))
+        assertTrue(OwnReplies.record(context, wa, "\u200EAyşe", "Geliyorum"))
         val messages = Hub.store(context).messages(key)
         assertEquals(listOf("Akşam geliyor musun?", "Geliyorum"), messages.map { it["text"] })
         assertEquals(true, messages.last()["outgoing"])
@@ -171,6 +179,59 @@ class OwnRepliesTest {
             "com.example/.Reader:$own",
         )
         assertTrue(OwnReplies.isEnabled(context))
+    }
+
+    private fun enableService(on: Boolean) {
+        val own = ComponentName(context, OwnReplyService::class.java).flattenToString()
+        Settings.Secure.putString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+            if (on) own else "",
+        )
+    }
+
+    @Test
+    fun autoSendOnlyWhenChatAndTextMatch() {
+        val now = 1_000L
+        val pending = OwnReplies.PendingSend(wa, key, "Ayşe", "Geliyorum", until = now + 15_000, returnToMesa = true)
+        assertTrue(OwnReplies.shouldAutoSend(pending, wa, "\u200EAyşe", " Geliyorum ", now))
+        // Başka sohbet, başka metin, başka uygulama ya da süre dolmuş: dokunulmaz.
+        assertFalse(OwnReplies.shouldAutoSend(pending, wa, "Mehmet", "Geliyorum", now))
+        assertFalse(OwnReplies.shouldAutoSend(pending, wa, "Ayşe", "Geliyorum ama", now))
+        assertFalse(OwnReplies.shouldAutoSend(pending, wa, "Ayşe", "", now))
+        assertFalse(OwnReplies.shouldAutoSend(pending, wa, null, "Geliyorum", now))
+        assertFalse(OwnReplies.shouldAutoSend(pending, "com.whatsapp.w4b", "Ayşe", "Geliyorum", now))
+        assertFalse(OwnReplies.shouldAutoSend(pending, wa, "Ayşe", "Geliyorum", now + 15_001))
+    }
+
+    @Test
+    fun autoSendNeedsTheServiceAndWhatsApp() {
+        enableService(false)
+        assertFalse(OwnReplies.expectSend(context, wa, key, "Selam", returnToMesa = true))
+        enableService(true)
+        assertFalse(OwnReplies.expectSend(context, "org.telegram.messenger", "tg|1", "Selam", returnToMesa = true))
+        assertFalse(OwnReplies.expectSend(context, wa, key, "   ", returnToMesa = true))
+        assertTrue(OwnReplies.expectSend(context, wa, key, " Selam ", returnToMesa = false))
+        val pending = OwnReplies.pendingSend!!
+        assertEquals("Ayşe", pending.title)
+        assertEquals("Selam", pending.text)
+        assertFalse(pending.returnToMesa)
+        OwnReplies.pendingSend = null
+    }
+
+    @Test
+    fun autoSentMessageIsNotRecordedTwice() {
+        incoming("Neredesin?")
+        // Mesa mesajı WhatsApp'a vermeden önce kendisi kaydeder.
+        Hub.store(context).recordOutgoing(key, "Yoldayım")
+        OwnReplies.markSending(key, "Yoldayım")
+        assertFalse(OwnReplies.record(context, wa, "Ayşe", "Yoldayım"))
+        assertEquals(1, Hub.store(context).messages(key).count { it["text"] == "Yoldayım" })
+        // Dönüşte bir kez "gönderildi" denir.
+        assertFalse(OwnReplies.takeAutoSent(key))
+        OwnReplies.markAutoSent(key)
+        assertTrue(OwnReplies.takeAutoSent(key))
+        assertFalse(OwnReplies.takeAutoSent(key))
     }
 
     private fun post(tag: String, bubble: Boolean) {

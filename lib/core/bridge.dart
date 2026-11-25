@@ -148,6 +148,11 @@ class CoreBridge {
   Future<bool> ownRepliesEnabled() async =>
       await _channel.invokeMethod<bool>('ownRepliesEnabled') ?? false;
 
+  /// Mesa'nın WhatsApp'ta hazır açtığı mesajı yanıt servisi gönderdi mi
+  /// (bir kez sorulur).
+  Future<bool> takeAutoSent(String key) async =>
+      await _channel.invokeMethod<bool>('takeAutoSent', {'key': key}) ?? false;
+
   /// Servisin Android Erişilebilirlik ayarı.
   Future<void> openOwnRepliesSettings() =>
       _channel.invokeMethod<void>('openOwnRepliesSettings');

@@ -107,7 +107,7 @@
     <string name="focus_tile_on">يمكن لأشخاص VIP فقط الوصول إليك</string>
     <string name="focus_and_more">%1$s و%2$d آخرون</string>
     <string name="own_replies_label">Mesa: ردودي في WhatsApp</string>
-    <string name="own_replies_desc">يضيف الرسائل التي ترسلها في WhatsApp إلى المحادثة نفسها في Mesa، ويعلّم المحادثات التي تفتحها في WhatsApp كمقروءة. يُقرأ WhatsApp فقط: مربع الرسالة وزر الإرسال واسم المحادثة. لا يغادر أي شيء هاتفك.</string>
+    <string name="own_replies_desc">يضيف الرسائل التي ترسلها في WhatsApp إلى المحادثة نفسها في Mesa، ويعلّم المحادثات التي تفتحها في WhatsApp كمقروءة. وعندما تُفتح رسالة كتبتها في Mesa داخل WhatsApp، يلمس زر الإرسال نيابةً عنك. يُقرأ WhatsApp فقط: مربع الرسالة وزر الإرسال واسم المحادثة. لا يغادر أي شيء هاتفك.</string>
     <string name="backup_channel">النسخ الاحتياطية</string>
     <string name="backup_auto_failed">فشل النسخ الاحتياطي التلقائي</string>
     <string name="backup_auto_failed_text">افتح Mesa ← الإعدادات ← النسخ الاحتياطي للتحقق من المجلد.</string>

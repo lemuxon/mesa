@@ -851,9 +851,17 @@ const ru = <String, String>{
   '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
   // 1.2.1: WhatsApp'ta yazılan yanıtlar
   'Ayarı aç': 'Открыть настройку',
-  'WhatsApp\'ta Gönder\'e bastığınızda yazdığınız mesaj Mesa\'daki aynı sohbete eklenir; WhatsApp\'ta açtığınız sohbet burada da okunmuş sayılır.\n\nAçılan sayfada "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.': 'Когда вы нажимаете «Отправить» в WhatsApp, сообщение добавляется в тот же чат в Mesa, а чаты, открытые в WhatsApp, и здесь отмечаются прочитанными.\n\nНа следующей странице включите «Mesa: мои ответы в WhatsApp». Читается только WhatsApp, и ничего не покидает телефон.\n\nЕсли настройка неактивна: О приложении → ⋮ → Разрешить настройки с ограниченным доступом.',
   'WhatsApp\'ta yazdıklarım': 'Мои сообщения из WhatsApp',
-  'WhatsApp\'ta yazdıklarınız da görünsün': 'Показывать и то, что вы пишете в WhatsApp',
-  'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; orada açtığınız sohbet burada da okunur': 'Ответы, отправленные из WhatsApp, тоже видны в чате; чаты, открытые там, здесь отмечаются прочитанными',
-  'WhatsApp\'tan yazdığınız yanıtlar burada görünmüyor. Görünsün mü?': 'Ответы, которые вы пишете в WhatsApp, здесь не видны. Показывать?',
+  'WhatsApp\'ta yazdıklarınız da görünsün':
+      'Показывать и то, что вы пишете в WhatsApp',
+  'WhatsApp\'tan yazdığınız yanıtlar burada görünmüyor. Görünsün mü?':
+      'Ответы, которые вы пишете в WhatsApp, здесь не видны. Показывать?',
+  // 1.2.1: otomatik gönderim
+  'Bu servis iki şey yapar:\n• WhatsApp\'ta yazdığınız yanıtlar Mesa\'daki aynı sohbete eklenir; orada açtığınız sohbet burada da okunur.\n• Mesa\'dan yazdığınız mesaj WhatsApp\'ta hazır açılınca Gönder\'e kendisi basar ve sizi Mesa\'ya geri getirir.\n\nAçılan sayfada "İndirilen uygulamalar"a girip "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.':
+      'Этот сервис делает две вещи:\n• Ответы, которые вы пишете в WhatsApp, добавляются в тот же чат в Mesa, а чаты, открытые там, здесь отмечаются прочитанными.\n• Когда сообщение, написанное в Mesa, открывается в WhatsApp, он сам нажимает «Отправить» и возвращает вас в Mesa.\n\nНа следующей странице откройте «Скачанные приложения» и включите «Mesa: мои ответы в WhatsApp». Читается только WhatsApp, и ничего не покидает телефон.\n\nЕсли настройка неактивна: О приложении → ⋮ → Разрешить настройки с ограниченным доступом.',
+  'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; Mesa\'dan yazdıklarınız WhatsApp\'ta kendiliğinden gönderilir':
+      'Ответы, отправленные из WhatsApp, тоже видны в чате; сообщения, написанные в Mesa, отправляются в WhatsApp автоматически',
+  'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
+      'Сообщение отправится в {name} автоматически, затем вы вернётесь сюда.',
+  'Otomatik gönder': 'Автоотправка',
 };

@@ -18,7 +18,7 @@ Future<void> enableOwnReplies(BuildContext context, CoreBridge bridge) async {
       content: SingleChildScrollView(
         child: Text(
           tr(
-            'WhatsApp\'ta Gönder\'e bastığınızda yazdığınız mesaj Mesa\'daki aynı sohbete eklenir; WhatsApp\'ta açtığınız sohbet burada da okunmuş sayılır.\n\nAçılan sayfada "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.',
+            'Bu servis iki şey yapar:\n• WhatsApp\'ta yazdığınız yanıtlar Mesa\'daki aynı sohbete eklenir; orada açtığınız sohbet burada da okunur.\n• Mesa\'dan yazdığınız mesaj WhatsApp\'ta hazır açılınca Gönder\'e kendisi basar ve sizi Mesa\'ya geri getirir.\n\nAçılan sayfada "İndirilen uygulamalar"a girip "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.',
           ),
         ),
       ),

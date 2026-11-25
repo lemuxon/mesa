@@ -34,7 +34,7 @@ Check a downloaded APK with `apksigner verify --print-certs Mesa.apk` (Android S
 - **Secure connection:** secure DNS (DNS over HTTPS) for the whole phone with Cloudflare 1.1.1.1, AdGuard (blocks ads and trackers), Quad9 or Google, plus a quick settings tile; an access shield that lets Mesa's web services through DNS and SNI blocks without a VPN; Telegram proxies (MTProto / SOCKS5); and a **full VPN** with your own WireGuard configuration.
 - **Focus mode:** only VIPs, important messages and emergencies get through, on demand or on a schedule, with a summary afterwards and a quick settings tile.
 - **Automatic encrypted backups** to a folder you choose, and **chat bubbles** for replying without opening the app.
-- **Your WhatsApp replies in Mesa too** (optional): what you send inside WhatsApp joins the same chat in Mesa.
+- **Your WhatsApp replies in Mesa too** (optional): what you send inside WhatsApp joins the same chat in Mesa, and messages you write in Mesa are sent in WhatsApp for you when there is no direct reply path.
 - **8 languages:** English, Spanish, Portuguese, German, French, Turkish, Russian and Arabic, with right-to-left support.
 
 ## Screenshots
@@ -69,7 +69,7 @@ All people and messages in the screenshots are fictional.
 - Messages are stored only on your phone and are excluded from cloud backups and device-to-device transfer.
 - Backups are files you create and keep, encrypted with your password.
 - Secure DNS and the access shield are off until you turn them on. Then DNS lookups go, encrypted, to the DNS provider you pick (Cloudflare, AdGuard, Quad9 or Google), not to your carrier. Secure DNS is not a full VPN: it does not hide your IP address.
-- The optional "Mesa: my WhatsApp replies" accessibility service only receives WhatsApp and WhatsApp Business screens, reads just the message box, the Send button and the chat name, and adds what you send to chats already in Mesa. Message text is never logged.
+- The optional "Mesa: my WhatsApp replies" accessibility service only receives WhatsApp and WhatsApp Business screens, reads just the message box, the Send button and the chat name, adds what you send to chats already in Mesa, and taps Send only for a message you just wrote in Mesa, in the matching chat. Message text is never logged.
 - The WireGuard VPN connects only to the server in the configuration you import; Mesa provides no VPN server. That configuration and the automatic backup password are stored encrypted with a key that never leaves the phone's Android Keystore.
 
 ## Build

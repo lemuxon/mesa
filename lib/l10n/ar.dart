@@ -833,9 +833,16 @@ const ar = <String, String>{
   '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
   // 1.2.1: WhatsApp'ta yazılan yanıtlar
   'Ayarı aç': 'فتح الإعداد',
-  'WhatsApp\'ta Gönder\'e bastığınızda yazdığınız mesaj Mesa\'daki aynı sohbete eklenir; WhatsApp\'ta açtığınız sohbet burada da okunmuş sayılır.\n\nAçılan sayfada "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.': 'عندما تلمس إرسال في WhatsApp، تُضاف رسالتك إلى المحادثة نفسها في Mesa، وتُعلَّم المحادثات التي تفتحها في WhatsApp كمقروءة هنا أيضًا.\n\nفي الصفحة التالية، شغّل "Mesa: ردودي في WhatsApp". يُقرأ WhatsApp فقط ولا يغادر أي شيء هاتفك.\n\nإذا كان الإعداد باهتًا: معلومات التطبيق ← ⋮ ← السماح بالإعدادات المحظورة.',
   'WhatsApp\'ta yazdıklarım': 'ما أكتبه في WhatsApp',
   'WhatsApp\'ta yazdıklarınız da görünsün': 'أظهر ما تكتبه في WhatsApp أيضًا',
-  'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; orada açtığınız sohbet burada da okunur': 'تظهر الردود التي ترسلها من WhatsApp في المحادثة أيضًا، وتُعلَّم المحادثات التي تفتحها هناك كمقروءة هنا',
-  'WhatsApp\'tan yazdığınız yanıtlar burada görünmüyor. Görünsün mü?': 'الردود التي تكتبها في WhatsApp لا تظهر هنا. هل تريد إظهارها؟',
+  'WhatsApp\'tan yazdığınız yanıtlar burada görünmüyor. Görünsün mü?':
+      'الردود التي تكتبها في WhatsApp لا تظهر هنا. هل تريد إظهارها؟',
+  // 1.2.1: otomatik gönderim
+  'Bu servis iki şey yapar:\n• WhatsApp\'ta yazdığınız yanıtlar Mesa\'daki aynı sohbete eklenir; orada açtığınız sohbet burada da okunur.\n• Mesa\'dan yazdığınız mesaj WhatsApp\'ta hazır açılınca Gönder\'e kendisi basar ve sizi Mesa\'ya geri getirir.\n\nAçılan sayfada "İndirilen uygulamalar"a girip "Mesa: WhatsApp yanıtlarım"ı açın. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.\n\nAyar soluk görünüyorsa: Uygulama bilgisi → ⋮ → Kısıtlanmış ayarlara izin ver.':
+      'تقوم هذه الخدمة بأمرين:\n• تُضاف الردود التي تكتبها في WhatsApp إلى المحادثة نفسها في Mesa، وتُعلَّم المحادثات التي تفتحها هناك كمقروءة هنا.\n• عندما تُفتح رسالة كتبتها في Mesa داخل WhatsApp، تلمس زر الإرسال نيابةً عنك وتعيدك إلى Mesa.\n\nفي الصفحة التالية، افتح "التطبيقات التي تم تنزيلها" وشغّل "Mesa: ردودي في WhatsApp". يُقرأ WhatsApp فقط ولا يغادر أي شيء هاتفك.\n\nإذا كان الإعداد باهتًا: معلومات التطبيق ← ⋮ ← السماح بالإعدادات المحظورة.',
+  'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; Mesa\'dan yazdıklarınız WhatsApp\'ta kendiliğinden gönderilir':
+      'تظهر الردود التي ترسلها من WhatsApp في المحادثة أيضًا، وتُرسَل الرسائل التي تكتبها في Mesa تلقائيًا في WhatsApp',
+  'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
+      'تُرسَل رسالتك تلقائيًا في {name}، ثم تعود إلى هنا.',
+  'Otomatik gönder': 'إرسال تلقائي',
 };

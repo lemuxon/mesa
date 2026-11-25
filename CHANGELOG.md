@@ -8,11 +8,18 @@
   same chat in Mesa and marks chats you open in WhatsApp as read. It only receives WhatsApp and WhatsApp Business events,
   reads only the message box, the Send button and the chat name, and only adds to chats that are already in Mesa. Turn it
   on from Settings → Apps being read, or from the tip in a WhatsApp chat.
+- **Sending from Mesa no longer leaves you in WhatsApp.** When a chat has no reply path (for example after the phone
+  restarts), Mesa opens the message in WhatsApp as before, and with the same service on it taps Send for you and brings
+  you back to Mesa. It only does so within 15 seconds of your tap, when the open chat's name matches and the message box
+  holds exactly your text; otherwise it leaves WhatsApp untouched.
 
 ### Fixed
 - **Chat bubbles closed right as they opened.** Opening the chat in the bubble marked it read, which removed its
   notification, and Android closes a bubble together with its notification. A bubbling chat now keeps its bubble and is only
   hidden from the notification shade. Deleting or snoozing the chat still closes the bubble.
+- **Replies written in WhatsApp were not picked up on WhatsApp 2.26.** It has no separate Send button, and an empty
+  message box reports its hint ("Message") as text; sends are now recognised from the box emptying and the text appearing
+  in the chat.
 
 ## 1.2.0 (unreleased)
 

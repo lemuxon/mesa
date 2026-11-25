@@ -107,7 +107,7 @@
     <string name="focus_tile_on">Достучаться могут только VIP</string>
     <string name="focus_and_more">%1$s и ещё %2$d</string>
     <string name="own_replies_label">Mesa: мои ответы в WhatsApp</string>
-    <string name="own_replies_desc">Добавляет сообщения, отправленные вами в WhatsApp, в тот же чат в Mesa и отмечает прочитанными чаты, открытые в WhatsApp. Читается только WhatsApp: поле сообщения, кнопка «Отправить» и название чата. Ничего не покидает телефон.</string>
+    <string name="own_replies_desc">Добавляет сообщения, отправленные вами в WhatsApp, в тот же чат в Mesa и отмечает прочитанными чаты, открытые в WhatsApp. Когда сообщение, написанное в Mesa, открывается в WhatsApp, сам нажимает «Отправить». Читается только WhatsApp: поле сообщения, кнопка «Отправить» и название чата. Ничего не покидает телефон.</string>
     <string name="backup_channel">Резервные копии</string>
     <string name="backup_auto_failed">Не удалось создать автоматическую копию</string>
     <string name="backup_auto_failed_text">Откройте Mesa → Настройки → Резервная копия, чтобы проверить папку.</string>
