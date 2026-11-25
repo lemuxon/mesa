@@ -64,7 +64,7 @@ All people and messages in the screenshots are fictional.
 
 ## Build
 
-Requirements: Flutter (stable), Android SDK, JDK 21.
+Requirements: Flutter 3.50 or later (stable), Android SDK (platform 36, NDK 28.2), JDK 21. Gradle downloads itself through the wrapper.
 
 TDLib is not stored in the repository. Download the build made from Telegram's official source by the [TDLib Android workflow](.github/workflows/tdlib-android.yml) (the script verifies its SHA256):
 
@@ -73,6 +73,15 @@ scripts/tdlib_indir.sh
 flutter build apk --release --split-per-abi
 ```
 
+On Windows, use the PowerShell version of the TDLib script (no Git Bash needed):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\tdlib_indir.ps1
+flutter build apk --release --split-per-abi
+```
+
+Keep the project in a path with only ASCII characters and outside OneDrive or other sync folders (for example `C:\dev\mesa`). The Android Gradle plugin rejects non-ASCII paths on Windows, and sync clients lock or drop build files.
+
 Telegram needs your own API credentials from [my.telegram.org](https://my.telegram.org) → "API development tools". Add them to `android/local.properties` (not committed):
 
 ```properties
@@ -80,12 +89,16 @@ telegram.apiId=123456
 telegram.apiHash=your_api_hash
 ```
 
+**Back up the files that are not in git.** Without them a fresh clone still builds, but release updates and Telegram stop working: the release keystore and `android/key.properties` (losing them is why 1.0.1 needs a reinstall), and `android/local.properties` (Telegram credentials). Store copies in a password manager or an encrypted drive, not in the repository.
+
 Tests:
 
 ```bash
 flutter test
 cd android && ./gradlew :app:testDebugUnitTest
 ```
+
+Both also run in GitHub Actions on every push ([CI workflow](.github/workflows/ci.yml)). On Windows with Smart App Control turned on, `flutter test` cannot start the unsigned `flutter_tester.exe`; rely on CI for the Dart tests there.
 
 Promo images: `flutter test test_screens/promo_test.dart`, then `python tool/branding/make_promo.py`. Icons: `python tool/branding/make_icons.py`.
 

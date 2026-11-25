@@ -1,0 +1,65 @@
+# Her gönderimde ve çekme isteğinde Dart ve Android birim testlerini çalıştırır.
+# Windows'ta Akıllı Uygulama Denetimi (Smart App Control) imzasız
+# flutter_tester.exe'yi engelleyebiliyor; testlerin güvenilir sonucu buradan gelir.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+    paths-ignore: ['docs/**', '**/*.md']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Testler
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.50.1
+          cache: true
+
+      - name: Bağımlılıklar
+        run: flutter pub get
+
+      - name: Analiz
+        # material.dart -> material_ui geçişi bilgi notları uyarı sayılmaz.
+        run: flutter analyze --no-fatal-infos
+
+      - name: Dart testleri
+        run: flutter test
+
+      - name: TDLib (resmi kaynaktan derlenmiş, SHA256 doğrulamalı)
+        run: scripts/tdlib_indir.sh
+
+      - name: Debug APK (Gradle sarmalayıcısını ve local.properties'i de üretir)
+        run: flutter build apk --debug --target-platform android-arm64
+
+      - name: Android birim testleri (Robolectric)
+        working-directory: android
+        run: ./gradlew :app:testDebugUnitTest --no-daemon
+
+      - name: Test raporları
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-reports
+          path: build/app/reports/tests/
+          if-no-files-found: ignore

@@ -35,6 +35,17 @@ Security and reliability fixes from a full code audit (November 2026).
 - Tapping an "important" notification opens that conversation instead of just the app.
 - The web service lock screen text is localized.
 
+### Build
+- Builds with Flutter 3.50: Gradle 9.5.0, Android Gradle plugin 9.3.1, Kotlin 2.4.20 (Flutter 3.50 rejects the older
+  Gradle 9.1 / AGP 9.0 / Kotlin 2.3).
+- Debug builds install next to the release app as a separate app, "Mesa Dev" (`.debug` package suffix), so testing a
+  build never requires uninstalling Mesa and losing its messages.
+- The backup restore swap uses `Files.move` (atomic, replaces the target) on Android 8+; `File.renameTo` failed on
+  Windows hosts, where the Robolectric tests run.
+- New CI workflow runs the analyzer, the Dart tests and the Android unit tests on every push.
+- `scripts/tdlib_indir.ps1`: TDLib download with SHA256 check for Windows, without Git Bash.
+- README: Windows build steps and the list of files that must be backed up outside git.
+
 ### Upgrade note
 Release APKs from 1.0.1 on are signed with a **new** key (the 1.0.0 key was lost). Android will not install 1.0.1 over
 1.0.0: back up from Settings → Backup, uninstall, install 1.0.1, restore.
