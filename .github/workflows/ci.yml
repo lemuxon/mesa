@@ -53,6 +53,14 @@ jobs:
       - name: Dart testleri
         run: flutter test
 
+      - name: Robolectric Android kitaplıkları (önbellek)
+        # Büyük (~330 MB) ve sürüme bağlı: derleme dosyaları değişince de korunsun,
+        # Maven Central'dan yeniden indirilip 429'a takılmasın.
+        uses: actions/cache@v6
+        with:
+          path: ~/.gradle/caches/modules-2/files-2.1/org.robolectric
+          key: robolectric-android-all-14-10818077-15-12650502
+
       - name: TDLib (resmi kaynaktan derlenmiş, SHA256 doğrulamalı)
         run: bash scripts/tdlib_indir.sh
 
@@ -61,7 +69,8 @@ jobs:
 
       - name: Android birim testleri (Robolectric)
         working-directory: android
-        run: ./gradlew :app:testDebugUnitTest --no-daemon
+        # Maven Central geçici olarak 429 dönebiliyor: bir kez bekleyip yeniden dene.
+        run: ./gradlew :app:testDebugUnitTest --no-daemon || (sleep 60 && ./gradlew :app:testDebugUnitTest --no-daemon)
 
       - name: Başarısız testleri özetle
         if: failure()

@@ -74,6 +74,17 @@ object WireGuardVpn {
     /** Yapılandırmayı doğrular; geçersizse BadConfigException ya da IOException. */
     internal fun parse(text: String): Config = Config.parse(BufferedReader(StringReader(text)))
 
+    /**
+     * Yapılandırmada DNS yoksa [servers] eklenir. Android, DNS'i olmayan
+     * VPN'de alan adlarını çözemiyor (tünel açıkken siteler açılmaz).
+     */
+    internal fun withDnsFallback(config: Config, servers: List<String>): Config {
+        if (config.`interface`.dnsServers.isNotEmpty() || servers.isEmpty()) return config
+        val text = config.toWgQuickString()
+            .replaceFirst(Regex("""^\[Interface]\r?\n""", RegexOption.MULTILINE), "[Interface]\nDNS = ${servers.joinToString(", ")}\n")
+        return parse(text)
+    }
+
     /** Arayüze giden özet; özel ve paylaşılan anahtarlar asla içermez. */
     internal fun summary(id: String, name: String, config: Config): Map<String, Any?> = mapOf(
         "id" to id,
@@ -160,7 +171,8 @@ object WireGuardVpn {
                 if (SecureDns.running) Thread.sleep(400) // DNS tüneli kapansın
                 val previous = activeId
                 if (previous != null && previous != id) backend(app).setState(tunnel(previous), Tunnel.State.DOWN, null)
-                backend(app).setState(tunnel(id), Tunnel.State.UP, loaded.second)
+                val config = withDnsFallback(loaded.second, SecureDns.provider(app).plain)
+                backend(app).setState(tunnel(id), Tunnel.State.UP, config)
                 activeId = id
                 prefs(app).edit().putString(KEY_LAST, id).apply()
                 Log.i(TAG, "WireGuard tüneli açıldı")

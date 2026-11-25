@@ -86,6 +86,19 @@ class WireGuardTest {
     }
 
     @Test
+    fun dnsIsAddedOnlyWhenTheConfigHasNone() {
+        val withDns = WireGuardVpn.parse(config)
+        assertEquals(withDns, WireGuardVpn.withDnsFallback(withDns, listOf("9.9.9.9")))
+
+        val noDns = WireGuardVpn.parse(config.lines().filterNot { it.startsWith("DNS") }.joinToString("\n"))
+        val fixed = WireGuardVpn.withDnsFallback(noDns, listOf("1.1.1.1", "1.0.0.1"))
+        assertEquals(listOf("1.1.1.1", "1.0.0.1"), fixed.`interface`.dnsServers.map { it.hostAddress })
+        // Geri kalan her şey aynı kalır.
+        assertEquals(noDns.peers, fixed.peers)
+        assertEquals(noDns.`interface`.keyPair.publicKey, fixed.`interface`.keyPair.publicKey)
+    }
+
+    @Test
     fun configThatCannotBeDecryptedIsMarkedBroken() {
         val (id, _) = WireGuardVpn.import(context, "Eski", config)
         // Telefon sıfırlanıp Keystore anahtarı değişmiş gibi.

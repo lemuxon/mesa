@@ -12,18 +12,20 @@ import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Şifreli DNS sağlayıcısı: birincil adres alan adıyla, yedekleri IP ile
- * (operatör sağlayıcının alan adını engellerse ya da çözemezse).
+ * (operatör sağlayıcının alan adını engellerse ya da çözemezse). [plain]:
+ * aynı sağlayıcının düz DNS adresleri (DNS satırı olmayan WireGuard
+ * yapılandırmasına eklenir).
  */
-internal class DohProvider(val id: String, val urls: List<String>)
+internal class DohProvider(val id: String, val urls: List<String>, val plain: List<String>)
 
 internal object DohProviders {
     val all = listOf(
-        DohProvider("cloudflare", listOf("https://cloudflare-dns.com/dns-query", "https://1.1.1.1/dns-query", "https://1.0.0.1/dns-query")),
-        DohProvider("cloudflare_security", listOf("https://security.cloudflare-dns.com/dns-query", "https://1.1.1.2/dns-query", "https://1.0.0.2/dns-query")),
-        DohProvider("cloudflare_family", listOf("https://family.cloudflare-dns.com/dns-query", "https://1.1.1.3/dns-query", "https://1.0.0.3/dns-query")),
-        DohProvider("adguard", listOf("https://dns.adguard-dns.com/dns-query", "https://94.140.14.14/dns-query", "https://94.140.15.15/dns-query")),
-        DohProvider("quad9", listOf("https://dns.quad9.net/dns-query", "https://9.9.9.9/dns-query", "https://149.112.112.112/dns-query")),
-        DohProvider("google", listOf("https://dns.google/dns-query", "https://8.8.8.8/dns-query", "https://8.8.4.4/dns-query")),
+        DohProvider("cloudflare", listOf("https://cloudflare-dns.com/dns-query", "https://1.1.1.1/dns-query", "https://1.0.0.1/dns-query"), listOf("1.1.1.1", "1.0.0.1")),
+        DohProvider("cloudflare_security", listOf("https://security.cloudflare-dns.com/dns-query", "https://1.1.1.2/dns-query", "https://1.0.0.2/dns-query"), listOf("1.1.1.2", "1.0.0.2")),
+        DohProvider("cloudflare_family", listOf("https://family.cloudflare-dns.com/dns-query", "https://1.1.1.3/dns-query", "https://1.0.0.3/dns-query"), listOf("1.1.1.3", "1.0.0.3")),
+        DohProvider("adguard", listOf("https://dns.adguard-dns.com/dns-query", "https://94.140.14.14/dns-query", "https://94.140.15.15/dns-query"), listOf("94.140.14.14", "94.140.15.15")),
+        DohProvider("quad9", listOf("https://dns.quad9.net/dns-query", "https://9.9.9.9/dns-query", "https://149.112.112.112/dns-query"), listOf("9.9.9.9", "149.112.112.112")),
+        DohProvider("google", listOf("https://dns.google/dns-query", "https://8.8.8.8/dns-query", "https://8.8.4.4/dns-query"), listOf("8.8.8.8", "8.8.4.4")),
     )
 
     val default = all.first()
