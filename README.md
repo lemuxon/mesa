@@ -15,7 +15,10 @@ Get the APK from [Releases](https://github.com/lemuxon/mesa/releases/latest) (An
 v1.0.0 was signed with this certificate (SHA-256):
 `31:74:AB:2A:5A:56:77:BD:53:4C:CB:65:FA:1C:26:BE:28:91:FC:C1:9A:1C:C6:67:30:ED:A4:51:BD:82:70:27`
 
-**From v1.0.1 on, releases use a new signing certificate** (its SHA-256 is published with each release). Android cannot update 1.0.0 to 1.0.1 in place: back up from Settings → Backup, uninstall, install the new APK, restore. See [CHANGELOG](CHANGELOG.md).
+**From v1.0.1 on, releases are signed with a new certificate** (SHA-256):
+`6E:38:FB:B0:35:73:C8:60:9D:C4:DF:B2:C6:31:47:37:68:5A:49:45:7D:9C:FD:CC:BD:64:CF:5F:D6:58:F2:5F`
+
+Check a downloaded APK with `apksigner verify --print-certs Mesa.apk` (Android SDK build-tools). Android cannot update 1.0.0 to 1.0.1 in place: back up from Settings → Backup, uninstall, install the new APK, restore. See [CHANGELOG](CHANGELOG.md).
 
 ## Features
 

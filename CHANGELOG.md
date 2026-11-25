@@ -49,3 +49,6 @@ Security and reliability fixes from a full code audit (November 2026).
 ### Upgrade note
 Release APKs from 1.0.1 on are signed with a **new** key (the 1.0.0 key was lost). Android will not install 1.0.1 over
 1.0.0: back up from Settings → Backup, uninstall, install 1.0.1, restore.
+
+New certificate (SHA-256):
+`6E:38:FB:B0:35:73:C8:60:9D:C4:DF:B2:C6:31:47:37:68:5A:49:45:7D:9C:FD:CC:BD:64:CF:5F:D6:58:F2:5F`
