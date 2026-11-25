@@ -188,6 +188,8 @@ s("own_replies_desc",
   ar="يضيف الرسائل التي ترسلها في WhatsApp إلى المحادثة نفسها في Mesa، ويعلّم المحادثات التي تفتحها في WhatsApp كمقروءة. وعندما تُفتح رسالة كتبتها في Mesa داخل WhatsApp، يلمس زر الإرسال نيابةً عنك. يُقرأ WhatsApp فقط: مربع الرسالة وزر الإرسال واسم المحادثة. لا يغادر أي شيء هاتفك.",
   ru="Добавляет сообщения, отправленные вами в WhatsApp, в тот же чат в Mesa и отмечает прочитанными чаты, открытые в WhatsApp. Когда сообщение, написанное в Mesa, открывается в WhatsApp, сам нажимает «Отправить». Читается только WhatsApp: поле сообщения, кнопка «Отправить» и название чата. Ничего не покидает телефон.")
 
+s("auto_send_progress", en="Sending via WhatsApp…", tr="WhatsApp üzerinden gönderiliyor…", es="Enviando por WhatsApp…", pt="Enviando pelo WhatsApp…", de="Wird über WhatsApp gesendet…", fr="Envoi via WhatsApp…", ar="جارٍ الإرسال عبر WhatsApp…", ru="Отправка через WhatsApp…")
+
 # ---- Otomatik yedek ----
 s("backup_channel", en="Backups", tr="Yedekler", es="Copias de seguridad", pt="Backups", de="Sicherungen", fr="Sauvegardes", ar="النسخ الاحتياطية", ru="Резервные копии")
 s("backup_auto_failed", en="Automatic backup failed", tr="Otomatik yedek alınamadı", es="La copia automática falló", pt="O backup automático falhou", de="Automatische Sicherung fehlgeschlagen", fr="La sauvegarde automatique a échoué", ar="فشل النسخ الاحتياطي التلقائي", ru="Не удалось создать автоматическую копию")

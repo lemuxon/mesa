@@ -292,7 +292,7 @@ open class MainActivity : FlutterFragmentActivity() {
             }
             "health" -> result.success(health())
             "ownRepliesEnabled" -> result.success(OwnReplies.isEnabled(this))
-            "takeAutoSent" -> result.success(OwnReplies.takeAutoSent(call.argument<String>("key")!!))
+            "autoSendResult" -> result.success(OwnReplies.takeResult(call.argument<String>("key")!!))
             "openOwnRepliesSettings" -> {
                 OwnReplies.openSettings(this)
                 result.success(null)
@@ -444,8 +444,11 @@ open class MainActivity : FlutterFragmentActivity() {
                 val key = call.argument<String>("key")!!
                 val packageName = call.argument<String>("package")!!
                 val text = call.argument<String>("text")
-                // Yanıt servisi açıksa WhatsApp'ta Gönder'e kendisi basar ve Mesa'ya döner.
-                if (text != null) OwnReplies.expectSend(this, packageName, key, text, returnToMesa = !isBubble)
+                // Yanıt servisi açıksa ekran Mesa'nın örtüsüyle kapanır, servis WhatsApp'ta
+                // Gönder'e kendisi basar ve Mesa'ya döner: kullanıcı Mesa'dan çıkmaz.
+                if (text != null && OwnReplies.expectSend(this, packageName, key, text, returnToMesa = true)) {
+                    OwnReplyService.instance?.beginAutoSend()
+                }
                 Hub.io.execute {
                     val shortcut = store.conversation(key)?.get("shortcutId") as String?
                     runOnUiThread {

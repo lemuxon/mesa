@@ -845,4 +845,6 @@ const ar = <String, String>{
   'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
       'تُرسَل رسالتك تلقائيًا في {name}، ثم تعود إلى هنا.',
   'Otomatik gönder': 'إرسال تلقائي',
+  'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
+      'تعذّر الإرسال في WhatsApp؛ رسالتك في مربع الكتابة.',
 };

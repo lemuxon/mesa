@@ -259,18 +259,18 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       !_showKeepNudge(app) &&
       !(AppScope.maybeOf(context)?.prefs.ownRepliesNudgeDismissed ?? true);
 
-  /// Kaynak uygulamada gönderilmek üzere açılan son mesaj: (sohbet, kayıt).
-  (String, String)? _handoff;
+  /// Kaynak uygulamada gönderilmek üzere açılan son mesaj: (sohbet, kayıt, metin).
+  (String, String, String)? _handoff;
 
   /// Kullanıcı mesajı kaynak uygulamada gönderecek: sohbet geçmişi eksik
-  /// kalmasın diye buraya da yazılır. Gönderilmediyse dönüşte geri alınır.
-  Future<void> _recordHandoff(String text) async {
-    final key = _active.key;
+  /// kalmasın diye buraya da yazılır. Uygulama açılmadan önce yazılır ki
+  /// yanıt servisi hızlıca gönderip Mesa'ya döndüğünde kayıt hazır olsun.
+  Future<String?> _recordHandoff(String key, String text) async {
     try {
-      final id = await widget.bridge.recordSentViaApp(key, text);
-      if (id != null) _handoff = (key, id);
+      return await widget.bridge.recordSentViaApp(key, text);
     } catch (_) {
       // Eski yerel taraf ya da test: kaydedilmez.
+      return null;
     }
   }
 
@@ -278,17 +278,30 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final handoff = _handoff;
     if (handoff == null || !mounted) return;
     _handoff = null;
-    final (key, id) = handoff;
-    // Yanıt servisi WhatsApp'ta Gönder'e kendisi bastıysa sormaya gerek yok.
-    var autoSent = false;
+    final (key, id, text) = handoff;
+    // Yanıt servisi WhatsApp'ta Gönder'e kendisi bastı mı.
+    String? result;
     try {
-      autoSent = await widget.bridge.takeAutoSent(key);
+      result = await widget.bridge.autoSendResult(key);
     } catch (_) {
       // Eski yerel taraf ya da test.
     }
     if (!mounted) return;
-    if (autoSent) {
+    if (result == 'sent') {
       _snack(tr('Gönderildi'));
+      return;
+    }
+    if (result == 'failed') {
+      // Gitmeyen mesaj geçmişten kalkar, yazma alanına geri konur.
+      try {
+        await widget.bridge.deleteMessage(key, id);
+      } catch (_) {}
+      if (!mounted) return;
+      if (_input.text.trim().isEmpty) _input.text = text;
+      _snack(
+        tr('WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.'),
+        long: true,
+      );
       return;
     }
     ScaffoldMessenger.of(context)
@@ -568,10 +581,17 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         }
       }
       if (_mode == ReplyMode.app) {
+        final key = _active.key;
+        final id = await _recordHandoff(key, text);
         if (await widget.bridge.sendViaApp(_active, text)) {
           _input.clear();
-          await _recordHandoff(text);
+          if (id != null) _handoff = (key, id, text);
         } else {
+          if (id != null) {
+            try {
+              await widget.bridge.deleteMessage(key, id);
+            } catch (_) {}
+          }
           _snack(tr('{appName} açılamadı.', {'appName': _appName}));
         }
       }

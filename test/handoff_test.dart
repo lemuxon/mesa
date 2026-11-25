@@ -87,7 +87,8 @@ void main() {
       await tester.pump();
       await tester.tap(find.byIcon(Icons.send_rounded));
       await tester.pumpAndSettle();
-      expect(bridge.calls, ['app:Selam', 'kayıt:Selam']);
+      // Kayıt, uygulama açılmadan önce yazılır (yanıt servisi hızlı döner).
+      expect(bridge.calls, ['kayıt:Selam', 'app:Selam']);
 
       await _leaveAndReturn(tester);
       expect(find.text('Mesajınız bu sohbete de kaydedildi.'), findsOneWidget);

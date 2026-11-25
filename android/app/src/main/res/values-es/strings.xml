@@ -108,6 +108,7 @@
     <string name="focus_and_more">%1$s y %2$d más</string>
     <string name="own_replies_label">Mesa: mis respuestas de WhatsApp</string>
     <string name="own_replies_desc">Añade a Mesa los mensajes que envías en WhatsApp, en el mismo chat, y marca como leídos los chats que abres en WhatsApp. Cuando un mensaje que escribiste en Mesa se abre en WhatsApp, toca Enviar por ti. Solo se lee WhatsApp: el cuadro de mensaje, el botón Enviar y el nombre del chat. Nada sale de tu teléfono.</string>
+    <string name="auto_send_progress">Enviando por WhatsApp…</string>
     <string name="backup_channel">Copias de seguridad</string>
     <string name="backup_auto_failed">La copia automática falló</string>
     <string name="backup_auto_failed_text">Abre Mesa → Ajustes → Copia de seguridad para revisar la carpeta.</string>

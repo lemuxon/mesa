@@ -864,4 +864,6 @@ const ru = <String, String>{
   'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
       'Сообщение отправится в {name} автоматически, затем вы вернётесь сюда.',
   'Otomatik gönder': 'Автоотправка',
+  'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
+      'Не удалось отправить в WhatsApp; сообщение снова в поле ввода.',
 };

@@ -872,4 +872,6 @@ const es = <String, String>{
   'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
       'Tu mensaje se envía solo en {name} y luego vuelves aquí.',
   'Otomatik gönder': 'Envío automático',
+  'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
+      'No se pudo enviar en WhatsApp; tu mensaje está en el cuadro de texto.',
 };

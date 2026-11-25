@@ -870,4 +870,6 @@ const de = <String, String>{
   'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
       'Deine Nachricht wird in {name} automatisch gesendet, danach kommst du hierher zurück.',
   'Otomatik gönder': 'Automatisch senden',
+  'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
+      'In WhatsApp konnte nicht gesendet werden; deine Nachricht steht wieder im Eingabefeld.',
 };

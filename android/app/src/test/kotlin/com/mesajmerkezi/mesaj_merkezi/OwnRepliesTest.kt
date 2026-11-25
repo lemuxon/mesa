@@ -191,17 +191,21 @@ class OwnRepliesTest {
     }
 
     @Test
-    fun autoSendOnlyWhenChatAndTextMatch() {
+    fun autoSendOnlyInTheChatMesaOpened() {
         val now = 1_000L
-        val pending = OwnReplies.PendingSend(wa, key, "Ayşe", "Geliyorum", until = now + 15_000, returnToMesa = true)
-        assertTrue(OwnReplies.shouldAutoSend(pending, wa, "\u200EAyşe", " Geliyorum ", now))
-        // Başka sohbet, başka metin, başka uygulama ya da süre dolmuş: dokunulmaz.
-        assertFalse(OwnReplies.shouldAutoSend(pending, wa, "Mehmet", "Geliyorum", now))
-        assertFalse(OwnReplies.shouldAutoSend(pending, wa, "Ayşe", "Geliyorum ama", now))
-        assertFalse(OwnReplies.shouldAutoSend(pending, wa, "Ayşe", "", now))
-        assertFalse(OwnReplies.shouldAutoSend(pending, wa, null, "Geliyorum", now))
-        assertFalse(OwnReplies.shouldAutoSend(pending, "com.whatsapp.w4b", "Ayşe", "Geliyorum", now))
-        assertFalse(OwnReplies.shouldAutoSend(pending, wa, "Ayşe", "Geliyorum", now + 15_001))
+        val pending = OwnReplies.PendingSend(wa, key, "Ayşe", "Geliyorum", until = now + 10_000, returnToMesa = true)
+        fun step(pkg: String, title: String?, entry: String?, at: Long = now) =
+            OwnReplies.autoSendStep(pending, pkg, title, entry, at)
+        assertEquals(OwnReplies.Step.PRESS, step(wa, "\u200EAyşe", " Geliyorum "))
+        // Doğru sohbette kutu boş ya da eski taslak var: kutu Mesa'nın metniyle doldurulur.
+        assertEquals(OwnReplies.Step.FILL, step(wa, "Ayşe", ""))
+        assertEquals(OwnReplies.Step.FILL, step(wa, "Ayşe", "eski taslak Geliyorum"))
+        // Başka sohbet, başka uygulama ya da sohbet adı okunamıyor: dokunulmaz.
+        assertEquals(OwnReplies.Step.WAIT, step(wa, "Mehmet", "Geliyorum"))
+        assertEquals(OwnReplies.Step.WAIT, step(wa, null, "Geliyorum"))
+        assertEquals(OwnReplies.Step.WAIT, step("com.whatsapp.w4b", "Ayşe", "Geliyorum"))
+        assertEquals(OwnReplies.Step.WAIT, step(wa, "Ayşe", null))
+        assertEquals(OwnReplies.Step.EXPIRED, step(wa, "Ayşe", "Geliyorum", at = now + 10_001))
     }
 
     @Test
@@ -227,11 +231,13 @@ class OwnRepliesTest {
         OwnReplies.markSending(key, "Yoldayım")
         assertFalse(OwnReplies.record(context, wa, "Ayşe", "Yoldayım"))
         assertEquals(1, Hub.store(context).messages(key).count { it["text"] == "Yoldayım" })
-        // Dönüşte bir kez "gönderildi" denir.
-        assertFalse(OwnReplies.takeAutoSent(key))
-        OwnReplies.markAutoSent(key)
-        assertTrue(OwnReplies.takeAutoSent(key))
-        assertFalse(OwnReplies.takeAutoSent(key))
+        // Dönüşte sonuç bir kez sorulur.
+        assertNull(OwnReplies.takeResult(key))
+        OwnReplies.markResult(key, sent = true)
+        assertEquals("sent", OwnReplies.takeResult(key))
+        assertNull(OwnReplies.takeResult(key))
+        OwnReplies.markResult(key, sent = false)
+        assertEquals("failed", OwnReplies.takeResult(key))
     }
 
     private fun post(tag: String, bubble: Boolean) {

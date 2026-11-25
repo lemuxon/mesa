@@ -18,9 +18,10 @@ import android.util.Log
  * Otomatik gönderim: yanıt yolu olmayan sohbette (ör. telefon yeniden
  * başladıktan sonra) Mesa mesajı WhatsApp'ta hazır açar ve kullanıcı orada
  * ➤'e basmak zorunda kalıyordu ("Mesa'yı kullanmanın anlamı kalmıyor",
- * 2026-11-26). Servis açıksa Gönder'e kendisi basar ve Mesa'ya döner; yalnızca
- * Mesa'nın az önce açtığı sohbette, başlık ve kutudaki metin birebir
- * tutuyorsa ([shouldAutoSend]).
+ * 2026-11-26). Kullanıcı Mesa'dan hiç çıkmamalı: servis açıksa ekran
+ * "Gönderiliyor…" örtüsüyle kapanır, WhatsApp altta açılır, servis kutuyu
+ * doldurup Gönder'e basar ve Mesa'ya döner. Yalnızca Mesa'nın az önce
+ * açtığı sohbette, başlık birebir tutuyorsa ([autoSendStep]).
  *
  * Yalnızca WhatsApp okunur (servis yapılandırması: res/xml/own_replies.xml):
  * mesaj kutusu, Gönder düğmesi, sohbet adı. Metinler günlüğe yazılmaz.
@@ -38,9 +39,24 @@ object OwnReplies {
         val title: String,
         val text: String,
         val until: Long,
-        /** Gönderince Mesa öne gelsin (balondan gönderilince gelmez). */
+        /** Gönderince Mesa öne gelsin. */
         val returnToMesa: Boolean,
     )
+
+    /** Ekrandaki WhatsApp için sıradaki adım. */
+    internal enum class Step {
+        /** Doğru sohbet henüz ekranda değil. */
+        WAIT,
+
+        /** Süre doldu; gönderilmedi. */
+        EXPIRED,
+
+        /** Doğru sohbet ama kutuda başka metin: kutu Mesa'nın metniyle doldurulur. */
+        FILL,
+
+        /** Kutuda tam olarak Mesa'nın metni: Gönder'e basılır. */
+        PRESS,
+    }
 
     @Volatile
     internal var pendingSend: PendingSend? = null
@@ -48,11 +64,11 @@ object OwnReplies {
     /** Gönder'e basılan son mesaj: sohbet → (metin, zaman); ikinci kez kaydedilmez. */
     private val sending = java.util.concurrent.ConcurrentHashMap<String, Pair<String, Long>>()
 
-    /** Gönderildiği doğrulanan son mesaj: sohbet → zaman (Mesa'ya dönüşte sorulur). */
-    private val autoSent = java.util.concurrent.ConcurrentHashMap<String, Long>()
+    /** Otomatik gönderimin sonucu: sohbet → (gitti mi, zaman); Mesa'ya dönüşte sorulur. */
+    private val results = java.util.concurrent.ConcurrentHashMap<String, Pair<Boolean, Long>>()
 
-    /** Mesa'nın açtığı sohbette bu kadar süre içinde gönderilir. */
-    const val AUTO_SEND_WINDOW_MS = 15_000L
+    /** Mesa'nın açtığı sohbette bu kadar süre içinde gönderilir; örtü de en fazla bu kadar kalır. */
+    const val AUTO_SEND_WINDOW_MS = 10_000L
 
     /**
      * Mesa mesajı WhatsApp'ta hazır açmak üzere: servis açıksa göndermeyi üstlenir.
@@ -71,33 +87,39 @@ object OwnReplies {
     }
 
     /**
-     * Ekrandaki WhatsApp sohbeti beklenen mi: aynı uygulama, aynı sohbet adı,
-     * kutuda tam olarak Mesa'nın verdiği metin ve süre dolmamış.
+     * Ekrandaki WhatsApp için sıradaki adım. Güvenlik şartı sohbet adıdır:
+     * yalnızca Mesa'nın açtığı sohbette (aynı uygulama, aynı ad) kutuya
+     * yazılır ya da Gönder'e basılır.
      */
-    internal fun shouldAutoSend(
+    internal fun autoSendStep(
         pending: PendingSend,
         packageName: String,
         headerTitle: String?,
         entryText: String?,
         now: Long,
-    ): Boolean = now <= pending.until &&
-        pending.packageName == packageName &&
-        Names.title(headerTitle) == pending.title &&
-        entryText?.trim() == pending.text
+    ): Step = when {
+        now > pending.until -> Step.EXPIRED
+        pending.packageName != packageName || Names.title(headerTitle) != pending.title -> Step.WAIT
+        entryText == null -> Step.WAIT
+        entryText.trim() == pending.text -> Step.PRESS
+        else -> Step.FILL
+    }
 
     /** Servis Gönder'e bastı: Mesa mesajı zaten kaydetti, yakalanınca ikinci kez yazılmasın. */
     internal fun markSending(key: String, text: String) {
         sending[key] = text to System.currentTimeMillis()
     }
 
-    /** Kutu boşaldı, mesaj gitti: Mesa'ya dönünce "gönderildi" denir. */
-    internal fun markAutoSent(key: String) {
-        autoSent[key] = System.currentTimeMillis()
+    /** Otomatik gönderim bitti: Mesa'ya dönünce "gönderildi" ya da "gönderilemedi" denir. */
+    internal fun markResult(key: String, sent: Boolean) {
+        results[key] = sent to System.currentTimeMillis()
     }
 
-    /** Dönüşte bir kez sorulur. @return son dakika içinde otomatik gönderildi */
-    fun takeAutoSent(key: String): Boolean =
-        autoSent.remove(key)?.let { System.currentTimeMillis() - it < 60_000 } == true
+    /** Dönüşte bir kez sorulur. @return "sent", "failed" ya da (son dakikada yoksa) null */
+    fun takeResult(key: String): String? =
+        results.remove(key)
+            ?.takeIf { System.currentTimeMillis() - it.second < 60_000 }
+            ?.let { if (it.first) "sent" else "failed" }
 
     private fun wasAutoSent(key: String, text: String): Boolean =
         sending[key]?.let { it.first == text && System.currentTimeMillis() - it.second < 30_000 } == true

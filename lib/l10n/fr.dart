@@ -877,4 +877,6 @@ const fr = <String, String>{
   'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
       'Votre message part automatiquement dans {name}, puis vous revenez ici.',
   'Otomatik gönder': 'Envoi auto',
+  'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
+      'Envoi impossible dans WhatsApp ; votre message est de retour dans la zone de saisie.',
 };

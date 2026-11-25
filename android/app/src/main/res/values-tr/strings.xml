@@ -108,6 +108,7 @@
     <string name="focus_and_more">%1$s ve %2$d kişi daha</string>
     <string name="own_replies_label">Mesa: WhatsApp yanıtlarım</string>
     <string name="own_replies_desc">WhatsApp\'ta gönderdiğiniz mesajları Mesa\'daki aynı sohbete ekler ve WhatsApp\'ta açtığınız sohbeti okundu sayar. Mesa\'dan yazdığınız mesaj WhatsApp\'ta açılınca Gönder\'e sizin yerinize basar. Yalnızca WhatsApp okunur: mesaj kutusu, Gönder düğmesi ve sohbet adı. Hiçbir şey telefondan çıkmaz.</string>
+    <string name="auto_send_progress">WhatsApp üzerinden gönderiliyor…</string>
     <string name="backup_channel">Yedekler</string>
     <string name="backup_auto_failed">Otomatik yedek alınamadı</string>
     <string name="backup_auto_failed_text">Klasörü kontrol etmek için Mesa → Ayarlar → Yedek\'i açın.</string>

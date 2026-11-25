@@ -857,4 +857,6 @@ const en = <String, String>{
   'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
       'Your message is sent automatically in {name}, then you come back here.',
   'Otomatik gönder': 'Auto-send',
+  'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
+      'Couldn\'t send in WhatsApp; your message is back in the box.',
 };

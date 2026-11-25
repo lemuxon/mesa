@@ -868,4 +868,6 @@ const pt = <String, String>{
   'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
       'Sua mensagem é enviada sozinha no {name} e depois você volta para cá.',
   'Otomatik gönder': 'Envio automático',
+  'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
+      'Não foi possível enviar no WhatsApp; sua mensagem está na caixa de texto.',
 };
