@@ -20,7 +20,7 @@
         android:name="android.permission.SCHEDULE_EXACT_ALARM"
         android:maxSdkVersion="32" />
     <application
-        android:label="Mesa"
+        android:label="${appLabel}"
         android:name="${applicationName}"
         android:allowBackup="false"
         android:fullBackupContent="false"
@@ -52,7 +52,7 @@
         <service
             android:name=".MessageListenerService"
             android:exported="true"
-            android:label="Mesa"
+            android:label="${appLabel}"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />

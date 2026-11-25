@@ -53,6 +53,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Baslaticida ve bildirim erisimi listesinde gorunen ad (debug: "Mesa Dev").
+        manifestPlaceholders["appLabel"] = "Mesa"
         buildConfigField("int", "TELEGRAM_API_ID", telegramApiId.toString())
         buildConfigField("String", "TELEGRAM_API_HASH", "\"$telegramApiHash\"")
     }
@@ -69,6 +71,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Gelistirme derlemesi telefondaki yayin surumunun yanina ayri bir
+            // uygulama ("Mesa Dev") olarak kurulur. Imzalar farkli oldugu icin
+            // ayni paket adiyla kurmak, yayin surumunu kaldirip mesajlari
+            // silmeyi gerektirirdi.
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            manifestPlaceholders["appLabel"] = "Mesa Dev"
+        }
         release {
             signingConfig = signingConfigs.getByName(if (publicSigning) "public" else "debug")
             // TDLib'in yerel kodu Java siniflarini adiyla arar (bkz. proguard-rules.pro).
