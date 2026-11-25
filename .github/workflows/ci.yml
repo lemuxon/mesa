@@ -29,6 +29,13 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+          # Gradle bağımlılıkları önbellekte: Maven Central zaman zaman
+          # "429 Too Many Requests" ile reddediyor.
+          cache: gradle
+          cache-dependency-path: |
+            android/*.gradle.kts
+            android/app/build.gradle.kts
+            android/gradle/wrapper/gradle-wrapper.properties
 
       - uses: subosito/flutter-action@v2
         with:
