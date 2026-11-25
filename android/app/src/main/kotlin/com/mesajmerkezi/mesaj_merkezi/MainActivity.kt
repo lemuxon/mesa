@@ -444,15 +444,24 @@ open class MainActivity : FlutterFragmentActivity() {
                 val key = call.argument<String>("key")!!
                 val packageName = call.argument<String>("package")!!
                 val text = call.argument<String>("text")
-                // Yanıt servisi açıksa ekran Mesa'nın örtüsüyle kapanır, servis WhatsApp'ta
+                // Yanıt servisi açıksa ekran Mesa'nın görüntüsüyle örtülür, servis WhatsApp'ta
                 // Gönder'e kendisi basar ve Mesa'ya döner: kullanıcı Mesa'dan çıkmaz.
-                if (text != null && OwnReplies.expectSend(this, packageName, key, text, returnToMesa = true)) {
-                    OwnReplyService.instance?.beginAutoSend()
-                }
+                val auto = text != null && OwnReplies.expectSend(this, packageName, key, text, returnToMesa = true)
                 Hub.io.execute {
                     val shortcut = store.conversation(key)?.get("shortcutId") as String?
                     runOnUiThread {
-                        result.success(MediaTools.shareToConversation(this, packageName, shortcut, text, emptyList()))
+                        val open = {
+                            result.success(MediaTools.shareToConversation(this, packageName, shortcut, text, emptyList()))
+                        }
+                        val service = OwnReplyService.instance
+                        if (auto && service != null) {
+                            ScreenShot.of(this) { shot ->
+                                service.beginAutoSend(shot)
+                                open()
+                            }
+                        } else {
+                            open()
+                        }
                     }
                 }
             }

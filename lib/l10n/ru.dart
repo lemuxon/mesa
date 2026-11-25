@@ -861,8 +861,8 @@ const ru = <String, String>{
       'Этот сервис делает две вещи:\n• Ответы, которые вы пишете в WhatsApp, добавляются в тот же чат в Mesa, а чаты, открытые там, здесь отмечаются прочитанными.\n• Когда сообщение, написанное в Mesa, открывается в WhatsApp, он сам нажимает «Отправить» и возвращает вас в Mesa.\n\nНа следующей странице откройте «Скачанные приложения» и включите «Mesa: мои ответы в WhatsApp». Читается только WhatsApp, и ничего не покидает телефон.\n\nЕсли настройка неактивна: О приложении → ⋮ → Разрешить настройки с ограниченным доступом.',
   'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; Mesa\'dan yazdıklarınız WhatsApp\'ta kendiliğinden gönderilir':
       'Ответы, отправленные из WhatsApp, тоже видны в чате; сообщения, написанные в Mesa, отправляются в WhatsApp автоматически',
-  'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
-      'Сообщение отправится в {name} автоматически, затем вы вернётесь сюда.',
+  'Mesajınız {name} üzerinden, Mesa\'dan çıkmadan gönderilir.':
+      'Сообщение отправится через {name}, не выходя из Mesa.',
   'Otomatik gönder': 'Автоотправка',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'Не удалось отправить в WhatsApp; сообщение снова в поле ввода.',

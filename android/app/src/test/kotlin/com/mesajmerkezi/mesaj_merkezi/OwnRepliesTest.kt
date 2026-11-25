@@ -209,6 +209,28 @@ class OwnRepliesTest {
     }
 
     @Test
+    fun messagesMatchDespiteInvisiblePadding() {
+        // WhatsApp balondaki metne saat için görünmez boşluklar ekleyebiliyor.
+        assertTrue(OwnReplies.sameMessage("Geliyorum \u00A0\u00A0\u200B", "Geliyorum"))
+        assertTrue(OwnReplies.sameMessage("Akşam  görüşürüz", "Akşam görüşürüz "))
+        // Emoji birleştiricisi korunur; farklı metin eşleşmez, boş metin hiç eşleşmez.
+        assertTrue(OwnReplies.sameMessage("👨\u200D👩", "👨\u200D👩"))
+        assertFalse(OwnReplies.sameMessage("Geliyorum", "Geliyorum ama"))
+        assertFalse(OwnReplies.sameMessage("", ""))
+        assertFalse(OwnReplies.sameMessage(null, "x"))
+    }
+
+    @Test
+    fun failedAutoSendDoesNotHideTheUsersOwnSend() {
+        incoming("Neredesin?")
+        OwnReplies.markSending(key, "Yoldayım")
+        // Otomatik gönderim olmadı, Mesa kaydını sildi; kullanıcı WhatsApp'tan gönderdi.
+        OwnReplies.clearSending(key)
+        assertTrue(OwnReplies.record(context, wa, "Ayşe", "Yoldayım"))
+        assertEquals(1, Hub.store(context).messages(key).count { it["text"] == "Yoldayım" })
+    }
+
+    @Test
     fun autoSendNeedsTheServiceAndWhatsApp() {
         enableService(false)
         assertFalse(OwnReplies.expectSend(context, wa, key, "Selam", returnToMesa = true))

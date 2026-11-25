@@ -9,10 +9,11 @@
   reads only the message box, the Send button and the chat name, and only adds to chats that are already in Mesa. Turn it
   on from Settings → Apps being read, or from the tip in a WhatsApp chat.
 - **You stay in Mesa when you send.** When a chat has no reply path (for example after the phone restarts), WhatsApp
-  has to open for a moment; with the same service on, Mesa covers the screen with a "Sending via WhatsApp…" panel while
-  the service fills the message box, taps Send and brings Mesa back. It only acts within 10 seconds of your tap and only
-  in the chat whose name matches. If it can't send, your text goes back into Mesa's message box and the WhatsApp draft is
-  cleared.
+  has to open for a moment; with the same service on, Mesa keeps a still image of its own screen on top (with a small
+  "Sending via WhatsApp…" chip) while the service fills the message box, presses WhatsApp's Send button and brings Mesa
+  back. Your taps go to that image, not to WhatsApp. It only acts within 10 seconds of your tap and only in the chat whose
+  name matches. A send counts as done when the box empties or the message appears at the bottom of the chat; if it can't
+  send, your text goes back into Mesa's message box and the WhatsApp draft is cleared.
 
 ### Fixed
 - **Chat bubbles closed right as they opened.** Opening the chat in the bubble marked it read, which removed its

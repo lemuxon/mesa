@@ -3,10 +3,12 @@ package com.mesajmerkezi.mesaj_merkezi
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.Rect
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -15,9 +17,13 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.view.accessibility.AccessibilityWindowInfo
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -29,10 +35,12 @@ import android.widget.TextView
  * (res/xml/own_replies.xml); kullanıcı Android'in Erişilebilirlik ayarından
  * açar ve kapatır.
  *
- * WhatsApp 2.26'da ayrı bir Gönder düğmesi yok: mikrofon düğmesi
- * (voice_note_btn) metin yazılınca gönder olur ve dokunmayı kendisi işler,
- * "tıklandı" olayı gelmez. Gönderim, kutunun bir anda boşalmasından ve
- * metnin sohbet listesinde belirmesinden anlaşılır (2026-11-26, cihazda).
+ * WhatsApp 2.26 sohbet ekranı (paketindeki düzenden, 2026-11-26): kutu boşken
+ * yalnızca mikrofon düğmesi (voice_note_btn, dokunmayı kendisi işler) var;
+ * metin yazılınca send_container içinde ayrı bir "send" düğmesi
+ * (ImageButton) oluşur ve erişilebilir tıklamayla gönderir. Boş kutu metin
+ * yerine ipucunu ("Mesaj") bildirir; gönderim bu yüzden mesajın sohbet
+ * listesinde belirmesinden de doğrulanır.
  */
 class OwnReplyService : AccessibilityService() {
 
@@ -47,8 +55,12 @@ class OwnReplyService : AccessibilityService() {
     /** Gönder'e basılan, sonucu beklenen mesaj. */
     private var sending: OwnReplies.PendingSend? = null
 
-    /** WhatsApp'ı gizleyen "Gönderiliyor…" örtüsü. */
+    /** Kutuda Mesa'nın metni görüldüğü an; Gönder düğmesi bu süre içinde belirmeli. */
+    private var matchedAt = 0L
+
+    /** WhatsApp'ı gizleyen, Mesa'nın görüntüsünü gösteren örtü. */
     private var overlay: View? = null
+    private var overlayParams: WindowManager.LayoutParams? = null
     private val giveUp = Runnable { onTimeout() }
 
     override fun onServiceConnected() {
@@ -97,10 +109,10 @@ class OwnReplyService : AccessibilityService() {
         val before = event.beforeText?.toString()
         // Boş kutu metin yerine ipucunu ("Mesaj") bildirir; boşalma olaydan anlaşılır.
         val cleared = event.addedCount == 0 && !before.isNullOrEmpty() && event.removedCount >= before.length
-        val text = if (cleared) "" else entryText(node) ?: event.text.joinToString("")
+        val text = if (cleared || isEmptyEntry(node)) "" else node.text?.toString() ?: event.text.joinToString("")
         val candidate = tracker.onTextChanged(text, before, event.removedCount, event.addedCount)
         if (candidate != null) {
-            // Gönderildiyse metin sohbet listesinde belirir.
+            Log.i(TAG, "WhatsApp: kutu boşaldı, gönderim doğrulanıyor")
             main.postDelayed({ verify(ids, candidate, attempt = 1) }, VERIFY_DELAY_MS)
         } else if (text.isNotBlank()) {
             maybeAutoSend(ids)
@@ -114,17 +126,17 @@ class OwnReplyService : AccessibilityService() {
     }
 
     private fun verify(ids: ChatIds, text: String, attempt: Int) {
-        val root = rootInActiveWindow
-        val shown = root?.findAccessibilityNodeInfosByViewId(ids.messageText)
-            ?.any { it.text?.toString()?.trim() == text } == true
+        val root = appRoot(ids)
+        val shown = root != null && listedNearBottom(root, ids, text)
         if (!shown && attempt == 1) {
             main.postDelayed({ verify(ids, text, attempt = 2) }, VERIFY_DELAY_MS)
             return
         }
+        Log.i(TAG, "WhatsApp: gönderilen metin listede " + if (shown) "görüldü" else "görülmedi")
         if (tracker.onVerified(text, shown)) record(ids, text, root)
     }
 
-    private fun record(ids: ChatIds, text: String, root: AccessibilityNodeInfo? = rootInActiveWindow) {
+    private fun record(ids: ChatIds, text: String, root: AccessibilityNodeInfo? = appRoot(ids)) {
         val title = chatTitle(root, ids) ?: run {
             Log.i(TAG, "WhatsApp yanıtı: sohbet adı okunamadı")
             return
@@ -139,7 +151,7 @@ class OwnReplyService : AccessibilityService() {
         windowCheck?.let(main::removeCallbacks)
         // Ekran çizilmeden başlık henüz yok; kısa bir süre sonra bakılır.
         val check = Runnable {
-            val title = chatTitle(rootInActiveWindow, ids)
+            val title = chatTitle(appRoot(ids), ids)
             if (title != openChat) {
                 openChat = title
                 if (title != null) {
@@ -157,14 +169,17 @@ class OwnReplyService : AccessibilityService() {
 
     /**
      * Mesa mesajı WhatsApp'a vermek üzere (ana iş parçacığı, WhatsApp
-     * açılmadan önce): ekran Mesa'nın "Gönderiliyor…" örtüsüyle kapanır.
+     * açılmadan önce): ekran Mesa'nın görüntüsüyle örtülür.
      */
-    fun beginAutoSend() {
-        main.post {
-            showOverlay()
+    internal fun beginAutoSend(shot: ScreenShot.Shot?) {
+        val start = Runnable {
+            matchedAt = 0L
+            showOverlay(shot)
             main.removeCallbacks(giveUp)
             main.postDelayed(giveUp, OwnReplies.AUTO_SEND_WINDOW_MS)
         }
+        // Örtü, WhatsApp açılmadan önce ekranda olmalı.
+        if (Looper.myLooper() == Looper.getMainLooper()) start.run() else main.post(start)
     }
 
     private fun maybeAutoSend(ids: ChatIds) {
@@ -174,75 +189,83 @@ class OwnReplyService : AccessibilityService() {
         val tick = SystemClock.uptimeMillis()
         if (tick - lastSendCheck < 150) return
         lastSendCheck = tick
-        val root = rootInActiveWindow ?: return
+        val root = appRoot(ids) ?: return
         val entry = root.findAccessibilityNodeInfosByViewId(ids.entry).firstOrNull()
-        val step = OwnReplies.autoSendStep(
-            pending, ids.packageName, chatTitle(root, ids), entry?.let(::entryText), System.currentTimeMillis(),
-        )
-        when (step) {
+        val entryText = entry?.let { if (isEmptyEntry(it)) "" else it.text?.toString() }
+        val now = System.currentTimeMillis()
+        when (OwnReplies.autoSendStep(pending, ids.packageName, chatTitle(root, ids), entryText, now)) {
             OwnReplies.Step.WAIT -> Unit
             OwnReplies.Step.EXPIRED -> onTimeout()
             OwnReplies.Step.FILL -> {
                 // Eski bir taslak ya da paylaşımın eklemediği metin: kutu tam olarak Mesa'nın metni olur.
-                val args = Bundle().apply {
-                    putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, pending.text)
-                }
-                entry?.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
-                main.postDelayed({ maybeAutoSend(ids) }, 200)
+                setEntryText(entry, pending.text)
+                main.postDelayed({ maybeAutoSend(ids) }, 250)
             }
             OwnReplies.Step.PRESS -> {
+                // Metin yazılınca WhatsApp "send" düğmesini oluşturur; kısa bir süre beklenir.
+                val ready = sendButton(root, ids) != null
+                if (matchedAt == 0L) matchedAt = now
+                if (!ready && now - matchedAt < SEND_BUTTON_WAIT_MS) {
+                    main.postDelayed({ maybeAutoSend(ids) }, 200)
+                    return
+                }
                 OwnReplies.pendingSend = null
                 sending = pending
                 // Basmadan önce: kutu boşalınca yakalanan metin ikinci kez kaydedilmesin.
                 OwnReplies.markSending(pending.key, pending.text)
                 tracker.onAutoSend(pending.text)
-                // Düğmenin mikrofondan gönder'e dönmesi ve klavyenin yerleşmesi beklenir.
                 main.postDelayed({ press(ids, pending, attempt = 1) }, SETTLE_MS)
             }
         }
     }
 
     /**
-     * Üç deneme: erişilebilir tıklama, düğmenin yerine dokunma, örtüyü
-     * kaldırıp yeniden dokunma (WhatsApp örtülü dokunmaları yok sayıyor olabilir).
+     * Üç deneme: "send" düğmesine erişilebilir tıklama, düğmenin yerine
+     * dokunma, klavyenin Gönder eylemi. Örtü hiç kalkmaz.
      */
     private fun press(ids: ChatIds, pending: OwnReplies.PendingSend, attempt: Int) {
         // Süre dolup bittiyse geciken denemeler durur.
         if (sending !== pending) return
-        val root = rootInActiveWindow
-        if (root == null || chatTitle(root, ids)?.let(Names::title) != pending.title) {
+        val root = appRoot(ids)
+        if (root == null || Names.title(chatTitle(root, ids)) != pending.title) {
             finish(pending, sent = false, how = "sohbet ekrandan çıktı")
             return
         }
-        val pressed = when (attempt) {
-            1 -> clickSend(root, ids) || tapSend(root, ids)
-            2 -> tapSend(root, ids)
-            else -> {
-                removeOverlay()
-                main.postDelayed({ rootInActiveWindow?.let { tapSend(it, ids) } }, 250)
-                true
+        val send = sendButton(root, ids)
+        val how = when (attempt) {
+            1 -> when {
+                send != null && send.isClickable && send.performAction(AccessibilityNodeInfo.ACTION_CLICK) -> "tıklama"
+                tap(send ?: fallbackButton(root, ids)) -> "dokunma"
+                else -> "düğme yok"
+            }
+            2 -> if (tap(send ?: fallbackButton(root, ids))) "dokunma" else "düğme yok"
+            else -> when {
+                imeEnter(root, ids) -> "klavye eylemi"
+                tap(send ?: fallbackButton(root, ids)) -> "dokunma"
+                else -> "düğme yok"
             }
         }
-        if (!pressed) Log.w(TAG, "Otomatik gönderim: Gönder düğmesi bulunamadı (deneme $attempt)")
-        val wait = if (attempt == 3) VERIFY_DELAY_MS + 250 else VERIFY_DELAY_MS
-        main.postDelayed({ confirm(ids, pending, attempt) }, wait)
+        Log.i(TAG, "Otomatik gönderim: deneme $attempt ($how, gönder düğmesi ${if (send != null) "var" else "yok"})")
+        main.postDelayed({ confirm(ids, pending, attempt) }, VERIFY_DELAY_MS)
     }
 
     private fun confirm(ids: ChatIds, pending: OwnReplies.PendingSend, attempt: Int) {
         if (sending !== pending) return
-        val entry = rootInActiveWindow?.findAccessibilityNodeInfosByViewId(ids.entry)?.firstOrNull()
-        if (entry != null && entryText(entry).isNullOrBlank()) {
-            finish(pending, sent = true, how = "deneme $attempt")
-        } else if (attempt < 3) {
-            press(ids, pending, attempt + 1)
-        } else {
-            rootInActiveWindow?.let { Log.w(TAG, "Otomatik gönderim başarısız; ekran: ${describeInputBar(it, ids)}") }
-            // Taslak WhatsApp'ta kalmasın; mesaj Mesa'nın yazma alanına geri konur.
-            val args = Bundle().apply {
-                putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "")
+        // WhatsApp ekranı yoksa gönderildiği doğrulanamaz.
+        val root = appRoot(ids) ?: return finish(pending, sent = false, how = "WhatsApp ekranı kayboldu")
+        val entry = root.findAccessibilityNodeInfosByViewId(ids.entry).firstOrNull()?.also { it.refresh() }
+        val empty = entry != null && isEmptyEntry(entry)
+        val stillInBox = entry != null && !empty && OwnReplies.sameMessage(entry.text, pending.text)
+        val sent = !stillInBox && (empty || listedNearBottom(root, ids, pending.text))
+        when {
+            sent -> finish(pending, sent = true, how = "deneme $attempt")
+            attempt < 3 -> press(ids, pending, attempt + 1)
+            else -> {
+                Log.w(TAG, "Otomatik gönderim başarısız; ${describeSendArea(root, ids)}")
+                // Taslak WhatsApp'ta kalmasın; mesaj Mesa'nın yazma alanına geri konur.
+                if (stillInBox) setEntryText(entry, "")
+                finish(pending, sent = false, how = "üç deneme")
             }
-            entry?.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
-            finish(pending, sent = false, how = "üç deneme")
         }
     }
 
@@ -259,11 +282,13 @@ class OwnReplyService : AccessibilityService() {
     /** Sonuç kaydedilir, Mesa öne gelir, örtü Mesa çizildikten sonra kalkar. */
     private fun finish(pending: OwnReplies.PendingSend, sent: Boolean, how: String) {
         sending = null
+        matchedAt = 0L
         main.removeCallbacks(giveUp)
         OwnReplies.markResult(pending.key, sent)
         if (sent) {
             Log.i(TAG, "Mesa'dan yazılan mesaj WhatsApp'ta gönderildi ($how)")
         } else {
+            OwnReplies.clearSending(pending.key)
             Log.w(TAG, "Mesa'dan yazılan mesaj gönderilemedi ($how)")
         }
         if (pending.returnToMesa) {
@@ -275,102 +300,183 @@ class OwnReplyService : AccessibilityService() {
         main.postDelayed({ removeOverlay() }, OVERLAY_LINGER_MS)
     }
 
-    /** Erişilebilir "Gönder" düğmesine (ya da tıklanabilir kabına) tıklar. */
-    private fun clickSend(root: AccessibilityNodeInfo, ids: ChatIds): Boolean {
-        val candidates = ids.sendTargets.flatMap { root.findAccessibilityNodeInfosByViewId(it) } +
-            SEND_LABELS.flatMap { root.findAccessibilityNodeInfosByText(it) }.filter { node ->
-                val label = node.contentDescription?.toString() ?: return@filter false
-                node.viewIdResourceName?.startsWith(ids.packageName) == true &&
-                    SEND_LABELS.any { label.equals(it, ignoreCase = true) }
-            }
-        for (node in candidates) {
-            if (!node.isVisibleToUser) continue
-            var target: AccessibilityNodeInfo = node
-            // Düğme tıklanamıyorsa en fazla iki üst kabına bakılır.
-            repeat(2) { if (!target.isClickable) target.parent?.let { target = it } }
-            if (target.isClickable && target.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
-        }
-        return false
-    }
+    /** Görünür "send" düğmesi (metin yazılınca oluşur). */
+    private fun sendButton(root: AccessibilityNodeInfo, ids: ChatIds): AccessibilityNodeInfo? =
+        root.findAccessibilityNodeInfosByViewId(ids.send).firstOrNull { it.isVisibleToUser }
 
-    /** Düğmenin ekrandaki yerine dokunur (dokunmayı kendisi işleyen düğme için). */
-    private fun tapSend(root: AccessibilityNodeInfo, ids: ChatIds): Boolean {
-        val button = ids.sendTargets.firstNotNullOfOrNull { id ->
+    /** "send" yoksa düğmenin yeri: mikrofon düğmesi ya da kabı. */
+    private fun fallbackButton(root: AccessibilityNodeInfo, ids: ChatIds): AccessibilityNodeInfo? =
+        ids.fallbackTargets.firstNotNullOfOrNull { id ->
             root.findAccessibilityNodeInfosByViewId(id).firstOrNull { it.isVisibleToUser }
-        } ?: return false
-        val bounds = Rect().also(button::getBoundsInScreen)
+        }
+
+    /** Düğmenin ekrandaki yerine dokunur; o an örtü dokunmayı geçirir. */
+    private fun tap(node: AccessibilityNodeInfo?): Boolean {
+        node ?: return false
+        val bounds = Rect().also(node::getBoundsInScreen)
         if (bounds.isEmpty) return false
         val tap = Path().apply { moveTo(bounds.exactCenterX(), bounds.exactCenterY()) }
         val gesture = GestureDescription.Builder()
             .addStroke(GestureDescription.StrokeDescription(tap, 0, TAP_MS))
             .build()
-        return dispatchGesture(gesture, null, null)
+        setOverlayTouchable(false)
+        val callback = object : GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription?) {
+                setOverlayTouchable(true)
+            }
+
+            override fun onCancelled(gestureDescription: GestureDescription?) {
+                Log.w(TAG, "Otomatik gönderim: dokunuş iptal edildi")
+                setOverlayTouchable(true)
+            }
+        }
+        val dispatched = dispatchGesture(gesture, callback, main)
+        if (!dispatched) setOverlayTouchable(true)
+        return dispatched
     }
 
-    /** Tanı için yazma çubuğunun yapısı: kimlik, tıklanabilirlik, yer. Metin YAZILMAZ. */
-    private fun describeInputBar(root: AccessibilityNodeInfo, ids: ChatIds): String {
-        var bar = root.findAccessibilityNodeInfosByViewId(ids.entry).firstOrNull() ?: return "kutu yok"
-        repeat(4) { bar.parent?.let { bar = it } }
+    /** Klavyedeki Gönder eylemi (Android 11+); WhatsApp'ta "Enter ile gönder" açıksa gönderir. */
+    private fun imeEnter(root: AccessibilityNodeInfo, ids: ChatIds): Boolean {
+        if (Build.VERSION.SDK_INT < 30) return false
+        val entry = root.findAccessibilityNodeInfosByViewId(ids.entry).firstOrNull() ?: return false
+        entry.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+        return entry.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER.id)
+    }
+
+    private fun setEntryText(entry: AccessibilityNodeInfo?, text: String) {
+        val args = Bundle().apply {
+            putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+        }
+        entry?.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)
+    }
+
+    /** Metin, sohbet listesinin en alttaki birkaç mesajından birinde mi. */
+    private fun listedNearBottom(root: AccessibilityNodeInfo, ids: ChatIds, text: String): Boolean =
+        root.findAccessibilityNodeInfosByViewId(ids.messageText)
+            .sortedByDescending { Rect().also(it::getBoundsInScreen).top }
+            .take(3)
+            .any { OwnReplies.sameMessage(it.text, text) }
+
+    /** Tanı için Gönder bölgesi ve kutunun durumu: kimlik, bayraklar, yer. Metin YAZILMAZ. */
+    private fun describeSendArea(root: AccessibilityNodeInfo, ids: ChatIds): String {
         val out = mutableListOf<String>()
+        root.findAccessibilityNodeInfosByViewId(ids.entry).firstOrNull()?.let { e ->
+            val hint = if (Build.VERSION.SDK_INT >= 26) "ipucu=${e.hintText?.length} gösteriliyor=${e.isShowingHintText}" else ""
+            out += "kutu: uzunluk=${e.text?.length ?: 0} $hint odak=${e.isFocused}"
+        }
+        val area = root.findAccessibilityNodeInfosByViewId(ids.buttons).firstOrNull()
+            ?: root.findAccessibilityNodeInfosByViewId(ids.sendContainer).firstOrNull()
         fun walk(node: AccessibilityNodeInfo, depth: Int) {
-            if (depth > 6 || out.size > 40) return
+            if (depth > 4 || out.size > 20) return
             val r = Rect().also(node::getBoundsInScreen)
             val name = node.viewIdResourceName?.substringAfter(":id/")
                 ?: node.className?.toString()?.substringAfterLast('.')
-            val label = node.contentDescription?.takeIf { node.className?.contains("Button") == true }
-            out += "$name t=${node.isClickable} g=${node.isVisibleToUser} ${r.toShortString()}" +
-                (label?.let { " d=${it.toString().take(20)}" } ?: "")
+            out += "$name t=${node.isClickable} g=${node.isVisibleToUser} ${r.toShortString()}"
             for (i in 0 until node.childCount) node.getChild(i)?.let { walk(it, depth + 1) }
         }
-        walk(bar, 0)
+        area?.let { walk(it, 0) } ?: out.add("gönder bölgesi yok")
         return out.joinToString(" | ")
     }
 
     // ---- Örtü ----
 
-    private fun showOverlay() {
+    private fun showOverlay(shot: ScreenShot.Shot?) {
         if (overlay != null) return
         val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
             Configuration.UI_MODE_NIGHT_YES
-        val background = if (night) 0xFF121316.toInt() else 0xFFF6F7FA.toInt()
-        val foreground = if (night) 0xFFE6E7EA.toInt() else 0xFF1B1C1F.toInt()
         val density = resources.displayMetrics.density
-        val view = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setBackgroundColor(background)
-            addView(ProgressBar(context).apply { isIndeterminate = true })
+        fun dp(v: Int) = (v * density).toInt()
+        val root = FrameLayout(this)
+        if (shot != null) {
+            // Mesa'nın görüntüsü; kenarlar görüntünün üst rengiyle doldurulur.
+            val bitmap = shot.bitmap
+            root.setBackgroundColor(bitmap.getPixel(bitmap.width / 2, minOf(dp(4), bitmap.height - 1)))
+            root.addView(
+                ImageView(this).apply {
+                    setImageBitmap(bitmap)
+                    scaleType = ImageView.ScaleType.FIT_XY
+                },
+                FrameLayout.LayoutParams(bitmap.width, bitmap.height).apply {
+                    leftMargin = shot.x
+                    topMargin = shot.y
+                },
+            )
+        } else {
+            root.setBackgroundColor(if (night) 0xFF121316.toInt() else 0xFFF6F7FA.toInt())
+        }
+        val chip = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            background = GradientDrawable().apply {
+                cornerRadius = dp(22).toFloat()
+                setColor(0xEE202124.toInt())
+            }
+            setPadding(dp(16), dp(10), dp(18), dp(10))
+            addView(
+                ProgressBar(context, null, android.R.attr.progressBarStyleSmall).apply {
+                    indeterminateTintList = ColorStateList.valueOf(0xFFFFFFFF.toInt())
+                },
+                LinearLayout.LayoutParams(dp(18), dp(18)),
+            )
             addView(
                 TextView(context).apply {
                     text = getString(R.string.auto_send_progress)
-                    setTextColor(foreground)
-                    textSize = 16f
-                    gravity = Gravity.CENTER
-                    setPadding(0, (16 * density).toInt(), 0, 0)
+                    setTextColor(0xFFFFFFFF.toInt())
+                    textSize = 14f
+                    setPadding(dp(10), 0, 0, 0)
                 },
             )
         }
+        root.addView(
+            chip,
+            FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL,
+            ).apply { bottomMargin = dp(150) },
+        )
+        // Kullanıcının dokunuşları alttaki WhatsApp'a gitmesin.
+        root.setOnTouchListener { _, _ -> true }
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            // Dokunmalar alttaki WhatsApp'a geçer (servisin dokunuşu da).
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             PixelFormat.OPAQUE,
-        )
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            if (Build.VERSION.SDK_INT >= 28) {
+                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+        }
         try {
-            getSystemService(WindowManager::class.java).addView(view, params)
-            overlay = view
+            getSystemService(WindowManager::class.java).addView(root, params)
+            overlay = root
+            overlayParams = params
         } catch (e: RuntimeException) {
             Log.w(TAG, "Gönderim örtüsü gösterilemedi: ${e.javaClass.simpleName}")
+        }
+    }
+
+    /** Servisin dokunuşu sırasında örtü dokunmayı alttaki WhatsApp'a geçirir. */
+    private fun setOverlayTouchable(touchable: Boolean) {
+        val view = overlay ?: return
+        val params = overlayParams ?: return
+        val flag = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        params.flags = if (touchable) params.flags and flag.inv() else params.flags or flag
+        try {
+            getSystemService(WindowManager::class.java).updateViewLayout(view, params)
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "Gönderim örtüsü güncellenemedi: ${e.javaClass.simpleName}")
         }
     }
 
     private fun removeOverlay() {
         val view = overlay ?: return
         overlay = null
+        overlayParams = null
         try {
             getSystemService(WindowManager::class.java).removeView(view)
         } catch (e: RuntimeException) {
@@ -380,10 +486,24 @@ class OwnReplyService : AccessibilityService() {
 
     // ---- Ekran okuma ----
 
-    /** Kutunun metni; boşken Android ipucunu ("Mesaj") döndürdüğü için ayıklanır. */
-    private fun entryText(node: AccessibilityNodeInfo): String? {
-        if (Build.VERSION.SDK_INT >= 26 && node.isShowingHintText) return ""
-        return node.text?.toString()
+    /** WhatsApp penceresinin kökü (örtü açıkken etkin pencere de WhatsApp olmayabilir). */
+    private fun appRoot(ids: ChatIds): AccessibilityNodeInfo? {
+        rootInActiveWindow?.takeIf { it.packageName?.toString() == ids.packageName }?.let { return it }
+        return windows.asSequence()
+            .filter { it.type == AccessibilityWindowInfo.TYPE_APPLICATION }
+            .mapNotNull { it.root }
+            .firstOrNull { it.packageName?.toString() == ids.packageName }
+    }
+
+    /** Boş kutu: Android metin yerine ipucunu ("Mesaj") bildirir. */
+    private fun isEmptyEntry(node: AccessibilityNodeInfo): Boolean {
+        val text = node.text?.toString().orEmpty()
+        if (text.isBlank()) return true
+        if (Build.VERSION.SDK_INT >= 26) {
+            if (node.isShowingHintText) return true
+            if (node.hintText?.toString() == text) return true
+        }
+        return false
     }
 
     private fun chatTitle(root: AccessibilityNodeInfo?, ids: ChatIds): String? =
@@ -396,10 +516,11 @@ class OwnReplyService : AccessibilityService() {
         val send = "$packageName:id/send"
         val title = "$packageName:id/conversation_contact_name"
         val messageText = "$packageName:id/message_text"
+        val buttons = "$packageName:id/buttons"
+        val sendContainer = "$packageName:id/send_container"
 
-        /** Metin yazılınca gönder olan düğme ve kapları (2.26: voice_note_btn). */
-        val sendTargets = listOf(
-            "$packageName:id/send",
+        /** "send" henüz yokken düğmenin yeri (2.26: voice_note_btn ve kapları). */
+        val fallbackTargets = listOf(
             "$packageName:id/voice_note_btn",
             "$packageName:id/send_container",
             "$packageName:id/conversation_entry_action_button",
@@ -410,12 +531,10 @@ class OwnReplyService : AccessibilityService() {
         private const val TAG = "MesajMerkezi"
         private const val VERIFY_DELAY_MS = 800L
         private const val WINDOW_DELAY_MS = 400L
-        private const val SETTLE_MS = 450L
+        private const val SETTLE_MS = 300L
+        private const val SEND_BUTTON_WAIT_MS = 1_500L
         private const val TAP_MS = 100L
         private const val OVERLAY_LINGER_MS = 700L
-
-        /** WhatsApp'ın Gönder düğmesinin dillerdeki adı. */
-        private val SEND_LABELS = listOf("Gönder", "Send", "Enviar", "Senden", "Envoyer", "إرسال", "Отправить")
 
         /** Bağlı servis; Mesa göndermeden önce örtüyü açtırır. */
         @Volatile

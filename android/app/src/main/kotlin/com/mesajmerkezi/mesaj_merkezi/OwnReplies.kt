@@ -110,6 +110,38 @@ object OwnReplies {
         sending[key] = text to System.currentTimeMillis()
     }
 
+    /** Gönderilemedi: Mesa kaydını sildi; kullanıcı WhatsApp'tan gönderirse kaydedilsin. */
+    internal fun clearSending(key: String) {
+        sending.remove(key)
+    }
+
+    /**
+     * Mesaj metinleri karşılaştırılabilir hale gelir: WhatsApp balondaki
+     * metnin sonuna saat için görünmez boşluklar ekleyebiliyor; biçim
+     * karakterleri (U+200B…, U+2060…, U+FEFF) atılır, boşluklar sadeleşir.
+     * Emoji birleştiricisi (U+200D) korunur.
+     */
+    internal fun normalize(text: CharSequence?): String {
+        if (text == null) return ""
+        val visible = buildString(text.length) {
+            for (c in text) {
+                when {
+                    c == '\u200D' -> append(c)
+                    Character.getType(c) == Character.FORMAT.toInt() -> Unit
+                    Character.isSpaceChar(c) || c.isWhitespace() -> append(' ')
+                    else -> append(c)
+                }
+            }
+        }
+        return visible.replace(Regex(" +"), " ").trim()
+    }
+
+    /** İki metin aynı mesaj mı ([normalize] ile). */
+    internal fun sameMessage(a: CharSequence?, b: CharSequence?): Boolean {
+        val x = normalize(a)
+        return x.isNotEmpty() && x == normalize(b)
+    }
+
     /** Otomatik gönderim bitti: Mesa'ya dönünce "gönderildi" ya da "gönderilemedi" denir. */
     internal fun markResult(key: String, sent: Boolean) {
         results[key] = sent to System.currentTimeMillis()
@@ -122,7 +154,7 @@ object OwnReplies {
             ?.let { if (it.first) "sent" else "failed" }
 
     private fun wasAutoSent(key: String, text: String): Boolean =
-        sending[key]?.let { it.first == text && System.currentTimeMillis() - it.second < 30_000 } == true
+        sending[key]?.let { sameMessage(it.first, text) && System.currentTimeMillis() - it.second < 30_000 } == true
 
     /** Kullanıcı servisi Android'in Erişilebilirlik ayarından açtı mı. */
     fun isEnabled(context: Context): Boolean {
@@ -162,7 +194,10 @@ object OwnReplies {
             return false
         }
         // Mesa'dan gönderilen mesaj zaten kaydedildi.
-        if (wasAutoSent(key, text)) return false
+        if (wasAutoSent(key, text)) {
+            Log.i(TAG, "WhatsApp yanıtı: Mesa'dan gönderilen mesaj, ikinci kez yazılmadı")
+            return false
+        }
         store.recordOutgoing(key, text)
         store.markRead(key)
         UnifiedNotifier.cancel(context, key)

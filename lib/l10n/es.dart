@@ -869,8 +869,8 @@ const es = <String, String>{
       'Este servicio hace dos cosas:\n• Las respuestas que escribes en WhatsApp se añaden al mismo chat en Mesa, y los chats que abres allí se marcan como leídos aquí.\n• Cuando un mensaje que escribiste en Mesa se abre en WhatsApp, toca Enviar por ti y te devuelve a Mesa.\n\nEn la página siguiente, entra en "Apps descargadas" y activa "Mesa: mis respuestas de WhatsApp". Solo se lee WhatsApp y nada sale de tu teléfono.\n\nSi el ajuste aparece atenuado: Información de la app → ⋮ → Permitir ajustes restringidos.',
   'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; Mesa\'dan yazdıklarınız WhatsApp\'ta kendiliğinden gönderilir':
       'Las respuestas que envías desde WhatsApp también aparecen en el chat; los mensajes que escribes en Mesa se envían solos en WhatsApp',
-  'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
-      'Tu mensaje se envía solo en {name} y luego vuelves aquí.',
+  'Mesajınız {name} üzerinden, Mesa\'dan çıkmadan gönderilir.':
+      'Tu mensaje se envía a través de {name} sin salir de Mesa.',
   'Otomatik gönder': 'Envío automático',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'No se pudo enviar en WhatsApp; tu mensaje está en el cuadro de texto.',

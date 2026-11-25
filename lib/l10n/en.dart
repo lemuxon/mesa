@@ -854,8 +854,8 @@ const en = <String, String>{
       'This service does two things:\n• Replies you write in WhatsApp are added to the same chat in Mesa, and chats you open there are marked read here.\n• When a message you wrote in Mesa opens in WhatsApp, it taps Send for you and brings you back to Mesa.\n\nOn the next page, open "Downloaded apps" and turn on "Mesa: my WhatsApp replies". Only WhatsApp is read and nothing leaves your phone.\n\nIf the setting is greyed out: App info → ⋮ → Allow restricted settings.',
   'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; Mesa\'dan yazdıklarınız WhatsApp\'ta kendiliğinden gönderilir':
       'Replies you send from WhatsApp show up in the chat too; messages you write in Mesa are sent in WhatsApp automatically',
-  'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
-      'Your message is sent automatically in {name}, then you come back here.',
+  'Mesajınız {name} üzerinden, Mesa\'dan çıkmadan gönderilir.':
+      'Your message is sent through {name} without leaving Mesa.',
   'Otomatik gönder': 'Auto-send',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'Couldn\'t send in WhatsApp; your message is back in the box.',

@@ -1111,7 +1111,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       child: Text(
                         _autoSends
                             ? tr(
-                                'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.',
+                                'Mesajınız {name} üzerinden, Mesa\'dan çıkmadan gönderilir.',
                                 {'name': app.name},
                               )
                             : tr(

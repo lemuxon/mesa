@@ -246,7 +246,7 @@ void main() {
         mode: ReplyMode.app,
         ownReplies: true,
       );
-      expect(find.textContaining('kendiliğinden gönderilir'), findsOneWidget);
+      expect(find.textContaining('Mesa\'dan çıkmadan'), findsOneWidget);
       expect(find.text('Otomatik gönder'), findsNothing);
 
       await tester.pumpWidget(const SizedBox());

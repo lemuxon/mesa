@@ -842,8 +842,8 @@ const ar = <String, String>{
       'تقوم هذه الخدمة بأمرين:\n• تُضاف الردود التي تكتبها في WhatsApp إلى المحادثة نفسها في Mesa، وتُعلَّم المحادثات التي تفتحها هناك كمقروءة هنا.\n• عندما تُفتح رسالة كتبتها في Mesa داخل WhatsApp، تلمس زر الإرسال نيابةً عنك وتعيدك إلى Mesa.\n\nفي الصفحة التالية، افتح "التطبيقات التي تم تنزيلها" وشغّل "Mesa: ردودي في WhatsApp". يُقرأ WhatsApp فقط ولا يغادر أي شيء هاتفك.\n\nإذا كان الإعداد باهتًا: معلومات التطبيق ← ⋮ ← السماح بالإعدادات المحظورة.',
   'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; Mesa\'dan yazdıklarınız WhatsApp\'ta kendiliğinden gönderilir':
       'تظهر الردود التي ترسلها من WhatsApp في المحادثة أيضًا، وتُرسَل الرسائل التي تكتبها في Mesa تلقائيًا في WhatsApp',
-  'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
-      'تُرسَل رسالتك تلقائيًا في {name}، ثم تعود إلى هنا.',
+  'Mesajınız {name} üzerinden, Mesa\'dan çıkmadan gönderilir.':
+      'تُرسَل رسالتك عبر {name} دون مغادرة Mesa.',
   'Otomatik gönder': 'إرسال تلقائي',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'تعذّر الإرسال في WhatsApp؛ رسالتك في مربع الكتابة.',

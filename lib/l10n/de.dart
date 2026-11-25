@@ -867,8 +867,8 @@ const de = <String, String>{
       'Dieser Dienst macht zwei Dinge:\n• Antworten, die du in WhatsApp schreibst, werden demselben Chat in Mesa hinzugefügt, und dort geöffnete Chats gelten hier als gelesen.\n• Öffnet sich eine in Mesa geschriebene Nachricht in WhatsApp, tippt er für dich auf Senden und bringt dich zurück zu Mesa.\n\nÖffne auf der nächsten Seite „Heruntergeladene Apps“ und schalte „Mesa: meine WhatsApp-Antworten“ ein. Gelesen wird nur WhatsApp, und nichts verlässt dein Telefon.\n\nIst die Einstellung ausgegraut: App-Info → ⋮ → Eingeschränkte Einstellungen zulassen.',
   'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; Mesa\'dan yazdıklarınız WhatsApp\'ta kendiliğinden gönderilir':
       'Antworten, die du aus WhatsApp sendest, erscheinen auch im Chat; in Mesa geschriebene Nachrichten werden in WhatsApp automatisch gesendet',
-  'Mesajınız {name}\'ta kendiliğinden gönderilir, sonra buraya dönersiniz.':
-      'Deine Nachricht wird in {name} automatisch gesendet, danach kommst du hierher zurück.',
+  'Mesajınız {name} üzerinden, Mesa\'dan çıkmadan gönderilir.':
+      'Deine Nachricht wird über {name} gesendet, ohne Mesa zu verlassen.',
   'Otomatik gönder': 'Automatisch senden',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'In WhatsApp konnte nicht gesendet werden; deine Nachricht steht wieder im Eingabefeld.',
