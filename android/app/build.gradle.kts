@@ -114,6 +114,34 @@ tasks.matching { it.name.matches(Regex("package(\\w+)UnitTestForUnitTest")) }.co
     dependsOn("copyFlutterAssets$variant")
 }
 
+// Robolectric'in Android kitapliklari Gradle ile indirilir (onbellek, yeniden
+// deneme) ve testler cevrimdisi calisir. Robolectric'in kendi indiricisi testin
+// ortasinda Maven'a cikiyor ve CI'da basarisiz oluyordu. Testler sdk=34 ile
+// calisir (robolectric.properties); Robolectric 4.14 en yeni desteklenen SDK'nin
+// (35) kitapligini da ister. Robolectric ya da sdk degisirse surumler, testin
+// "Path is not a file: ...android-all-instrumented-<surum>.jar" hatasindaki
+// surumlerle guncellenmeli. Ayni modulun iki surumu tek yapilandirmada cakisir
+// (Gradle yalnizca yenisini tutar), bu yuzden her surume ayri yapilandirma.
+val robolectricAndroidAll = listOf(
+    "14-robolectric-10818077-i7",
+    "15-robolectric-12650502-i7",
+).mapIndexed { index, version ->
+    configurations.create("robolectricAndroidAll$index") { isTransitive = false }.also {
+        dependencies.add(it.name, "org.robolectric:android-all-instrumented:$version")
+    }
+}
+val robolectricJars = tasks.register<Sync>("robolectricJars") {
+    from(robolectricAndroidAll)
+    into(layout.buildDirectory.dir("robolectric-jars"))
+}
+tasks.withType<Test>().configureEach {
+    dependsOn(robolectricJars)
+    val jars = robolectricJars.map { it.destinationDir.absolutePath }
+    jvmArgumentProviders.add(CommandLineArgumentProvider {
+        listOf("-Drobolectric.offline=true", "-Drobolectric.dependency.dir=${jars.get()}")
+    })
+}
+
 dependencies {
     // MessagingStyle ayristirma, RemoteInput ile yanit, bildirim erisimi kontrolu.
     implementation("androidx.core:core-ktx:1.13.1")
