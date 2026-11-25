@@ -144,6 +144,10 @@ class CoreBridge {
   Future<void> openNotificationSettings() =>
       _channel.invokeMethod<void>('openNotificationSettings');
 
+  /// Sistemin sohbet balonu ayarı (Android 11+).
+  Future<void> openBubbleSettings() =>
+      _channel.invokeMethod<void>('openBubbleSettings');
+
   // ---- Odak modu (Focus.kt) ----
 
   Future<FocusStatus> focusStatus() async => FocusStatus.fromMap(

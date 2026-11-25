@@ -128,6 +128,17 @@
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
         </service>
+        <!-- Sohbet balonu: bildirimdeki sohbet yüzen pencerede (Android 11+). -->
+        <activity
+            android:name=".BubbleActivity"
+            android:allowEmbedded="true"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:documentLaunchMode="always"
+            android:exported="false"
+            android:hardwareAccelerated="true"
+            android:resizeableActivity="true"
+            android:theme="@style/NormalTheme"
+            android:windowSoftInputMode="adjustResize" />
         <!-- Bildirim panelindeki "Odak modu" kutucuğu. -->
         <service
             android:name=".FocusTileService"

@@ -12,9 +12,13 @@ class AppSettings {
     this.unifiedNotifications = false,
     this.telegramGhostRead = false,
     this.keepSourcePackages = const {},
+    this.bubbles = false,
+    this.bubblesSupported = false,
   });
 
   factory AppSettings.fromMap(Map<Object?, Object?> m) => AppSettings(
+    bubbles: m['bubbles'] as bool? ?? false,
+    bubblesSupported: m['bubblesSupported'] as bool? ?? false,
     disabledPackages: (m['disabledPackages'] as List<Object?>? ?? const [])
         .cast<String>()
         .toSet(),
@@ -51,7 +55,14 @@ class AppSettings {
   /// Mesa yeniden başlasa da bu sohbetlere doğrudan yanıt gider.
   final Set<String> keepSourcePackages;
 
+  /// Birleşik bildirimler sohbet balonu olarak da açılabilsin (Android 11+).
+  final bool bubbles;
+
+  /// Telefon sohbet balonlarını destekliyor mu (yalnızca okunur).
+  final bool bubblesSupported;
+
   AppSettings copyWith({
+    bool? bubbles,
     Set<String>? disabledPackages,
     bool? hideTelegramChannels,
     int? retentionDays,
@@ -68,9 +79,12 @@ class AppSettings {
     unifiedNotifications: unifiedNotifications ?? this.unifiedNotifications,
     telegramGhostRead: telegramGhostRead ?? this.telegramGhostRead,
     keepSourcePackages: keepSourcePackages ?? this.keepSourcePackages,
+    bubbles: bubbles ?? this.bubbles,
+    bubblesSupported: bubblesSupported,
   );
 
   Map<String, Object?> toMap() => {
+    'bubbles': bubbles,
     'disabledPackages': disabledPackages.toList(),
     'hideTelegramChannels': hideTelegramChannels,
     'retentionDays': retentionDays,

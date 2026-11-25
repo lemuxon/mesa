@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.2.0 (unreleased)
+
+Full VPN, focus mode, automatic backups and chat bubbles.
+
+### New
+- **Full VPN with WireGuard.** Import a `.conf` file (or paste it) from your own server or a provider that offers
+  WireGuard configurations, then connect from the Secure connection screen. All traffic goes through the tunnel and your IP
+  address changes. Uses the official WireGuard library. The configuration, which holds the private key, is stored
+  encrypted with a non-exportable Android Keystore key, and the screen only shows a summary. Live status shows the last
+  handshake and traffic. Android runs one VPN at a time, so Mesa switches between secure DNS and the tunnel for you.
+- **Focus mode.** Only VIPs, messages matching "Mark important" and emergencies (the same chat writing 3 times within
+  5 minutes) notify you. Everything else quietly lands in Mesa, and a summary notification lists who wrote when focus
+  ends. Turn it on for 1 hour, 3 hours, until 08:00 or until you turn it off, or schedule it by day (overnight windows
+  work). Quick settings tile and a banner at the top of the inbox.
+- **Automatic encrypted backups.** Pick a folder (phone, SD card, Drive…), daily or weekly. The newest 5 automatic backups
+  are kept; manual backups are never touched. For this to run unattended, the password is stored encrypted with the
+  Android Keystore. Manual backups still never store it.
+- **Chat bubbles** (Android 11+). With unified notifications on, a chat can open in a floating bubble and you can reply
+  without opening Mesa.
+
 ## 1.1.0 (unreleased)
 
 Secure connection: reach blocked services and keep DNS private, with no servers and no account.

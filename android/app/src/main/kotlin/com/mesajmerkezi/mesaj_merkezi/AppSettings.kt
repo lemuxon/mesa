@@ -18,6 +18,12 @@ object AppSettings {
     private const val TELEGRAM_GHOST_READ = "telegram_ghost_read"
     private const val KEEP_SOURCE_PACKAGES = "keep_source_packages"
     private const val QUICK_REPLIES = "quick_replies"
+    private const val BUBBLES = "bubbles"
+
+    /** Birleşik bildirim sohbet balonu olarak da açılabilir (Android 11+). */
+    fun bubbles(context: Context) = prefs(context).getBoolean(BUBBLES, false)
+
+    val bubblesSupported get() = android.os.Build.VERSION.SDK_INT >= 30
 
     /** Bildirimdeki "Yanıtla" alanında tek dokunuşluk seçenek sayısı. */
     const val NOTIFICATION_CHOICES = 3
@@ -86,6 +92,8 @@ object AppSettings {
         "unifiedNotifications" to unifiedNotifications(context),
         "telegramGhostRead" to telegramGhostRead(context),
         "keepSourcePackages" to keepSourcePackages(context).toList(),
+        "bubbles" to bubbles(context),
+        "bubblesSupported" to bubblesSupported,
     )
 
     /** Haritadaki anahtarları yazar; olmayanlara dokunmaz. */
@@ -102,6 +110,7 @@ object AppSettings {
             editor.putBoolean(UNIFIED_NOTIFICATIONS, it)
         }
         (values["telegramGhostRead"] as Boolean?)?.let { editor.putBoolean(TELEGRAM_GHOST_READ, it) }
+        (values["bubbles"] as Boolean?)?.let { editor.putBoolean(BUBBLES, it) }
         (values["keepSourcePackages"] as List<*>?)?.let { list ->
             val packages = list.map { it as String }.toSet()
             if (packages != keepSourcePackages(context)) Log.i("MesajMerkezi", "Kendi bildirimi kalan: ${packages.sorted()}")

@@ -8,6 +8,7 @@ import '../core/apps.dart';
 import '../core/bridge.dart';
 import '../core/focus.dart';
 import '../core/models.dart';
+import '../core/open_conversation.dart';
 import '../core/people.dart';
 import '../core/settings.dart';
 import '../core/telegram.dart';
@@ -221,28 +222,19 @@ class _InboxScreenState extends State<InboxScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _openByKey(String key) async {
-    final all = [
-      ...await widget.bridge.conversations(),
-      ...await widget.bridge.conversations(archived: true),
-    ];
-    final conversation = all.where((c) => c.key == key).firstOrNull;
-    if (conversation == null || !mounted) return;
+    final loaded = await loadConversation(widget.bridge, key);
+    if (loaded == null || !mounted) return;
     // Kişiye aitse kişi ekranı, yanıt bu sohbetin uygulamasından.
-    final person = conversation.personId;
-    final members = person == null
-        ? const <Conversation>[]
-        : all.where((c) => c.personId == person).toList();
-    if (members.length > 1) {
-      members.sort((a, b) => b.lastTime.compareTo(a.lastTime));
+    if (loaded.members.isNotEmpty) {
       await _push(
         ChatScreen(
           bridge: widget.bridge,
-          conversation: conversation,
-          members: members,
+          conversation: loaded.conversation,
+          members: loaded.members,
         ),
       );
     } else {
-      await _open(conversation);
+      await _open(loaded.conversation);
     }
   }
 

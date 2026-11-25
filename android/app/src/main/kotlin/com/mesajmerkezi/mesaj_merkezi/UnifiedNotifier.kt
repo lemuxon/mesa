@@ -183,6 +183,11 @@ object UnifiedNotifier {
             .addAction(snooze)
             .setWhen(messages.last()["time"] as Long)
             .apply { if (shortcut != null) setShortcutInfo(shortcut) }
+            .apply {
+                if (!web && shortcut != null && AppSettings.bubblesSupported && AppSettings.bubbles(context)) {
+                    bubble(context, key, requestCode, avatar)?.let(::setBubbleMetadata)
+                }
+            }
             .build()
         manager.notify(key, NOTIFICATION_ID, notification)
         showSummary(context, manager)
@@ -220,6 +225,37 @@ object UnifiedNotifier {
     }
 
     private fun shortcutId(key: String) = "sohbet_" + Integer.toHexString(key.hashCode())
+
+    /**
+     * Sohbet balonu: bildirim, sistemin izin verdiği yerde yüzen pencere
+     * olarak açılabilir. Niyet LaunchToken'lı; Android 12+ balon niyetinin
+     * değiştirilebilir olmasını ister.
+     */
+    private fun bubble(
+        context: Context,
+        key: String,
+        requestCode: Int,
+        avatar: android.graphics.Bitmap?,
+    ): NotificationCompat.BubbleMetadata? = try {
+        val intent = LaunchToken.conversationIntent(context, key, "bubble")
+            .setClass(context, BubbleActivity::class.java)
+        val pending = PendingIntent.getActivity(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or mutableFlag(),
+        )
+        val icon = avatar?.let { IconCompat.createWithAdaptiveBitmap(it) }
+            ?: IconCompat.createWithResource(context, R.mipmap.ic_launcher)
+        NotificationCompat.BubbleMetadata.Builder(pending, icon)
+            .setDesiredHeight(640)
+            .setAutoExpandBubble(false)
+            .setSuppressNotification(false)
+            .build()
+    } catch (e: RuntimeException) {
+        Log.i(TAG, "Balon hazırlanamadı: ${e.javaClass.simpleName}")
+        null
+    }
 
     /** Sohbet silinince kısayolu da kalkar. */
     fun removeShortcut(context: Context, key: String) {

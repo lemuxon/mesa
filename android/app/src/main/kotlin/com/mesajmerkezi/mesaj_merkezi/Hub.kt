@@ -190,8 +190,18 @@ object Hub {
     fun canReply(key: String) =
         if (TelegramClient.isTelegramKey(key)) TelegramClient.isReady else replyActions.containsKey(key)
 
+    /**
+     * Sohbet balonlarının (BubbleActivity) değişiklik dinleyicileri. Ana
+     * ekranın tek dinleyicisinden ([onChanged]) ayrı tutulur: balon kapanınca
+     * ana ekranın dinleyicisi silinmesin.
+     */
+    val bubbleListeners = java.util.concurrent.CopyOnWriteArrayList<(String) -> Unit>()
+
     fun notifyChanged(key: String) {
-        main.post { onChanged?.invoke(key) }
+        main.post {
+            onChanged?.invoke(key)
+            bubbleListeners.forEach { it(key) }
+        }
         appContext?.let(MessagesWidget::refresh)
     }
 

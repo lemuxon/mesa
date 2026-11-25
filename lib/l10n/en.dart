@@ -757,4 +757,89 @@ const en = <String, String>{
   'Şifreli DNS ve erişim kalkanı': 'Secure DNS and access shield',
   'Şifreli DNS, operatörün DNS engellerini aşar ve hangi sitelere girdiğinizi operatörden gizler. IP adresinizi gizlemez; tam bir VPN değildir. DNS sorguları seçtiğiniz sağlayıcıya gider, Mesa\'nın sunucusu yoktur.':
       'Secure DNS gets around your carrier\'s DNS blocks and hides which sites you visit from your carrier. It doesn\'t hide your IP address; it isn\'t a full VPN. DNS lookups go to the provider you choose; Mesa has no servers.',
+  // 2. aşama: tam VPN, odak modu, otomatik yedek, balonlar (1.2)
+  '3 saat': '3 hours',
+  'Acil durum': 'Emergencies',
+  'Aynı kişi 5 dakika içinde 3 kez yazarsa bildirim gelir.':
+      'If the same person writes 3 times within 5 minutes, you\'re notified.',
+  'Açık': 'On',
+  'Açık · siz kapatana kadar': 'On · until you turn it off',
+  'Açık · {time} saatine kadar': 'On · until {time}',
+  'Bağlantı yoksa interneti kes': 'Block internet without the VPN',
+  'Bağlanıyor… sunucudan henüz yanıt yok':
+      'Connecting… no reply from the server yet',
+  'Bağlı': 'Connected',
+  'Başlangıç': 'Start',
+  'Ben kapatana kadar': 'Until I turn it off',
+  'Bildirim panelindeki "Odak modu" kutucuğuyla da tek dokunuşla açıp kapatabilirsiniz.':
+      'You can also turn it on and off with one tap using the "Focus mode" tile in the notification panel.',
+  'Bildirimdeki sohbet ekranın üstünde yüzen balonda açılır; uygulamayı açmadan yanıtlayın':
+      'The chat from the notification opens in a floating bubble; reply without opening the app',
+  'Birleşik bildirimler kapalı: WhatsApp gibi uygulamaların kendi bildirimleri yine ses çıkarabilir. Odak modunun her şeyi susturması için birleşik bildirimleri açın.':
+      'Unified notifications are off: apps like WhatsApp can still play their own notification sounds. Turn on unified notifications so focus mode can silence everything.',
+  'Bitiş': 'End',
+  'Bu yapılandırma bu telefonda açılamıyor; silip yeniden içe aktarın.':
+      'This configuration can\'t be opened on this phone; delete it and import it again.',
+  'Bütün trafiğiniz kendi WireGuard sunucunuz ya da bir VPN sağlayıcısı üzerinden geçer; IP adresiniz değişir.':
+      'All your traffic goes through your own WireGuard server or a VPN provider; your IP address changes.',
+  'Dosya okunamadı.': 'Couldn\'t read the file.',
+  'Dosyadan içe aktar': 'Import from file',
+  'Eklenecek sohbet yok.': 'No chats to add.',
+  'Her gün': 'Every day',
+  'Her gün belirli saatlerde': 'At set times every day',
+  'Her hafta': 'Every week',
+  'Israrla yazana izin ver': 'Let persistent messages through',
+  'Kayıtlı parola açılamadı; otomatik yedeği yeniden açın.':
+      'The saved password couldn\'t be opened; turn automatic backup on again.',
+  'Klasör seç': 'Choose folder',
+  'Klasöre yazılamadı; klasörü yeniden seçin.':
+      'Couldn\'t write to the folder; choose the folder again.',
+  'Odak modu': 'Focus mode',
+  'Odak modu açık': 'Focus mode is on',
+  'Odaktayken yalnızca VIP kişiler, "Önemli işaretle" kuralına uyan mesajlar ve acil durumlar bildirim verir. Diğer mesajlar Mesa\'da sessizce birikir; odak bitince kısa bir özet gelir.':
+      'While focusing, only VIPs, messages matching the "Mark important" rule and emergencies notify you. Other messages quietly collect in Mesa; when focus ends you get a short summary.',
+  'Otomatik yedek': 'Automatic backup',
+  'Otomatik yedek açıldı; ilk yedek şimdi alınıyor.':
+      'Automatic backup is on; the first backup is being made now.',
+  'Panodan yapıştır': 'Paste from clipboard',
+  'Sabah 08:00\'e kadar': 'Until 08:00 tomorrow morning',
+  'Seçtiğiniz klasöre düzenli olarak şifreli yedek alınır; en yeni 5 otomatik yedek saklanır. Otomatik çalışabilmesi için parola bu telefonda, telefonun güvenli donanım anahtarıyla şifrelenip saklanır.':
+      'Encrypted backups are saved regularly to the folder you choose; the newest 5 automatic backups are kept. So that it can run on its own, the password is stored on this phone, encrypted with the phone\'s secure hardware key.',
+  'Seçtiğiniz klasöre düzenli, şifreli yedek':
+      'Regular encrypted backups to a folder you choose',
+  'Sistemin VPN ayarlarında Mesa için "Her zaman açık VPN" ve "VPN olmadan bağlantıları engelle"yi açın.':
+      'In the system VPN settings, turn on "Always-on VPN" and "Block connections without VPN" for Mesa.',
+  'Sohbet balonları': 'Chat bubbles',
+  'Sohbet bulunamadı.': 'Chat not found.',
+  'Sunucudan uzun süredir yanıt yok': 'No reply from the server for a while',
+  'Sunucunun adresi çözülemedi. İnternet bağlantınızı kontrol edin.':
+      'Couldn\'t resolve the server\'s address. Check your internet connection.',
+  'Tam VPN (WireGuard)': 'Full VPN (WireGuard)',
+  'Tünel açılamadı ({code}).': 'Couldn\'t start the tunnel ({code}).',
+  'VIP ekle': 'Add VIP',
+  'VIP kişiler': 'VIPs',
+  'VIP kişiler dışında sessizlik; zamanlanabilir, bitince özet':
+      'Silence except for VIPs; can be scheduled, summary when it ends',
+  'VIP kişiler odaktayken de size ulaşır: aile, yakın arkadaşlar, iş için önemli biri.':
+      'VIPs can reach you even while you focus: family, close friends, someone important for work.',
+  'WireGuard yapılandırması': 'WireGuard configuration',
+  'WireGuard yapılandırması eklendi.': 'WireGuard configuration added.',
+  'Yalnızca VIP kişiler bildirim verir': 'Only VIPs notify you',
+  'Yapılandırma dosyasını kendi sunucunuzdan ya da WireGuard dosyası veren bir sağlayıcıdan (ör. Proton VPN\'in ücretsiz planı) alabilirsiniz.':
+      'You can get the configuration file from your own server or from a provider that offers WireGuard files (for example Proton VPN\'s free plan).',
+  'Yapılandırma okunamadı. Dosyanın bir WireGuard (.conf) dosyası olduğundan emin olun.':
+      'Couldn\'t read the configuration. Make sure the file is a WireGuard (.conf) file.',
+  'Yapılandırmada sunucu ([Peer]) yok.':
+      'The configuration has no server ([Peer]).',
+  'Yedek yazılamadı; yer kalmamış olabilir.':
+      'Couldn\'t write the backup; storage may be full.',
+  'Zamanlama': 'Schedule',
+  'son: {when}': 'last: {when}',
+  'yalnızca bazı adresler': 'only some addresses',
+  '{count, plural, one{# mesaj susturuldu} other{# mesaj susturuldu}}':
+      '{count, plural, one{# message silenced} other{# messages silenced}}',
+  'Çıkar': 'Remove',
+  'İçe aktar': 'Import',
+  'Şimdi yedekle': 'Back up now',
+  '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
 };

@@ -772,4 +772,89 @@ const es = <String, String>{
   'Şifreli DNS ve erişim kalkanı': 'DNS seguro y escudo de acceso',
   'Şifreli DNS, operatörün DNS engellerini aşar ve hangi sitelere girdiğinizi operatörden gizler. IP adresinizi gizlemez; tam bir VPN değildir. DNS sorguları seçtiğiniz sağlayıcıya gider, Mesa\'nın sunucusu yoktur.':
       'El DNS seguro evita los bloqueos de DNS de tu operador y le oculta qué sitios visitas. No oculta tu dirección IP; no es una VPN completa. Las consultas DNS van al proveedor que elijas; Mesa no tiene servidores.',
+  // 2. aşama: tam VPN, odak modu, otomatik yedek, balonlar (1.2)
+  '3 saat': '3 horas',
+  'Acil durum': 'Emergencias',
+  'Aynı kişi 5 dakika içinde 3 kez yazarsa bildirim gelir.':
+      'Si la misma persona escribe 3 veces en 5 minutos, recibes una notificación.',
+  'Açık': 'Activado',
+  'Açık · siz kapatana kadar': 'Activado · hasta que lo desactives',
+  'Açık · {time} saatine kadar': 'Activado · hasta las {time}',
+  'Bağlantı yoksa interneti kes': 'Bloquear internet sin la VPN',
+  'Bağlanıyor… sunucudan henüz yanıt yok':
+      'Conectando… el servidor aún no responde',
+  'Bağlı': 'Conectado',
+  'Başlangıç': 'Inicio',
+  'Ben kapatana kadar': 'Hasta que lo desactive',
+  'Bildirim panelindeki "Odak modu" kutucuğuyla da tek dokunuşla açıp kapatabilirsiniz.':
+      'También puedes activarlo y desactivarlo con un toque desde el mosaico "Modo concentración" del panel de notificaciones.',
+  'Bildirimdeki sohbet ekranın üstünde yüzen balonda açılır; uygulamayı açmadan yanıtlayın':
+      'El chat de la notificación se abre en una burbuja flotante; responde sin abrir la app',
+  'Birleşik bildirimler kapalı: WhatsApp gibi uygulamaların kendi bildirimleri yine ses çıkarabilir. Odak modunun her şeyi susturması için birleşik bildirimleri açın.':
+      'Las notificaciones unificadas están desactivadas: apps como WhatsApp aún pueden sonar con sus propias notificaciones. Actívalas para que el modo concentración lo silencie todo.',
+  'Bitiş': 'Fin',
+  'Bu yapılandırma bu telefonda açılamıyor; silip yeniden içe aktarın.':
+      'Esta configuración no se puede abrir en este teléfono; elimínala e impórtala de nuevo.',
+  'Bütün trafiğiniz kendi WireGuard sunucunuz ya da bir VPN sağlayıcısı üzerinden geçer; IP adresiniz değişir.':
+      'Todo tu tráfico pasa por tu propio servidor WireGuard o un proveedor de VPN; tu dirección IP cambia.',
+  'Dosya okunamadı.': 'No se pudo leer el archivo.',
+  'Dosyadan içe aktar': 'Importar desde archivo',
+  'Eklenecek sohbet yok.': 'No hay chats para añadir.',
+  'Her gün': 'Cada día',
+  'Her gün belirli saatlerde': 'A horas fijas cada día',
+  'Her hafta': 'Cada semana',
+  'Israrla yazana izin ver': 'Dejar pasar mensajes insistentes',
+  'Kayıtlı parola açılamadı; otomatik yedeği yeniden açın.':
+      'No se pudo abrir la contraseña guardada; vuelve a activar la copia automática.',
+  'Klasör seç': 'Elegir carpeta',
+  'Klasöre yazılamadı; klasörü yeniden seçin.':
+      'No se pudo escribir en la carpeta; vuelve a elegirla.',
+  'Odak modu': 'Modo concentración',
+  'Odak modu açık': 'Modo concentración activado',
+  'Odaktayken yalnızca VIP kişiler, "Önemli işaretle" kuralına uyan mesajlar ve acil durumlar bildirim verir. Diğer mesajlar Mesa\'da sessizce birikir; odak bitince kısa bir özet gelir.':
+      'Durante la concentración solo te notifican los VIP, los mensajes que cumplen la regla "Marcar como importante" y las emergencias. Los demás se acumulan en silencio en Mesa; al terminar recibes un resumen.',
+  'Otomatik yedek': 'Copia automática',
+  'Otomatik yedek açıldı; ilk yedek şimdi alınıyor.':
+      'Copia automática activada; se está haciendo la primera ahora.',
+  'Panodan yapıştır': 'Pegar del portapapeles',
+  'Sabah 08:00\'e kadar': 'Hasta las 08:00 de la mañana',
+  'Seçtiğiniz klasöre düzenli olarak şifreli yedek alınır; en yeni 5 otomatik yedek saklanır. Otomatik çalışabilmesi için parola bu telefonda, telefonun güvenli donanım anahtarıyla şifrelenip saklanır.':
+      'Se guardan copias cifradas con regularidad en la carpeta que elijas; se conservan las 5 copias automáticas más recientes. Para que funcione sola, la contraseña se guarda en este teléfono, cifrada con la clave de hardware segura del teléfono.',
+  'Seçtiğiniz klasöre düzenli, şifreli yedek':
+      'Copias cifradas periódicas en la carpeta que elijas',
+  'Sistemin VPN ayarlarında Mesa için "Her zaman açık VPN" ve "VPN olmadan bağlantıları engelle"yi açın.':
+      'En los ajustes de VPN del sistema, activa "VPN siempre activada" y "Bloquear conexiones sin VPN" para Mesa.',
+  'Sohbet balonları': 'Burbujas de chat',
+  'Sohbet bulunamadı.': 'No se encontró el chat.',
+  'Sunucudan uzun süredir yanıt yok': 'El servidor no responde desde hace rato',
+  'Sunucunun adresi çözülemedi. İnternet bağlantınızı kontrol edin.':
+      'No se pudo resolver la dirección del servidor. Revisa tu conexión a internet.',
+  'Tam VPN (WireGuard)': 'VPN completa (WireGuard)',
+  'Tünel açılamadı ({code}).': 'No se pudo iniciar el túnel ({code}).',
+  'VIP ekle': 'Añadir VIP',
+  'VIP kişiler': 'VIP',
+  'VIP kişiler dışında sessizlik; zamanlanabilir, bitince özet':
+      'Silencio salvo para los VIP; se puede programar, resumen al terminar',
+  'VIP kişiler odaktayken de size ulaşır: aile, yakın arkadaşlar, iş için önemli biri.':
+      'Los VIP pueden contactarte incluso en concentración: familia, amigos cercanos, alguien importante del trabajo.',
+  'WireGuard yapılandırması': 'Configuración de WireGuard',
+  'WireGuard yapılandırması eklendi.': 'Configuración de WireGuard añadida.',
+  'Yalnızca VIP kişiler bildirim verir': 'Solo los VIP te notifican',
+  'Yapılandırma dosyasını kendi sunucunuzdan ya da WireGuard dosyası veren bir sağlayıcıdan (ör. Proton VPN\'in ücretsiz planı) alabilirsiniz.':
+      'Puedes obtener el archivo de configuración de tu propio servidor o de un proveedor que ofrezca archivos WireGuard (por ejemplo, el plan gratuito de Proton VPN).',
+  'Yapılandırma okunamadı. Dosyanın bir WireGuard (.conf) dosyası olduğundan emin olun.':
+      'No se pudo leer la configuración. Asegúrate de que sea un archivo WireGuard (.conf).',
+  'Yapılandırmada sunucu ([Peer]) yok.':
+      'La configuración no tiene servidor ([Peer]).',
+  'Yedek yazılamadı; yer kalmamış olabilir.':
+      'No se pudo escribir la copia; puede que no quede espacio.',
+  'Zamanlama': 'Programación',
+  'son: {when}': 'última: {when}',
+  'yalnızca bazı adresler': 'solo algunas direcciones',
+  '{count, plural, one{# mesaj susturuldu} other{# mesaj susturuldu}}':
+      '{count, plural, one{# mensaje silenciado} other{# mensajes silenciados}}',
+  'Çıkar': 'Quitar',
+  'İçe aktar': 'Importar',
+  'Şimdi yedekle': 'Hacer copia ahora',
+  '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
 };

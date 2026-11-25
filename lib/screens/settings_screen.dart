@@ -253,6 +253,22 @@ class _SettingsScreenState extends State<SettingsScreen>
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: _pickKeptApps,
                       ),
+                    if (settings.unifiedNotifications &&
+                        settings.bubblesSupported)
+                      SwitchListTile(
+                        secondary: const Icon(Icons.bubble_chart_outlined),
+                        title: Text(tr('Sohbet balonları')),
+                        subtitle: Text(
+                          tr(
+                            'Bildirimdeki sohbet ekranın üstünde yüzen balonda açılır; uygulamayı açmadan yanıtlayın',
+                          ),
+                        ),
+                        value: settings.bubbles,
+                        onChanged: (v) async {
+                          await _update((s) => s.copyWith(bubbles: v));
+                          if (v) await widget.bridge.openBubbleSettings();
+                        },
+                      ),
                     SwitchListTile(
                       secondary: const Icon(Icons.star_outline_rounded),
                       title: Text(tr('Önemli mesajlarda bildirim')),

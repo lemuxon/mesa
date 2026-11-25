@@ -10,6 +10,7 @@ import 'core/lock.dart';
 import 'core/settings.dart';
 import 'core/web_services.dart';
 import 'l10n/l10n.dart';
+import 'screens/bubble_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/lock_gate.dart';
 import 'ui/theme.dart';
@@ -44,6 +45,25 @@ Future<void> main() async {
   );
 }
 
+/// Sohbet balonu (BubbleActivity): yalnızca bildirimdeki sohbet; kilit,
+/// dil ve tema ana uygulamayla aynı.
+@pragma('vm:entry-point')
+Future<void> bubbleMain() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await LocalPrefs.load();
+  final bridge = CoreBridge();
+  setLanguage(prefs.languageCode);
+  runApp(
+    MesajMerkeziApp(
+      bridge: bridge,
+      web: WebBridge(),
+      prefs: prefs,
+      authenticator: DeviceAuthenticator(),
+      home: BubbleScreen(bridge: bridge),
+    ),
+  );
+}
+
 class MesajMerkeziApp extends StatelessWidget {
   const MesajMerkeziApp({
     super.key,
@@ -51,12 +71,16 @@ class MesajMerkeziApp extends StatelessWidget {
     required this.web,
     required this.prefs,
     required this.authenticator,
+    this.home,
   });
 
   final CoreBridge bridge;
   final WebBridge web;
   final LocalPrefs prefs;
   final Authenticator authenticator;
+
+  /// Ana ekran yerine gösterilecek ekran (sohbet balonu).
+  final Widget? home;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +109,7 @@ class MesajMerkeziApp extends StatelessWidget {
             isNativeLocked: bridge.appLockIsLocked,
             child: child!,
           ),
-          home: HomeScreen(bridge: bridge, web: web),
+          home: home ?? HomeScreen(bridge: bridge, web: web),
         ),
       ),
     );

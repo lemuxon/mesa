@@ -765,4 +765,88 @@ const ru = <String, String>{
   'Şifreli DNS ve erişim kalkanı': 'Защищённый DNS и щит доступа',
   'Şifreli DNS, operatörün DNS engellerini aşar ve hangi sitelere girdiğinizi operatörden gizler. IP adresinizi gizlemez; tam bir VPN değildir. DNS sorguları seçtiğiniz sağlayıcıya gider, Mesa\'nın sunucusu yoktur.':
       'Защищённый DNS обходит DNS-блокировки оператора и скрывает от него, какие сайты вы открываете. Он не скрывает ваш IP-адрес и не является полноценным VPN. DNS-запросы уходят выбранному провайдеру; у Mesa нет серверов.',
+  // 2. aşama: tam VPN, odak modu, otomatik yedek, balonlar (1.2)
+  '3 saat': '3 часа',
+  'Acil durum': 'Срочное',
+  'Aynı kişi 5 dakika içinde 3 kez yazarsa bildirim gelir.':
+      'Если один и тот же человек напишет 3 раза за 5 минут, придёт уведомление.',
+  'Açık': 'Включено',
+  'Açık · siz kapatana kadar': 'Включено · пока не выключите',
+  'Açık · {time} saatine kadar': 'Включено · до {time}',
+  'Bağlantı yoksa interneti kes': 'Блокировать интернет без VPN',
+  'Bağlanıyor… sunucudan henüz yanıt yok':
+      'Подключение… сервер пока не отвечает',
+  'Bağlı': 'Подключено',
+  'Başlangıç': 'Начало',
+  'Ben kapatana kadar': 'Пока не выключу',
+  'Bildirim panelindeki "Odak modu" kutucuğuyla da tek dokunuşla açıp kapatabilirsiniz.':
+      'Его также можно включать и выключать одним касанием плитки «Режим фокусировки» в панели уведомлений.',
+  'Bildirimdeki sohbet ekranın üstünde yüzen balonda açılır; uygulamayı açmadan yanıtlayın':
+      'Чат из уведомления открывается в плавающем пузыре — отвечайте, не открывая приложение',
+  'Birleşik bildirimler kapalı: WhatsApp gibi uygulamaların kendi bildirimleri yine ses çıkarabilir. Odak modunun her şeyi susturması için birleşik bildirimleri açın.':
+      'Единые уведомления выключены: приложения вроде WhatsApp всё ещё могут звучать своими уведомлениями. Включите их, чтобы режим фокусировки заглушал всё.',
+  'Bitiş': 'Конец',
+  'Bu yapılandırma bu telefonda açılamıyor; silip yeniden içe aktarın.':
+      'Эту конфигурацию не удаётся открыть на этом телефоне; удалите её и импортируйте снова.',
+  'Bütün trafiğiniz kendi WireGuard sunucunuz ya da bir VPN sağlayıcısı üzerinden geçer; IP adresiniz değişir.':
+      'Весь трафик идёт через ваш собственный сервер WireGuard или VPN-провайдера; ваш IP-адрес меняется.',
+  'Dosya okunamadı.': 'Не удалось прочитать файл.',
+  'Dosyadan içe aktar': 'Импорт из файла',
+  'Eklenecek sohbet yok.': 'Нет чатов для добавления.',
+  'Her gün': 'Каждый день',
+  'Her gün belirli saatlerde': 'Ежедневно в заданное время',
+  'Her hafta': 'Каждую неделю',
+  'Israrla yazana izin ver': 'Пропускать настойчивые сообщения',
+  'Kayıtlı parola açılamadı; otomatik yedeği yeniden açın.':
+      'Не удалось открыть сохранённый пароль; включите автоматическое копирование заново.',
+  'Klasör seç': 'Выбрать папку',
+  'Klasöre yazılamadı; klasörü yeniden seçin.':
+      'Не удалось записать в папку; выберите её снова.',
+  'Odak modu': 'Режим фокусировки',
+  'Odak modu açık': 'Режим фокусировки включён',
+  'Odaktayken yalnızca VIP kişiler, "Önemli işaretle" kuralına uyan mesajlar ve acil durumlar bildirim verir. Diğer mesajlar Mesa\'da sessizce birikir; odak bitince kısa bir özet gelir.':
+      'Во время фокусировки уведомляют только VIP, сообщения по правилу «Отметить как важное» и срочные. Остальные тихо собираются в Mesa; по окончании придёт краткая сводка.',
+  'Otomatik yedek': 'Автоматическая копия',
+  'Otomatik yedek açıldı; ilk yedek şimdi alınıyor.':
+      'Автоматическое копирование включено; первая копия создаётся сейчас.',
+  'Panodan yapıştır': 'Вставить из буфера обмена',
+  'Sabah 08:00\'e kadar': 'До 08:00 утра',
+  'Seçtiğiniz klasöre düzenli olarak şifreli yedek alınır; en yeni 5 otomatik yedek saklanır. Otomatik çalışabilmesi için parola bu telefonda, telefonun güvenli donanım anahtarıyla şifrelenip saklanır.':
+      'Зашифрованные копии регулярно сохраняются в выбранную папку; хранятся 5 последних автоматических копий. Чтобы всё работало само, пароль хранится на этом телефоне, зашифрованный защищённым аппаратным ключом телефона.',
+  'Seçtiğiniz klasöre düzenli, şifreli yedek':
+      'Регулярные зашифрованные копии в выбранную папку',
+  'Sistemin VPN ayarlarında Mesa için "Her zaman açık VPN" ve "VPN olmadan bağlantıları engelle"yi açın.':
+      'В системных настройках VPN включите для Mesa «Постоянная VPN» и «Блокировать соединения без VPN».',
+  'Sohbet balonları': 'Пузыри чатов',
+  'Sohbet bulunamadı.': 'Чат не найден.',
+  'Sunucudan uzun süredir yanıt yok': 'Сервер давно не отвечает',
+  'Sunucunun adresi çözülemedi. İnternet bağlantınızı kontrol edin.':
+      'Не удалось определить адрес сервера. Проверьте подключение к интернету.',
+  'Tam VPN (WireGuard)': 'Полноценный VPN (WireGuard)',
+  'Tünel açılamadı ({code}).': 'Не удалось запустить туннель ({code}).',
+  'VIP ekle': 'Добавить VIP',
+  'VIP kişiler': 'VIP',
+  'VIP kişiler dışında sessizlik; zamanlanabilir, bitince özet':
+      'Тишина для всех, кроме VIP; по расписанию, сводка в конце',
+  'VIP kişiler odaktayken de size ulaşır: aile, yakın arkadaşlar, iş için önemli biri.':
+      'VIP могут достучаться и во время фокусировки: семья, близкие друзья, кто-то важный по работе.',
+  'WireGuard yapılandırması': 'Конфигурация WireGuard',
+  'WireGuard yapılandırması eklendi.': 'Конфигурация WireGuard добавлена.',
+  'Yalnızca VIP kişiler bildirim verir': 'Уведомляют только VIP',
+  'Yapılandırma dosyasını kendi sunucunuzdan ya da WireGuard dosyası veren bir sağlayıcıdan (ör. Proton VPN\'in ücretsiz planı) alabilirsiniz.':
+      'Файл конфигурации можно получить со своего сервера или у провайдера, который выдаёт файлы WireGuard (например, бесплатный тариф Proton VPN).',
+  'Yapılandırma okunamadı. Dosyanın bir WireGuard (.conf) dosyası olduğundan emin olun.':
+      'Не удалось прочитать конфигурацию. Убедитесь, что это файл WireGuard (.conf).',
+  'Yapılandırmada sunucu ([Peer]) yok.': 'В конфигурации нет сервера ([Peer]).',
+  'Yedek yazılamadı; yer kalmamış olabilir.':
+      'Не удалось записать копию; возможно, нет места.',
+  'Zamanlama': 'Расписание',
+  'son: {when}': 'последняя: {when}',
+  'yalnızca bazı adresler': 'только некоторые адреса',
+  '{count, plural, one{# mesaj susturuldu} other{# mesaj susturuldu}}':
+      '{count, plural, one{# сообщение заглушено} few{# сообщения заглушено} many{# сообщений заглушено} other{# сообщения заглушено}}',
+  'Çıkar': 'Убрать',
+  'İçe aktar': 'Импортировать',
+  'Şimdi yedekle': 'Создать копию сейчас',
+  '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
 };

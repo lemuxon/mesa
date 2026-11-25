@@ -20,7 +20,11 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 // Uygulama kilidi (local_auth) biyometrik pencere için FragmentActivity ister.
-class MainActivity : FlutterFragmentActivity() {
+// Açık: sohbet balonu (BubbleActivity) aynı kanalları kullanır.
+open class MainActivity : FlutterFragmentActivity() {
+
+    /** Sohbet balonu mu (yalnızca sohbet ekranı; ana ekranın genel dinleyicilerine dokunmaz). */
+    protected open val isBubble: Boolean get() = false
 
     private companion object {
         const val TAG = "MesajMerkezi"
@@ -127,6 +131,26 @@ class MainActivity : FlutterFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
         MethodChannel(messenger, "mesaj_merkezi/core").setMethodCallHandler(::onCall)
+        if (isBubble) {
+            // Balon yalnızca sohbet değişikliklerini dinler; kendi listesinde.
+            EventChannel(messenger, "mesaj_merkezi/events").setStreamHandler(
+                object : EventChannel.StreamHandler {
+                    private var listener: ((String) -> Unit)? = null
+
+                    override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
+                        val l: (String) -> Unit = { key -> events.success(key) }
+                        listener = l
+                        Hub.bubbleListeners.add(l)
+                    }
+
+                    override fun onCancel(arguments: Any?) {
+                        listener?.let(Hub.bubbleListeners::remove)
+                        listener = null
+                    }
+                }
+            )
+            return
+        }
         EventChannel(messenger, "mesaj_merkezi/events").setStreamHandler(
             object : EventChannel.StreamHandler {
                 override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
@@ -289,6 +313,21 @@ class MainActivity : FlutterFragmentActivity() {
             "markAllRead" -> background(result) { store.markAllRead() }
             "search" -> background(result) { store.search(call.argument<String>("query").orEmpty()) }
             "getSettings" -> result.success(AppSettings.toMap(this))
+            "openBubbleSettings" -> {
+                // Sistemin "balonlar" ayarı (Android 11+); yoksa uygulamanın bildirim ayarları.
+                val intent = if (Build.VERSION.SDK_INT >= 30) {
+                    Intent(Settings.ACTION_APP_NOTIFICATION_BUBBLE_SETTINGS)
+                        .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                } else {
+                    Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                }
+                try {
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
+                }
+                result.success(null)
+            }
             "pickBackupFolder" -> {
                 awaitDocument { uri -> result.success(uri?.toString()) }
                 openBackupFolder.launch(null)

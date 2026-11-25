@@ -748,4 +748,87 @@ const ar = <String, String>{
   'Şifreli DNS ve erişim kalkanı': 'DNS آمن ودرع الوصول',
   'Şifreli DNS, operatörün DNS engellerini aşar ve hangi sitelere girdiğinizi operatörden gizler. IP adresinizi gizlemez; tam bir VPN değildir. DNS sorguları seçtiğiniz sağlayıcıya gider, Mesa\'nın sunucusu yoktur.':
       'يتجاوز DNS الآمن حظر DNS لدى مشغّل الاتصالات ويخفي عنه المواقع التي تزورها. لا يخفي عنوان IP الخاص بك؛ وليس VPN كاملًا. تذهب استعلامات DNS إلى المزوّد الذي تختاره؛ وليس لدى Mesa خوادم.',
+  // 2. aşama: tam VPN, odak modu, otomatik yedek, balonlar (1.2)
+  '3 saat': '3 ساعات',
+  'Acil durum': 'حالات الطوارئ',
+  'Aynı kişi 5 dakika içinde 3 kez yazarsa bildirim gelir.':
+      'إذا كتب الشخص نفسه 3 مرات خلال 5 دقائق، يصلك إشعار.',
+  'Açık': 'مفعّل',
+  'Açık · siz kapatana kadar': 'مفعّل · حتى توقفه',
+  'Açık · {time} saatine kadar': 'مفعّل · حتى {time}',
+  'Bağlantı yoksa interneti kes': 'حظر الإنترنت بدون VPN',
+  'Bağlanıyor… sunucudan henüz yanıt yok': 'جارٍ الاتصال… لا رد من الخادم بعد',
+  'Bağlı': 'متصل',
+  'Başlangıç': 'البداية',
+  'Ben kapatana kadar': 'حتى أوقفه',
+  'Bildirim panelindeki "Odak modu" kutucuğuyla da tek dokunuşla açıp kapatabilirsiniz.':
+      'يمكنك أيضًا تشغيله وإيقافه بلمسة واحدة من مربع "وضع التركيز" في لوحة الإشعارات.',
+  'Bildirimdeki sohbet ekranın üstünde yüzen balonda açılır; uygulamayı açmadan yanıtlayın':
+      'تُفتح المحادثة من الإشعار في فقاعة عائمة؛ رد دون فتح التطبيق',
+  'Birleşik bildirimler kapalı: WhatsApp gibi uygulamaların kendi bildirimleri yine ses çıkarabilir. Odak modunun her şeyi susturması için birleşik bildirimleri açın.':
+      'الإشعارات الموحّدة متوقفة: قد تُصدر تطبيقات مثل WhatsApp أصوات إشعاراتها. شغّل الإشعارات الموحّدة ليُسكت وضع التركيز كل شيء.',
+  'Bitiş': 'النهاية',
+  'Bu yapılandırma bu telefonda açılamıyor; silip yeniden içe aktarın.':
+      'لا يمكن فتح هذا الإعداد على هذا الهاتف؛ احذفه واستورده مجددًا.',
+  'Bütün trafiğiniz kendi WireGuard sunucunuz ya da bir VPN sağlayıcısı üzerinden geçer; IP adresiniz değişir.':
+      'تمر كل حركة بياناتك عبر خادم WireGuard الخاص بك أو مزوّد VPN؛ ويتغيّر عنوان IP الخاص بك.',
+  'Dosya okunamadı.': 'تعذّرت قراءة الملف.',
+  'Dosyadan içe aktar': 'استيراد من ملف',
+  'Eklenecek sohbet yok.': 'لا توجد محادثات لإضافتها.',
+  'Her gün': 'كل يوم',
+  'Her gün belirli saatlerde': 'في أوقات محددة كل يوم',
+  'Her hafta': 'كل أسبوع',
+  'Israrla yazana izin ver': 'السماح بالرسائل المتكررة',
+  'Kayıtlı parola açılamadı; otomatik yedeği yeniden açın.':
+      'تعذّر فتح كلمة المرور المحفوظة؛ أعد تشغيل النسخ الاحتياطي التلقائي.',
+  'Klasör seç': 'اختيار مجلد',
+  'Klasöre yazılamadı; klasörü yeniden seçin.':
+      'تعذّرت الكتابة في المجلد؛ اختر المجلد مجددًا.',
+  'Odak modu': 'وضع التركيز',
+  'Odak modu açık': 'وضع التركيز قيد التشغيل',
+  'Odaktayken yalnızca VIP kişiler, "Önemli işaretle" kuralına uyan mesajlar ve acil durumlar bildirim verir. Diğer mesajlar Mesa\'da sessizce birikir; odak bitince kısa bir özet gelir.':
+      'أثناء التركيز، لا يُشعرك إلا أشخاص VIP والرسائل التي تطابق قاعدة "وضع علامة مهم" وحالات الطوارئ. تتجمع الرسائل الأخرى بهدوء في Mesa، وعند انتهاء التركيز يصلك ملخص قصير.',
+  'Otomatik yedek': 'نسخ احتياطي تلقائي',
+  'Otomatik yedek açıldı; ilk yedek şimdi alınıyor.':
+      'تم تشغيل النسخ الاحتياطي التلقائي؛ يجري إنشاء أول نسخة الآن.',
+  'Panodan yapıştır': 'لصق من الحافظة',
+  'Sabah 08:00\'e kadar': 'حتى الساعة 08:00 صباحًا',
+  'Seçtiğiniz klasöre düzenli olarak şifreli yedek alınır; en yeni 5 otomatik yedek saklanır. Otomatik çalışabilmesi için parola bu telefonda, telefonun güvenli donanım anahtarıyla şifrelenip saklanır.':
+      'تُحفظ نسخ احتياطية مشفّرة بانتظام في المجلد الذي تختاره، وتُحتفظ بأحدث 5 نسخ تلقائية. ولكي يعمل تلقائيًا، تُحفظ كلمة المرور على هذا الهاتف مشفّرة بمفتاح الأجهزة الآمن في الهاتف.',
+  'Seçtiğiniz klasöre düzenli, şifreli yedek':
+      'نسخ احتياطية مشفّرة منتظمة إلى مجلد تختاره',
+  'Sistemin VPN ayarlarında Mesa için "Her zaman açık VPN" ve "VPN olmadan bağlantıları engelle"yi açın.':
+      'في إعدادات VPN بالنظام، شغّل "شبكة VPN قيد التشغيل دائمًا" و"حظر الاتصالات بدون VPN" لـ Mesa.',
+  'Sohbet balonları': 'فقاعات المحادثة',
+  'Sohbet bulunamadı.': 'لم يتم العثور على المحادثة.',
+  'Sunucudan uzun süredir yanıt yok': 'لا رد من الخادم منذ مدة',
+  'Sunucunun adresi çözülemedi. İnternet bağlantınızı kontrol edin.':
+      'تعذّر تحليل عنوان الخادم. تحقّق من اتصالك بالإنترنت.',
+  'Tam VPN (WireGuard)': 'VPN كامل (WireGuard)',
+  'Tünel açılamadı ({code}).': 'تعذّر تشغيل النفق ({code}).',
+  'VIP ekle': 'إضافة VIP',
+  'VIP kişiler': 'أشخاص VIP',
+  'VIP kişiler dışında sessizlik; zamanlanabilir, bitince özet':
+      'صمت باستثناء أشخاص VIP؛ قابل للجدولة، وملخص عند الانتهاء',
+  'VIP kişiler odaktayken de size ulaşır: aile, yakın arkadaşlar, iş için önemli biri.':
+      'يمكن لأشخاص VIP الوصول إليك حتى أثناء التركيز: العائلة والأصدقاء المقربون وشخص مهم في العمل.',
+  'WireGuard yapılandırması': 'إعداد WireGuard',
+  'WireGuard yapılandırması eklendi.': 'تمت إضافة إعداد WireGuard.',
+  'Yalnızca VIP kişiler bildirim verir': 'لا يُشعرك إلا أشخاص VIP',
+  'Yapılandırma dosyasını kendi sunucunuzdan ya da WireGuard dosyası veren bir sağlayıcıdan (ör. Proton VPN\'in ücretsiz planı) alabilirsiniz.':
+      'يمكنك الحصول على ملف الإعداد من خادمك الخاص أو من مزوّد يوفّر ملفات WireGuard (مثل الخطة المجانية من Proton VPN).',
+  'Yapılandırma okunamadı. Dosyanın bir WireGuard (.conf) dosyası olduğundan emin olun.':
+      'تعذّرت قراءة الإعداد. تأكّد من أن الملف ملف WireGuard (.conf).',
+  'Yapılandırmada sunucu ([Peer]) yok.': 'لا يحتوي الإعداد على خادم ([Peer]).',
+  'Yedek yazılamadı; yer kalmamış olabilir.':
+      'تعذّرت كتابة النسخة الاحتياطية؛ ربما امتلأت المساحة.',
+  'Zamanlama': 'الجدولة',
+  'son: {when}': 'الأخيرة: {when}',
+  'yalnızca bazı adresler': 'بعض العناوين فقط',
+  '{count, plural, one{# mesaj susturuldu} other{# mesaj susturuldu}}':
+      '{count, plural, zero{لم تُكتم أي رسالة} one{كُتمت رسالة واحدة} two{كُتمت رسالتان} few{كُتمت # رسائل} many{كُتمت # رسالة} other{كُتمت # رسالة}}',
+  'Çıkar': 'إزالة',
+  'İçe aktar': 'استيراد',
+  'Şimdi yedekle': 'نسخ احتياطي الآن',
+  '↓ {rx} · ↑ {tx}': '↓ {rx} · ↑ {tx}',
 };
