@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../core/bridge.dart';
 import '../core/format.dart';
+import '../core/models.dart';
 import '../core/settings.dart';
 import '../ui/large_title.dart';
 
@@ -20,6 +21,117 @@ class BackupCard extends StatefulWidget {
 }
 
 class _BackupCardState extends State<BackupCard> {
+  AutoBackupStatus? _auto;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAuto();
+  }
+
+  Future<void> _loadAuto() async {
+    try {
+      final status = await widget.bridge.autoBackupStatus();
+      if (mounted) setState(() => _auto = status);
+    } catch (_) {
+      // Eski yerel taraf ya da test: otomatik yedek bölümü gösterilmez.
+    }
+  }
+
+  Future<void> _setAuto(bool on) async {
+    if (!on) {
+      final status = await widget.bridge.disableAutoBackup();
+      if (mounted) setState(() => _auto = status);
+      return;
+    }
+    final go = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(tr('Otomatik yedek')),
+        content: Text(
+          tr(
+            'Seçtiğiniz klasöre düzenli olarak şifreli yedek alınır; en yeni 5 otomatik yedek saklanır. Otomatik çalışabilmesi için parola bu telefonda, telefonun güvenli donanım anahtarıyla şifrelenip saklanır.',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(tr('Vazgeç')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(tr('Klasör seç')),
+          ),
+        ],
+      ),
+    );
+    if (go != true || !mounted) return;
+    final folder = await widget.bridge.pickBackupFolder();
+    if (folder == null || !mounted) return;
+    final password = await showDialog<String>(
+      context: context,
+      builder: (_) => const BackupPasswordDialog(confirm: true),
+    );
+    if (password == null || !mounted) return;
+    final days = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.today_rounded),
+              title: Text(tr('Her gün')),
+              onTap: () => Navigator.of(context).pop(1),
+            ),
+            ListTile(
+              leading: const Icon(Icons.date_range_rounded),
+              title: Text(tr('Her hafta')),
+              onTap: () => Navigator.of(context).pop(7),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (days == null || !mounted) return;
+    final status = await widget.bridge.enableAutoBackup(folder, password, days);
+    if (!mounted) return;
+    setState(() => _auto = status);
+    _snack(tr('Otomatik yedek açıldı; ilk yedek şimdi alınıyor.'));
+    // İlk yedeğin sonucu birkaç saniye içinde görünsün.
+    await Future<void>.delayed(const Duration(seconds: 6));
+    await _loadAuto();
+  }
+
+  Future<void> _runAutoNow() async {
+    await widget.bridge.runAutoBackupNow();
+    _snack(tr('Yedekleniyor… Fotoğraflar çoksa biraz sürebilir.'));
+    await Future<void>.delayed(const Duration(seconds: 6));
+    await _loadAuto();
+  }
+
+  String _autoSubtitle(AutoBackupStatus s) {
+    if (!s.enabled) {
+      return tr('Seçtiğiniz klasöre düzenli, şifreli yedek');
+    }
+    final parts = <String>[
+      s.days == 1 ? tr('Her gün') : tr('Her hafta'),
+      ?s.folder,
+      if (s.lastTime case final last?)
+        tr('son: {when}', {'when': formatListTime(last, DateTime.now())}),
+    ];
+    final error = switch (s.lastError) {
+      null => null,
+      'PASSWORD' => tr(
+        'Kayıtlı parola açılamadı; otomatik yedeği yeniden açın.',
+      ),
+      'WRITE' => tr('Yedek yazılamadı; yer kalmamış olabilir.'),
+      _ => tr('Klasöre yazılamadı; klasörü yeniden seçin.'),
+    };
+    return [parts.join(' · '), ?error].join('\n');
+  }
+
   void _snack(String text) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
@@ -159,6 +271,22 @@ class _BackupCardState extends State<BackupCard> {
           ),
           onTap: _backup,
         ),
+        if (_auto case final auto?) ...[
+          SwitchListTile(
+            secondary: const Icon(Icons.update_rounded),
+            title: Text(tr('Otomatik yedek')),
+            subtitle: Text(_autoSubtitle(auto)),
+            isThreeLine: auto.enabled && auto.lastError != null,
+            value: auto.enabled,
+            onChanged: _setAuto,
+          ),
+          if (auto.enabled)
+            ListTile(
+              leading: const Icon(Icons.cloud_upload_outlined),
+              title: Text(tr('Şimdi yedekle')),
+              onTap: _runAutoNow,
+            ),
+        ],
         ListTile(
           leading: const Icon(Icons.settings_backup_restore_rounded),
           title: Text(tr('Yedekten geri yükle')),

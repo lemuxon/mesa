@@ -95,6 +95,46 @@ class BackupResult {
   final int bytes;
 }
 
+/// Otomatik yedeğin durumu (yerel taraf: AutoBackup.kt).
+class AutoBackupStatus {
+  const AutoBackupStatus({
+    this.enabled = false,
+    this.days = 7,
+    this.folder,
+    this.lastTime,
+    this.lastBytes = 0,
+    this.lastMessages = 0,
+    this.lastError,
+  });
+
+  factory AutoBackupStatus.fromMap(Map<Object?, Object?> m) {
+    final last = (m['lastTime'] as num?)?.toInt() ?? 0;
+    return AutoBackupStatus(
+      enabled: m['enabled'] as bool? ?? false,
+      days: (m['days'] as num?)?.toInt() ?? 7,
+      folder: m['folder'] as String?,
+      lastTime: last > 0 ? DateTime.fromMillisecondsSinceEpoch(last) : null,
+      lastBytes: (m['lastBytes'] as num?)?.toInt() ?? 0,
+      lastMessages: (m['lastMessages'] as num?)?.toInt() ?? 0,
+      lastError: m['lastError'] as String?,
+    );
+  }
+
+  final bool enabled;
+
+  /// Kaç günde bir (1: her gün, 7: her hafta).
+  final int days;
+
+  /// Seçilen klasörün adı.
+  final String? folder;
+  final DateTime? lastTime;
+  final int lastBytes;
+  final int lastMessages;
+
+  /// Son denemenin hata kodu: NO_FOLDER, FOLDER, PASSWORD, WRITE.
+  final String? lastError;
+}
+
 /// Galerideki bir fotoğraf/video ve ait olduğu sohbet.
 class MediaItem {
   const MediaItem({required this.key, required this.message});

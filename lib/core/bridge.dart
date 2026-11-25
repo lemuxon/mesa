@@ -78,6 +78,40 @@ class CoreBridge {
   Future<String?> pickBackupFile() =>
       _channel.invokeMethod<String>('pickBackupFile');
 
+  /// Otomatik yedek klasörü (kalıcı izinle); vazgeçilirse null.
+  Future<String?> pickBackupFolder() =>
+      _channel.invokeMethod<String>('pickBackupFolder');
+
+  Future<AutoBackupStatus> autoBackupStatus() async => AutoBackupStatus.fromMap(
+    (await _channel.invokeMapMethod<Object?, Object?>('autoBackupStatus')) ??
+        const {},
+  );
+
+  /// Parola cihazda Android Keystore ile şifreli saklanır; ilk yedek hemen alınır.
+  Future<AutoBackupStatus> enableAutoBackup(
+    String folderUri,
+    String password,
+    int days,
+  ) async => AutoBackupStatus.fromMap(
+    (await _channel.invokeMapMethod<Object?, Object?>('autoBackupEnable', {
+          'uri': folderUri,
+          'password': password,
+          'days': days,
+        })) ??
+        const {},
+  );
+
+  Future<AutoBackupStatus> disableAutoBackup() async =>
+      AutoBackupStatus.fromMap(
+        (await _channel.invokeMapMethod<Object?, Object?>(
+              'autoBackupDisable',
+            )) ??
+            const {},
+      );
+
+  Future<void> runAutoBackupNow() =>
+      _channel.invokeMethod<void>('autoBackupRunNow');
+
   /// Yedeği geri yükler. Hata kodları: WRONG_PASSWORD, CORRUPT, RESTORE.
   Future<BackupResult> restoreBackup(String uri, String password) async =>
       BackupResult.fromMap(

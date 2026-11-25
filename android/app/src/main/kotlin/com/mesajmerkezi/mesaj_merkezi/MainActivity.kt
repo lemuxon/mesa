@@ -46,6 +46,24 @@ class MainActivity : FlutterFragmentActivity() {
         pendingBackupUri = null
     }
 
+    // Otomatik yedek klasörü: izin kalıcı alınır (telefon yeniden başlasa da yazılabilsin).
+    private val openBackupFolder = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            try {
+                contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                )
+            } catch (e: SecurityException) {
+                Log.w(TAG, "Klasör izni kalıcı alınamadı")
+            }
+        }
+        pendingBackupUri?.invoke(uri)
+        pendingBackupUri = null
+    }
+
     /** Yedek alınır; iptal edilirse null, hata olursa yarım dosya silinir. */
     private fun createBackup(password: String, result: MethodChannel.Result) {
         val day = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ROOT).format(java.util.Date())
@@ -271,6 +289,28 @@ class MainActivity : FlutterFragmentActivity() {
             "markAllRead" -> background(result) { store.markAllRead() }
             "search" -> background(result) { store.search(call.argument<String>("query").orEmpty()) }
             "getSettings" -> result.success(AppSettings.toMap(this))
+            "pickBackupFolder" -> {
+                awaitDocument { uri -> result.success(uri?.toString()) }
+                openBackupFolder.launch(null)
+            }
+            "autoBackupStatus" -> result.success(AutoBackup.status(this))
+            "autoBackupEnable" -> {
+                AutoBackup.enable(
+                    this,
+                    Uri.parse(call.argument<String>("uri")!!),
+                    call.argument<String>("password")!!,
+                    call.argument<Int>("days") ?: 7,
+                )
+                result.success(AutoBackup.status(this))
+            }
+            "autoBackupDisable" -> {
+                AutoBackup.disable(this)
+                result.success(AutoBackup.status(this))
+            }
+            "autoBackupRunNow" -> {
+                AutoBackup.runNow(this)
+                result.success(null)
+            }
             "focusStatus" -> result.success(Focus.status(this))
             "focusSetManual" -> {
                 Focus.setManual(this, call.argument<Number>("until")?.toLong() ?: 0L)
