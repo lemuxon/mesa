@@ -670,4 +670,82 @@ const ar = <String, String>{
   'Android, mağaza dışından kurulan uygulamalarda bu izni kısıtlar. Mesa\'nın anahtarına bir kez dokunun, sonra Uygulama bilgileri → ⋮ → Kısıtlanmış ayarlara izin ver\'i seçip tekrar deneyin.':
       'يقيّد Android هذا الإذن للتطبيقات المثبّتة من خارج متجر التطبيقات. انقر مرة واحدة على مفتاح Mesa، ثم افتح معلومات التطبيق ← ⋮ ← السماح بالإعدادات المقيّدة وحاول مرة أخرى.',
   'Uygulama bilgileri': 'معلومات التطبيق',
+  // Güvenli bağlantı (1.1)
+  'Anahtar (secret)': 'المفتاح (secret)',
+  'Açık · {provider}': 'مفعّل · {provider}',
+  'Açılan pencerede "Tamam"a dokunarak VPN iznini verin.':
+      'المس "حسنًا" في النافذة التي تظهر للسماح بشبكة VPN.',
+  'Bağlantıdan ekle': 'إضافة من رابط',
+  'Başka bir VPN açık. Android aynı anda tek VPN\'e izin verir; şifreli DNS açılınca o kapanır.':
+      'هناك VPN آخر قيد التشغيل. يسمح Android بشبكة VPN واحدة فقط في كل مرة؛ سيتوقف عند تشغيل DNS الآمن.',
+  'Başka bir VPN açıldığı için şifreli DNS kapandı.':
+      'توقف DNS الآمن لأنه تم تشغيل VPN آخر.',
+  'Bildirim panelini aşağı çekip düzenle simgesine dokunun ve "Şifreli DNS" kutucuğunu ekleyin; tek dokunuşla açıp kapatırsınız.':
+      'اسحب لوحة الإشعارات للأسفل، والمس رمز التعديل وأضف مربع "DNS آمن" لتشغيله وإيقافه بلمسة واحدة.',
+  'Bir hata oluştu.': 'حدث خطأ.',
+  'Bu bir Telegram proxy bağlantısı değil.': 'هذا ليس رابط وكيل Telegram.',
+  'Bu telefonun tarayıcı bileşeni bunu desteklemiyor.':
+      'مكوّن المتصفح في هذا الهاتف لا يدعم ذلك.',
+  'Bütün telefonda reklamları ve izleyicileri engeller':
+      'يحجب الإعلانات وأدوات التتبع في الهاتف بالكامل',
+  'Bütün telefonda şifreli DNS': 'DNS آمن للهاتف بالكامل',
+  'Dene': 'اختبار',
+  'Discord, Slack gibi web servisleri DNS ve SNI engellerine takılmadan açılır. VPN gerekmez, kendi VPN\'inizle de çakışmaz.':
+      'تفتح خدمات الويب مثل Discord وSlack دون أن تعلق في حظر DNS وSNI. لا حاجة إلى VPN ولا يتعارض مع VPN الخاص بك.',
+  'Elle ekle': 'إضافة يدويًا',
+  'En hızlı seçeneklerden biri; gizlilik odaklı':
+      'من أسرع الخيارات؛ يركّز على الخصوصية',
+  'Engellenen servislere erişin ve DNS sorgularınızı gizleyin. Sunucu yok, hesap yok.':
+      'الوصول إلى الخدمات المحجوبة وإخفاء استعلامات DNS. بلا خوادم وبلا حساب.',
+  'Engellenen servislere erişin, DNS sorgularınızı gizleyin, reklamları engelleyin':
+      'الوصول إلى الخدمات المحجوبة وإخفاء استعلامات DNS وحجب الإعلانات',
+  'Erişim kalkanı': 'درع الوصول',
+  'Erişim kalkanı açıldı. Web servislerini yeniden açınca devreye girer.':
+      'تم تشغيل درع الوصول. يعمل عند إعادة فتح خدمات الويب.',
+  'Geçerli bir MTProto anahtarı girin.': 'أدخل مفتاح MTProto صالحًا.',
+  'Google\'ın genel DNS\'i': 'DNS العام من Google',
+  'Güvenli bağlantı': 'اتصال آمن',
+  'Her zaman açık': 'قيد التشغيل دائمًا',
+  'Hızlı ayarlar kutucuğu': 'مربع الإعدادات السريعة',
+  'Hızı ölç': 'قياس السرعة',
+  'Kapalı': 'متوقف',
+  'Kullanıcı adı (isteğe bağlı)': 'اسم المستخدم (اختياري)',
+  'Kullanılıyor': 'قيد الاستخدام',
+  'Ortalama {ms} ms · {cached} önbellekten · {failed} başarısız':
+      'المتوسط {ms} مللي ثانية · {cached} من الذاكرة المؤقتة · {failed} فشل',
+  'Parola (isteğe bağlı)': 'كلمة المرور (اختياري)',
+  'Port': 'المنفذ',
+  'Proxy bağlantısı': 'رابط الوكيل',
+  'Proxy ekle': 'إضافة وكيل',
+  'Proxy eklemek için önce Telegram bağlantısını başlatın.':
+      'لإضافة وكيل، ابدأ اتصال Telegram أولًا.',
+  'Proxy eklendi ve Telegram için açıldı.':
+      'تمت إضافة الوكيل وتشغيله لـ Telegram.',
+  'Sunucu': 'الخادم',
+  'Sunucu ve port (1–65535) gerekli.': 'الخادم والمنفذ (1–65535) مطلوبان.',
+  'Telefon açılınca kendiliğinden başlasın: sistemin VPN ayarlarında Mesa için "Her zaman açık VPN"i seçin.':
+      'للتشغيل تلقائيًا عند تشغيل الهاتف: اختر "شبكة VPN قيد التشغيل دائمًا" لـ Mesa في إعدادات VPN بالنظام.',
+  'Telefonun "Özel DNS" ayarı bir sunucuya sabitlenmiş; o ayar kapatılmadan şifreli DNS etkisiz kalabilir.':
+      'إعداد "DNS خاص" في الهاتف مثبّت على خادم؛ قد لا يعمل DNS الآمن حتى يتم إيقاف هذا الإعداد.',
+  'Telegram proxy': 'وكيل Telegram',
+  'Telegram\'a doğrudan erişim': 'الوصول المباشر إلى Telegram',
+  'Ulaşılamıyor': 'يتعذّر الوصول',
+  'VPN izni verilmedi. Açmak için yeniden deneyin.':
+      'لم يتم منح إذن VPN. أعد المحاولة لتشغيله.',
+  'Web servisleri için erişim kalkanı': 'درع الوصول لخدمات الويب',
+  'Zararlı siteleri engeller; kâr amacı gütmeyen kuruluş':
+      'يحجب المواقع الضارة؛ تديره مؤسسة غير ربحية',
+  'Zararlı sitelerle birlikte yetişkin içeriği de engeller':
+      'يحجب محتوى البالغين إلى جانب المواقع الضارة',
+  'Zararlı ve oltalama sitelerini engeller':
+      'يحجب المواقع الضارة ومواقع التصيّد',
+  '{connections} bağlantı · {splits} engel aşma':
+      '{connections} اتصال · {splits} تجاوز للحظر',
+  '{count, plural, one{# sorgu} other{# sorgu}}':
+      '{count, plural, zero{# استعلام} one{استعلام واحد} two{استعلامان} few{# استعلامات} many{# استعلامًا} other{# استعلام}}',
+  'Ölçülüyor…': 'جارٍ القياس…',
+  'Şifreli DNS': 'DNS آمن',
+  'Şifreli DNS ve erişim kalkanı': 'DNS آمن ودرع الوصول',
+  'Şifreli DNS, operatörün DNS engellerini aşar ve hangi sitelere girdiğinizi operatörden gizler. IP adresinizi gizlemez; tam bir VPN değildir. DNS sorguları seçtiğiniz sağlayıcıya gider, Mesa\'nın sunucusu yoktur.':
+      'يتجاوز DNS الآمن حظر DNS لدى مشغّل الاتصالات ويخفي عنه المواقع التي تزورها. لا يخفي عنوان IP الخاص بك؛ وليس VPN كاملًا. تذهب استعلامات DNS إلى المزوّد الذي تختاره؛ وليس لدى Mesa خوادم.',
 };

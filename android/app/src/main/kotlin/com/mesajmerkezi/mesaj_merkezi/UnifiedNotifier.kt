@@ -39,6 +39,8 @@ object UnifiedNotifier {
 
     const val ACTION_REPLY = "com.mesajmerkezi.mesaj_merkezi.REPLY"
     const val ACTION_MARK_READ = "com.mesajmerkezi.mesaj_merkezi.MARK_READ"
+    const val ACTION_SNOOZE_HOUR = "com.mesajmerkezi.mesaj_merkezi.SNOOZE_HOUR"
+    private const val SNOOZE_MS = 60 * 60 * 1000L
     const val EXTRA_KEY = "conversation_key"
     const val REPLY_INPUT = "reply_text"
 
@@ -130,6 +132,18 @@ object UnifiedNotifier {
             .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
             .setShowsUserInterface(false)
             .build()
+        val snooze = NotificationCompat.Action.Builder(
+            android.R.drawable.ic_lock_idle_alarm,
+            Lang.str(context, R.string.notif_snooze),
+            PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                actionIntent(context, ACTION_SNOOZE_HOUR, key),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            ),
+        )
+            .setShowsUserInterface(false)
+            .build()
         val web = WebServices.isWebKey(key)
         // Web servislerine yanıt sitenin kendisinden yazılır; bildirime dokununca o sohbet açılır.
         val open = if (web) {
@@ -163,6 +177,7 @@ object UnifiedNotifier {
             .setContentIntent(open)
             .apply { if (!web) addAction(reply) }
             .addAction(markRead)
+            .addAction(snooze)
             .setWhen(messages.last()["time"] as Long)
             .apply { if (shortcut != null) setShortcutInfo(shortcut) }
             .build()
@@ -290,6 +305,16 @@ object UnifiedNotifier {
                         cancel(context, key)
                     } finally {
                         // Hata olsa da yayın bitmiş sayılmalı (yoksa sistem ANR sayar).
+                        pending.finish()
+                    }
+                }
+                // "1 saat sonra hatırlat": sohbet ertelenir, bildirim kalkar, saati gelince ⏰ ile döner.
+                ACTION_SNOOZE_HOUR -> Hub.io.execute {
+                    try {
+                        Reminders.snooze(context, key, System.currentTimeMillis() + SNOOZE_MS)
+                        Hub.notifyChanged(key)
+                        Log.i(TAG, "Bildirimden ertelendi (1 sa)")
+                    } finally {
                         pending.finish()
                     }
                 }

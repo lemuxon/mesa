@@ -165,6 +165,7 @@ class MainActivity : FlutterFragmentActivity() {
             }
         )
         WebChannel(this).register(messenger)
+        SecureChannel(this).register(messenger)
         Hub.io.execute {
             Maintenance.purgeIfDue(this)
             MediaTools.cleanOutbox(this)

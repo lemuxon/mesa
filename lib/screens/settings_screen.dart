@@ -5,12 +5,14 @@ import '../core/app_scope.dart';
 import '../core/apps.dart';
 import '../core/bridge.dart';
 import '../core/models.dart';
+import '../core/secure.dart';
 import '../core/settings.dart';
 import '../ui/avatars.dart';
 import '../ui/large_title.dart';
 import '../ui/text_dialog.dart';
 import 'backup_card.dart';
 import 'language_tile.dart';
+import 'secure_connection_screen.dart';
 import 'storage_card.dart';
 import 'telegram_screen.dart';
 
@@ -283,6 +285,34 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 StorageCard(bridge: widget.bridge),
                 BackupCard(bridge: widget.bridge, prefs: scope?.prefs),
+                SectionCard(
+                  title: tr('Güvenli bağlantı'),
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.shield_outlined),
+                      title: Text(tr('Şifreli DNS ve erişim kalkanı')),
+                      subtitle: Text(
+                        tr(
+                          'Engellenen servislere erişin, DNS sorgularınızı gizleyin, reklamları engelleyin',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => SecureConnectionScreen(
+                            bridge: SecureBridge(),
+                            onOpenTelegram: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) =>
+                                    TelegramScreen(bridge: widget.bridge),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 SectionCard(
                   title: tr('Bağlantılar'),
                   children: [

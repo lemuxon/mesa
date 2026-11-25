@@ -686,4 +686,83 @@ const ru = <String, String>{
   'Android, mağaza dışından kurulan uygulamalarda bu izni kısıtlar. Mesa\'nın anahtarına bir kez dokunun, sonra Uygulama bilgileri → ⋮ → Kısıtlanmış ayarlara izin ver\'i seçip tekrar deneyin.':
       'Android ограничивает это разрешение для приложений, установленных не из магазина. Нажмите один раз на переключатель Mesa, затем откройте «О приложении» → ⋮ → «Разрешить доступ к ограниченным настройкам» и попробуйте снова.',
   'Uygulama bilgileri': 'О приложении',
+  // Güvenli bağlantı (1.1)
+  'Anahtar (secret)': 'Ключ (secret)',
+  'Açık · {provider}': 'Включено · {provider}',
+  'Açılan pencerede "Tamam"a dokunarak VPN iznini verin.':
+      'Нажмите «ОК» в открывшемся окне, чтобы разрешить VPN.',
+  'Bağlantıdan ekle': 'Добавить по ссылке',
+  'Başka bir VPN açık. Android aynı anda tek VPN\'e izin verir; şifreli DNS açılınca o kapanır.':
+      'Включён другой VPN. Android позволяет только один VPN одновременно; при включении защищённого DNS он отключится.',
+  'Başka bir VPN açıldığı için şifreli DNS kapandı.':
+      'Защищённый DNS отключился, потому что включили другой VPN.',
+  'Bildirim panelini aşağı çekip düzenle simgesine dokunun ve "Şifreli DNS" kutucuğunu ekleyin; tek dokunuşla açıp kapatırsınız.':
+      'Опустите панель уведомлений, нажмите значок редактирования и добавьте плитку «Защищённый DNS», чтобы включать и выключать его одним касанием.',
+  'Bir hata oluştu.': 'Что-то пошло не так.',
+  'Bu bir Telegram proxy bağlantısı değil.':
+      'Это не ссылка на прокси Telegram.',
+  'Bu telefonun tarayıcı bileşeni bunu desteklemiyor.':
+      'Браузерный компонент этого телефона это не поддерживает.',
+  'Bütün telefonda reklamları ve izleyicileri engeller':
+      'Блокирует рекламу и трекеры во всём телефоне',
+  'Bütün telefonda şifreli DNS': 'Защищённый DNS для всего телефона',
+  'Dene': 'Проверить',
+  'Discord, Slack gibi web servisleri DNS ve SNI engellerine takılmadan açılır. VPN gerekmez, kendi VPN\'inizle de çakışmaz.':
+      'Веб-сервисы вроде Discord и Slack открываются, не упираясь в блокировки DNS и SNI. VPN не нужен, и он не конфликтует с вашим VPN.',
+  'Elle ekle': 'Добавить вручную',
+  'En hızlı seçeneklerden biri; gizlilik odaklı':
+      'Один из самых быстрых вариантов; ориентирован на приватность',
+  'Engellenen servislere erişin ve DNS sorgularınızı gizleyin. Sunucu yok, hesap yok.':
+      'Доступ к заблокированным сервисам и скрытие DNS-запросов. Без серверов и без аккаунта.',
+  'Engellenen servislere erişin, DNS sorgularınızı gizleyin, reklamları engelleyin':
+      'Доступ к заблокированным сервисам, скрытие DNS-запросов, блокировка рекламы',
+  'Erişim kalkanı': 'Щит доступа',
+  'Erişim kalkanı açıldı. Web servislerini yeniden açınca devreye girer.':
+      'Щит доступа включён. Он начнёт работать, когда вы снова откроете веб-сервисы.',
+  'Geçerli bir MTProto anahtarı girin.': 'Введите действительный ключ MTProto.',
+  'Google\'ın genel DNS\'i': 'Публичный DNS от Google',
+  'Güvenli bağlantı': 'Защищённое подключение',
+  'Her zaman açık': 'Всегда включено',
+  'Hızlı ayarlar kutucuğu': 'Плитка быстрых настроек',
+  'Hızı ölç': 'Измерить скорость',
+  'Kapalı': 'Выключено',
+  'Kullanıcı adı (isteğe bağlı)': 'Имя пользователя (необязательно)',
+  'Kullanılıyor': 'Используется',
+  'Ortalama {ms} ms · {cached} önbellekten · {failed} başarısız':
+      'В среднем {ms} мс · {cached} из кэша · {failed} с ошибкой',
+  'Parola (isteğe bağlı)': 'Пароль (необязательно)',
+  'Port': 'Порт',
+  'Proxy bağlantısı': 'Ссылка на прокси',
+  'Proxy ekle': 'Добавить прокси',
+  'Proxy eklemek için önce Telegram bağlantısını başlatın.':
+      'Чтобы добавить прокси, сначала подключите Telegram.',
+  'Proxy eklendi ve Telegram için açıldı.':
+      'Прокси добавлен и включён для Telegram.',
+  'Sunucu': 'Сервер',
+  'Sunucu ve port (1–65535) gerekli.': 'Нужны сервер и порт (1–65535).',
+  'Telefon açılınca kendiliğinden başlasın: sistemin VPN ayarlarında Mesa için "Her zaman açık VPN"i seçin.':
+      'Чтобы запускаться при включении телефона, выберите «Постоянная VPN» для Mesa в системных настройках VPN.',
+  'Telefonun "Özel DNS" ayarı bir sunucuya sabitlenmiş; o ayar kapatılmadan şifreli DNS etkisiz kalabilir.':
+      'В телефоне «Частный DNS» привязан к серверу; защищённый DNS может не работать, пока эта настройка включена.',
+  'Telegram proxy': 'Прокси для Telegram',
+  'Telegram\'a doğrudan erişim': 'Прямой доступ к Telegram',
+  'Ulaşılamıyor': 'Недоступно',
+  'VPN izni verilmedi. Açmak için yeniden deneyin.':
+      'Разрешение на VPN не выдано. Попробуйте снова, чтобы включить.',
+  'Web servisleri için erişim kalkanı': 'Щит доступа для веб-сервисов',
+  'Zararlı siteleri engeller; kâr amacı gütmeyen kuruluş':
+      'Блокирует вредоносные сайты; некоммерческая организация',
+  'Zararlı sitelerle birlikte yetişkin içeriği de engeller':
+      'Блокирует контент для взрослых и вредоносные сайты',
+  'Zararlı ve oltalama sitelerini engeller':
+      'Блокирует вредоносные и фишинговые сайты',
+  '{connections} bağlantı · {splits} engel aşma':
+      'Подключений: {connections} · обходов блокировки: {splits}',
+  '{count, plural, one{# sorgu} other{# sorgu}}':
+      '{count, plural, one{# запрос} few{# запроса} many{# запросов} other{# запроса}}',
+  'Ölçülüyor…': 'Измеряем…',
+  'Şifreli DNS': 'Защищённый DNS',
+  'Şifreli DNS ve erişim kalkanı': 'Защищённый DNS и щит доступа',
+  'Şifreli DNS, operatörün DNS engellerini aşar ve hangi sitelere girdiğinizi operatörden gizler. IP adresinizi gizlemez; tam bir VPN değildir. DNS sorguları seçtiğiniz sağlayıcıya gider, Mesa\'nın sunucusu yoktur.':
+      'Защищённый DNS обходит DNS-блокировки оператора и скрывает от него, какие сайты вы открываете. Он не скрывает ваш IP-адрес и не является полноценным VPN. DNS-запросы уходят выбранному провайдеру; у Mesa нет серверов.',
 };

@@ -138,6 +138,8 @@ class BootReceiver : BroadcastReceiver() {
             intent.action != Intent.ACTION_MY_PACKAGE_REPLACED
         ) return
         if (ConnectionService.needed(context)) ConnectionService.refresh(context)
+        // Şifreli DNS açık bırakıldıysa (ve VPN izni duruyorsa) geri gelsin.
+        SecureDns.restoreAfterBoot(context)
         // Alarmlar telefon kapanınca silinir: hatırlatmalar ve planlı mesajlar yeniden kurulur.
         val pending = goAsync()
         Hub.io.execute {

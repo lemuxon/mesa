@@ -97,6 +97,12 @@
     <string name="label_contact">👤 Contacto</string>
     <string name="label_poll">📊 Encuesta</string>
     <string name="label_sticker">Sticker</string>
+    <string name="notif_snooze">Recordar en 1 hora</string>
+    <string name="dns_channel">DNS seguro</string>
+    <string name="dns_channel_desc">Se muestra mientras el DNS cifrado está activado</string>
+    <string name="dns_on_title">DNS cifrado activado</string>
+    <string name="dns_on_text">%1$s · Las consultas DNS están cifradas</string>
+    <string name="dns_stop">Desactivar</string>
     <plurals name="notif_new">
         <item quantity="one">%d nuevo</item>
         <item quantity="other">%d nuevos</item>

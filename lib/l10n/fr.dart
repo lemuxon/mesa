@@ -695,4 +695,85 @@ const fr = <String, String>{
   'Android, mağaza dışından kurulan uygulamalarda bu izni kısıtlar. Mesa\'nın anahtarına bir kez dokunun, sonra Uygulama bilgileri → ⋮ → Kısıtlanmış ayarlara izin ver\'i seçip tekrar deneyin.':
       'Android restreint cette autorisation pour les applis installées hors d\'une boutique. Touchez une fois l\'interrupteur de Mesa, puis ouvrez Infos sur l\'appli → ⋮ → Autoriser les paramètres restreints et réessayez.',
   'Uygulama bilgileri': 'Infos sur l\'appli',
+  // Güvenli bağlantı (1.1)
+  'Anahtar (secret)': 'Clé (secret)',
+  'Açık · {provider}': 'Activé · {provider}',
+  'Açılan pencerede "Tamam"a dokunarak VPN iznini verin.':
+      'Touchez « OK » dans la fenêtre qui s\'ouvre pour autoriser le VPN.',
+  'Bağlantıdan ekle': 'Ajouter depuis un lien',
+  'Başka bir VPN açık. Android aynı anda tek VPN\'e izin verir; şifreli DNS açılınca o kapanır.':
+      'Un autre VPN est activé. Android n\'autorise qu\'un VPN à la fois ; activer le DNS sécurisé le désactivera.',
+  'Başka bir VPN açıldığı için şifreli DNS kapandı.':
+      'Le DNS sécurisé s\'est arrêté car un autre VPN a été activé.',
+  'Bildirim panelini aşağı çekip düzenle simgesine dokunun ve "Şifreli DNS" kutucuğunu ekleyin; tek dokunuşla açıp kapatırsınız.':
+      'Faites glisser le panneau de notifications, touchez l\'icône de modification et ajoutez la vignette « DNS sécurisé » pour l\'activer ou le désactiver d\'un toucher.',
+  'Bir hata oluştu.': 'Une erreur s\'est produite.',
+  'Bu bir Telegram proxy bağlantısı değil.':
+      'Ce n\'est pas un lien de proxy Telegram.',
+  'Bu telefonun tarayıcı bileşeni bunu desteklemiyor.':
+      'Le composant navigateur de ce téléphone ne le prend pas en charge.',
+  'Bütün telefonda reklamları ve izleyicileri engeller':
+      'Bloque les publicités et les traqueurs sur tout le téléphone',
+  'Bütün telefonda şifreli DNS': 'DNS sécurisé pour tout le téléphone',
+  'Dene': 'Tester',
+  'Discord, Slack gibi web servisleri DNS ve SNI engellerine takılmadan açılır. VPN gerekmez, kendi VPN\'inizle de çakışmaz.':
+      'Les services web comme Discord et Slack s\'ouvrent sans être arrêtés par les blocages DNS et SNI. Pas besoin de VPN, et aucun conflit avec votre propre VPN.',
+  'Elle ekle': 'Ajouter manuellement',
+  'En hızlı seçeneklerden biri; gizlilik odaklı':
+      'L\'une des options les plus rapides ; axée sur la confidentialité',
+  'Engellenen servislere erişin ve DNS sorgularınızı gizleyin. Sunucu yok, hesap yok.':
+      'Accédez aux services bloqués et masquez vos requêtes DNS. Pas de serveur, pas de compte.',
+  'Engellenen servislere erişin, DNS sorgularınızı gizleyin, reklamları engelleyin':
+      'Accédez aux services bloqués, masquez vos requêtes DNS, bloquez les pubs',
+  'Erişim kalkanı': 'Bouclier d\'accès',
+  'Erişim kalkanı açıldı. Web servislerini yeniden açınca devreye girer.':
+      'Le bouclier d\'accès est activé. Il s\'applique à la réouverture des services web.',
+  'Geçerli bir MTProto anahtarı girin.': 'Saisissez une clé MTProto valide.',
+  'Google\'ın genel DNS\'i': 'DNS public de Google',
+  'Güvenli bağlantı': 'Connexion sécurisée',
+  'Her zaman açık': 'Toujours activé',
+  'Hızlı ayarlar kutucuğu': 'Vignette des réglages rapides',
+  'Hızı ölç': 'Mesurer la vitesse',
+  'Kapalı': 'Désactivé',
+  'Kullanıcı adı (isteğe bağlı)': 'Nom d\'utilisateur (facultatif)',
+  'Kullanılıyor': 'Utilisé',
+  'Ortalama {ms} ms · {cached} önbellekten · {failed} başarısız':
+      'Moyenne {ms} ms · {cached} en cache · {failed} en échec',
+  'Parola (isteğe bağlı)': 'Mot de passe (facultatif)',
+  'Port': 'Port',
+  'Proxy bağlantısı': 'Lien de proxy',
+  'Proxy ekle': 'Ajouter un proxy',
+  'Proxy eklemek için önce Telegram bağlantısını başlatın.':
+      'Pour ajouter un proxy, lancez d\'abord la connexion à Telegram.',
+  'Proxy eklendi ve Telegram için açıldı.':
+      'Proxy ajouté et activé pour Telegram.',
+  'Sunucu': 'Serveur',
+  'Sunucu ve port (1–65535) gerekli.':
+      'Le serveur et le port (1–65535) sont requis.',
+  'Telefon açılınca kendiliğinden başlasın: sistemin VPN ayarlarında Mesa için "Her zaman açık VPN"i seçin.':
+      'Pour démarrer automatiquement à l\'allumage, choisissez « VPN permanent » pour Mesa dans les réglages VPN du système.',
+  'Telefonun "Özel DNS" ayarı bir sunucuya sabitlenmiş; o ayar kapatılmadan şifreli DNS etkisiz kalabilir.':
+      'Le réglage « DNS privé » du téléphone est fixé sur un serveur ; le DNS sécurisé peut rester sans effet tant que ce réglage est actif.',
+  'Telegram proxy': 'Proxy Telegram',
+  'Telegram\'a doğrudan erişim': 'Accès direct à Telegram',
+  'Ulaşılamıyor': 'Inaccessible',
+  'VPN izni verilmedi. Açmak için yeniden deneyin.':
+      'L\'autorisation VPN n\'a pas été accordée. Réessayez pour l\'activer.',
+  'Web servisleri için erişim kalkanı':
+      'Bouclier d\'accès pour les services web',
+  'Zararlı siteleri engeller; kâr amacı gütmeyen kuruluş':
+      'Bloque les sites malveillants ; géré par une organisation à but non lucratif',
+  'Zararlı sitelerle birlikte yetişkin içeriği de engeller':
+      'Bloque les contenus pour adultes en plus des sites malveillants',
+  'Zararlı ve oltalama sitelerini engeller':
+      'Bloque les sites malveillants et d\'hameçonnage',
+  '{connections} bağlantı · {splits} engel aşma':
+      '{connections} connexions · {splits} blocages contournés',
+  '{count, plural, one{# sorgu} other{# sorgu}}':
+      '{count, plural, one{# requête} other{# requêtes}}',
+  'Ölçülüyor…': 'Mesure…',
+  'Şifreli DNS': 'DNS sécurisé',
+  'Şifreli DNS ve erişim kalkanı': 'DNS sécurisé et bouclier d\'accès',
+  'Şifreli DNS, operatörün DNS engellerini aşar ve hangi sitelere girdiğinizi operatörden gizler. IP adresinizi gizlemez; tam bir VPN değildir. DNS sorguları seçtiğiniz sağlayıcıya gider, Mesa\'nın sunucusu yoktur.':
+      'Le DNS sécurisé contourne les blocages DNS de votre opérateur et lui cache les sites que vous visitez. Il ne masque pas votre adresse IP ; ce n\'est pas un VPN complet. Les requêtes DNS vont au fournisseur choisi ; Mesa n\'a pas de serveur.',
 };

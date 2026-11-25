@@ -97,6 +97,12 @@
     <string name="label_contact">👤 Kişi</string>
     <string name="label_poll">📊 Anket</string>
     <string name="label_sticker">Çıkartma</string>
+    <string name="notif_snooze">1 saat sonra hatırlat</string>
+    <string name="dns_channel">Şifreli DNS</string>
+    <string name="dns_channel_desc">Şifreli DNS açıkken gösterilir</string>
+    <string name="dns_on_title">Şifreli DNS açık</string>
+    <string name="dns_on_text">%1$s · DNS sorguları şifreli</string>
+    <string name="dns_stop">Kapat</string>
     <plurals name="notif_new">
         <item quantity="one">%d yeni</item>
         <item quantity="other">%d yeni</item>

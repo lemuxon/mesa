@@ -97,6 +97,12 @@
     <string name="label_contact">👤 جهة اتصال</string>
     <string name="label_poll">📊 استطلاع</string>
     <string name="label_sticker">ملصق</string>
+    <string name="notif_snooze">ذكّرني بعد ساعة</string>
+    <string name="dns_channel">DNS آمن</string>
+    <string name="dns_channel_desc">يظهر أثناء تشغيل DNS المشفّر</string>
+    <string name="dns_on_title">DNS المشفّر قيد التشغيل</string>
+    <string name="dns_on_text">%1$s · استعلامات DNS مشفّرة</string>
+    <string name="dns_stop">إيقاف</string>
     <plurals name="notif_new">
         <item quantity="zero">%d جديدة</item>
         <item quantity="one">رسالة جديدة</item>

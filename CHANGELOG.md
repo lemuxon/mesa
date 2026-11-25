@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.1.0 (unreleased)
+
+Secure connection: reach blocked services and keep DNS private, with no servers and no account.
+
+### New
+- **Secure DNS for the whole phone.** A local, DNS-only VPN sends every DNS lookup over HTTPS (DoH) to the provider you
+  choose: Cloudflare 1.1.1.1, Cloudflare with malware blocking (1.1.1.2) or family filter (1.1.1.3), **AdGuard (blocks
+  ads and trackers on the whole phone)**, Quad9 or Google. Only the virtual DNS address is routed into the tunnel, so
+  other traffic is untouched. Answers are cached for their TTL; if the provider's name is blocked, its IP addresses are
+  tried. Quick settings tile, a "Turn off" action on its notification, and it comes back after a reboot. It is not a
+  full VPN: your IP address does not change, and the screen says so.
+- **Access shield for web services.** Mesa's web services (Discord, Slack, …) connect through a local proxy that resolves
+  names with secure DNS and splits the TLS ClientHello inside the server name, so DNS and SNI blocks do not stop them. No
+  VPN needed, and it works alongside your own VPN. The proxy only accepts Mesa's own web views (random per-install
+  password); if it stops, pages fall back to a direct connection.
+- **Telegram proxy (MTProto / SOCKS5)** through TDLib: paste a `tg://proxy`, `t.me/proxy` or `t.me/socks` link or enter
+  it by hand, switch proxies on and off, measure the round-trip time, and test whether Telegram is reachable directly.
+  Proxies can be added before signing in.
+- **"Remind in 1 hour"** on unified notifications: snoozes the chat without opening the app.
+
 ## 1.0.1 (2026-11-25)
 
 Security and reliability fixes from a full code audit (November 2026).

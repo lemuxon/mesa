@@ -688,4 +688,84 @@ const pt = <String, String>{
   'Android, mağaza dışından kurulan uygulamalarda bu izni kısıtlar. Mesa\'nın anahtarına bir kez dokunun, sonra Uygulama bilgileri → ⋮ → Kısıtlanmış ayarlara izin ver\'i seçip tekrar deneyin.':
       'O Android restringe esta permissão em apps instalados fora de uma loja. Toque uma vez no botão do Mesa, depois abra Informações do app → ⋮ → Permitir configurações restritas e tente de novo.',
   'Uygulama bilgileri': 'Informações do app',
+  // Güvenli bağlantı (1.1)
+  'Anahtar (secret)': 'Chave (secret)',
+  'Açık · {provider}': 'Ativado · {provider}',
+  'Açılan pencerede "Tamam"a dokunarak VPN iznini verin.':
+      'Toque em "OK" na janela que abrir para permitir a VPN.',
+  'Bağlantıdan ekle': 'Adicionar por link',
+  'Başka bir VPN açık. Android aynı anda tek VPN\'e izin verir; şifreli DNS açılınca o kapanır.':
+      'Outra VPN está ativada. O Android permite só uma VPN por vez; ao ativar o DNS seguro, ela será desativada.',
+  'Başka bir VPN açıldığı için şifreli DNS kapandı.':
+      'O DNS seguro foi desativado porque outra VPN foi ativada.',
+  'Bildirim panelini aşağı çekip düzenle simgesine dokunun ve "Şifreli DNS" kutucuğunu ekleyin; tek dokunuşla açıp kapatırsınız.':
+      'Puxe o painel de notificações, toque no ícone de editar e adicione o bloco "DNS seguro" para ligar e desligar com um toque.',
+  'Bir hata oluştu.': 'Algo deu errado.',
+  'Bu bir Telegram proxy bağlantısı değil.':
+      'Isto não é um link de proxy do Telegram.',
+  'Bu telefonun tarayıcı bileşeni bunu desteklemiyor.':
+      'O componente de navegador deste telefone não oferece suporte a isso.',
+  'Bütün telefonda reklamları ve izleyicileri engeller':
+      'Bloqueia anúncios e rastreadores no telefone inteiro',
+  'Bütün telefonda şifreli DNS': 'DNS seguro no telefone inteiro',
+  'Dene': 'Testar',
+  'Discord, Slack gibi web servisleri DNS ve SNI engellerine takılmadan açılır. VPN gerekmez, kendi VPN\'inizle de çakışmaz.':
+      'Serviços web como Discord e Slack abrem sem esbarrar em bloqueios de DNS e SNI. Não precisa de VPN e não conflita com a sua VPN.',
+  'Elle ekle': 'Adicionar manualmente',
+  'En hızlı seçeneklerden biri; gizlilik odaklı':
+      'Uma das opções mais rápidas; focada em privacidade',
+  'Engellenen servislere erişin ve DNS sorgularınızı gizleyin. Sunucu yok, hesap yok.':
+      'Acesse serviços bloqueados e esconda suas consultas DNS. Sem servidores, sem conta.',
+  'Engellenen servislere erişin, DNS sorgularınızı gizleyin, reklamları engelleyin':
+      'Acesse serviços bloqueados, esconda consultas DNS, bloqueie anúncios',
+  'Erişim kalkanı': 'Escudo de acesso',
+  'Erişim kalkanı açıldı. Web servislerini yeniden açınca devreye girer.':
+      'O escudo de acesso foi ativado. Ele passa a valer quando você reabrir os serviços web.',
+  'Geçerli bir MTProto anahtarı girin.': 'Digite uma chave MTProto válida.',
+  'Google\'ın genel DNS\'i': 'DNS público do Google',
+  'Güvenli bağlantı': 'Conexão segura',
+  'Her zaman açık': 'Sempre ativado',
+  'Hızlı ayarlar kutucuğu': 'Bloco de configurações rápidas',
+  'Hızı ölç': 'Medir velocidade',
+  'Kapalı': 'Desativado',
+  'Kullanıcı adı (isteğe bağlı)': 'Usuário (opcional)',
+  'Kullanılıyor': 'Em uso',
+  'Ortalama {ms} ms · {cached} önbellekten · {failed} başarısız':
+      'Média de {ms} ms · {cached} do cache · {failed} com falha',
+  'Parola (isteğe bağlı)': 'Senha (opcional)',
+  'Port': 'Porta',
+  'Proxy bağlantısı': 'Link de proxy',
+  'Proxy ekle': 'Adicionar proxy',
+  'Proxy eklemek için önce Telegram bağlantısını başlatın.':
+      'Para adicionar um proxy, inicie primeiro a conexão com o Telegram.',
+  'Proxy eklendi ve Telegram için açıldı.':
+      'Proxy adicionado e ativado para o Telegram.',
+  'Sunucu': 'Servidor',
+  'Sunucu ve port (1–65535) gerekli.':
+      'Servidor e porta (1–65535) são obrigatórios.',
+  'Telefon açılınca kendiliğinden başlasın: sistemin VPN ayarlarında Mesa için "Her zaman açık VPN"i seçin.':
+      'Para iniciar sozinho ao ligar o telefone, escolha "VPN sempre ativa" para o Mesa nas configurações de VPN do sistema.',
+  'Telefonun "Özel DNS" ayarı bir sunucuya sabitlenmiş; o ayar kapatılmadan şifreli DNS etkisiz kalabilir.':
+      'A configuração "DNS particular" do telefone está fixada em um servidor; o DNS seguro pode não ter efeito até você desativá-la.',
+  'Telegram proxy': 'Proxy do Telegram',
+  'Telegram\'a doğrudan erişim': 'Acesso direto ao Telegram',
+  'Ulaşılamıyor': 'Inacessível',
+  'VPN izni verilmedi. Açmak için yeniden deneyin.':
+      'A permissão de VPN não foi concedida. Tente de novo para ativar.',
+  'Web servisleri için erişim kalkanı': 'Escudo de acesso para serviços web',
+  'Zararlı siteleri engeller; kâr amacı gütmeyen kuruluş':
+      'Bloqueia sites maliciosos; mantido por uma organização sem fins lucrativos',
+  'Zararlı sitelerle birlikte yetişkin içeriği de engeller':
+      'Bloqueia conteúdo adulto além de sites maliciosos',
+  'Zararlı ve oltalama sitelerini engeller':
+      'Bloqueia sites maliciosos e de phishing',
+  '{connections} bağlantı · {splits} engel aşma':
+      '{connections} conexões · {splits} bloqueios contornados',
+  '{count, plural, one{# sorgu} other{# sorgu}}':
+      '{count, plural, one{# consulta} other{# consultas}}',
+  'Ölçülüyor…': 'Medindo…',
+  'Şifreli DNS': 'DNS seguro',
+  'Şifreli DNS ve erişim kalkanı': 'DNS seguro e escudo de acesso',
+  'Şifreli DNS, operatörün DNS engellerini aşar ve hangi sitelere girdiğinizi operatörden gizler. IP adresinizi gizlemez; tam bir VPN değildir. DNS sorguları seçtiğiniz sağlayıcıya gider, Mesa\'nın sunucusu yoktur.':
+      'O DNS seguro contorna os bloqueios de DNS da operadora e esconde dela quais sites você visita. Não esconde seu endereço IP; não é uma VPN completa. As consultas DNS vão para o provedor escolhido; o Mesa não tem servidores.',
 };

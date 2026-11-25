@@ -31,6 +31,7 @@ Check a downloaded APK with `apksigner verify --print-certs Mesa.apk` (Android S
 - **Rules:** automatic replies (with safety limits), mute, mark important; they run even when the app is closed.
 - **Weekly summary**, **home screen widget**, **app lock** (fingerprint, face or screen lock).
 - **Encrypted backups** with your own password (AES-256-GCM).
+- **Secure connection:** secure DNS (DNS over HTTPS) for the whole phone with Cloudflare 1.1.1.1, AdGuard (blocks ads and trackers), Quad9 or Google, plus a quick settings tile; an access shield that lets Mesa's web services through DNS and SNI blocks without a VPN; and Telegram proxies (MTProto / SOCKS5).
 - **8 languages:** English, Spanish, Portuguese, German, French, Turkish, Russian and Arabic, with right-to-left support.
 
 ## Screenshots
@@ -64,6 +65,7 @@ All people and messages in the screenshots are fictional.
 - No Mesa servers, no analytics, no ads, no account.
 - Messages are stored only on your phone and are excluded from cloud backups and device-to-device transfer.
 - Backups are files you create and keep, encrypted with your password.
+- Secure DNS and the access shield are off until you turn them on. Then DNS lookups go, encrypted, to the DNS provider you pick (Cloudflare, AdGuard, Quad9 or Google), not to your carrier. Secure DNS is not a full VPN: it does not hide your IP address.
 
 ## Build
 

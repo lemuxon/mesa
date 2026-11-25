@@ -688,4 +688,85 @@ const de = <String, String>{
   'Android, mağaza dışından kurulan uygulamalarda bu izni kısıtlar. Mesa\'nın anahtarına bir kez dokunun, sonra Uygulama bilgileri → ⋮ → Kısıtlanmış ayarlara izin ver\'i seçip tekrar deneyin.':
       'Android schränkt diese Berechtigung bei Apps ein, die nicht aus einem App-Store installiert wurden. Tippe einmal auf den Schalter von Mesa, öffne dann App-Info → ⋮ → Eingeschränkte Einstellungen zulassen und versuche es erneut.',
   'Uygulama bilgileri': 'App-Info',
+  // Güvenli bağlantı (1.1)
+  'Anahtar (secret)': 'Schlüssel (Secret)',
+  'Açık · {provider}': 'An · {provider}',
+  'Açılan pencerede "Tamam"a dokunarak VPN iznini verin.':
+      'Tippe im sich öffnenden Fenster auf „OK“, um das VPN zu erlauben.',
+  'Bağlantıdan ekle': 'Aus Link hinzufügen',
+  'Başka bir VPN açık. Android aynı anda tek VPN\'e izin verir; şifreli DNS açılınca o kapanır.':
+      'Ein anderes VPN ist aktiv. Android erlaubt nur ein VPN gleichzeitig; wenn du sicheres DNS einschaltest, wird es beendet.',
+  'Başka bir VPN açıldığı için şifreli DNS kapandı.':
+      'Sicheres DNS wurde beendet, weil ein anderes VPN eingeschaltet wurde.',
+  'Bildirim panelini aşağı çekip düzenle simgesine dokunun ve "Şifreli DNS" kutucuğunu ekleyin; tek dokunuşla açıp kapatırsınız.':
+      'Ziehe die Benachrichtigungsleiste herunter, tippe auf das Bearbeiten-Symbol und füge die Kachel „Sicheres DNS“ hinzu – so schaltest du es mit einem Tippen ein und aus.',
+  'Bir hata oluştu.': 'Etwas ist schiefgelaufen.',
+  'Bu bir Telegram proxy bağlantısı değil.':
+      'Das ist kein Telegram-Proxy-Link.',
+  'Bu telefonun tarayıcı bileşeni bunu desteklemiyor.':
+      'Die Browser-Komponente dieses Telefons unterstützt das nicht.',
+  'Bütün telefonda reklamları ve izleyicileri engeller':
+      'Blockiert Werbung und Tracker auf dem ganzen Telefon',
+  'Bütün telefonda şifreli DNS': 'Sicheres DNS für das ganze Telefon',
+  'Dene': 'Testen',
+  'Discord, Slack gibi web servisleri DNS ve SNI engellerine takılmadan açılır. VPN gerekmez, kendi VPN\'inizle de çakışmaz.':
+      'Webdienste wie Discord und Slack öffnen sich, ohne an DNS- und SNI-Sperren hängen zu bleiben. Kein VPN nötig, und es kollidiert nicht mit deinem eigenen VPN.',
+  'Elle ekle': 'Manuell hinzufügen',
+  'En hızlı seçeneklerden biri; gizlilik odaklı':
+      'Eine der schnellsten Optionen; datenschutzorientiert',
+  'Engellenen servislere erişin ve DNS sorgularınızı gizleyin. Sunucu yok, hesap yok.':
+      'Erreiche gesperrte Dienste und verberge deine DNS-Anfragen. Keine Server, kein Konto.',
+  'Engellenen servislere erişin, DNS sorgularınızı gizleyin, reklamları engelleyin':
+      'Gesperrte Dienste erreichen, DNS-Anfragen verbergen, Werbung blockieren',
+  'Erişim kalkanı': 'Zugangsschutz',
+  'Erişim kalkanı açıldı. Web servislerini yeniden açınca devreye girer.':
+      'Der Zugangsschutz ist an. Er greift, sobald du die Webdienste neu öffnest.',
+  'Geçerli bir MTProto anahtarı girin.':
+      'Gib einen gültigen MTProto-Schlüssel ein.',
+  'Google\'ın genel DNS\'i': 'Öffentliches DNS von Google',
+  'Güvenli bağlantı': 'Sichere Verbindung',
+  'Her zaman açık': 'Immer an',
+  'Hızlı ayarlar kutucuğu': 'Schnelleinstellungs-Kachel',
+  'Hızı ölç': 'Geschwindigkeit messen',
+  'Kapalı': 'Aus',
+  'Kullanıcı adı (isteğe bağlı)': 'Benutzername (optional)',
+  'Kullanılıyor': 'In Verwendung',
+  'Ortalama {ms} ms · {cached} önbellekten · {failed} başarısız':
+      'Durchschnitt {ms} ms · {cached} aus dem Cache · {failed} fehlgeschlagen',
+  'Parola (isteğe bağlı)': 'Passwort (optional)',
+  'Port': 'Port',
+  'Proxy bağlantısı': 'Proxy-Link',
+  'Proxy ekle': 'Proxy hinzufügen',
+  'Proxy eklemek için önce Telegram bağlantısını başlatın.':
+      'Um einen Proxy hinzuzufügen, starte zuerst die Telegram-Verbindung.',
+  'Proxy eklendi ve Telegram için açıldı.':
+      'Proxy hinzugefügt und für Telegram eingeschaltet.',
+  'Sunucu': 'Server',
+  'Sunucu ve port (1–65535) gerekli.':
+      'Server und Port (1–65535) sind erforderlich.',
+  'Telefon açılınca kendiliğinden başlasın: sistemin VPN ayarlarında Mesa için "Her zaman açık VPN"i seçin.':
+      'Automatisch beim Einschalten starten: Wähle in den VPN-Einstellungen des Systems „Durchgehend aktives VPN“ für Mesa.',
+  'Telefonun "Özel DNS" ayarı bir sunucuya sabitlenmiş; o ayar kapatılmadan şifreli DNS etkisiz kalabilir.':
+      'Die Einstellung „Privates DNS“ des Telefons ist auf einen Server festgelegt; sicheres DNS wirkt möglicherweise erst, wenn du sie ausschaltest.',
+  'Telegram proxy': 'Telegram-Proxy',
+  'Telegram\'a doğrudan erişim': 'Direkter Zugriff auf Telegram',
+  'Ulaşılamıyor': 'Nicht erreichbar',
+  'VPN izni verilmedi. Açmak için yeniden deneyin.':
+      'Die VPN-Berechtigung wurde nicht erteilt. Versuche es erneut, um es einzuschalten.',
+  'Web servisleri için erişim kalkanı': 'Zugangsschutz für Webdienste',
+  'Zararlı siteleri engeller; kâr amacı gütmeyen kuruluş':
+      'Blockiert schädliche Websites; betrieben von einer gemeinnützigen Organisation',
+  'Zararlı sitelerle birlikte yetişkin içeriği de engeller':
+      'Blockiert neben schädlichen Websites auch Inhalte für Erwachsene',
+  'Zararlı ve oltalama sitelerini engeller':
+      'Blockiert schädliche und Phishing-Websites',
+  '{connections} bağlantı · {splits} engel aşma':
+      '{connections} Verbindungen · {splits} umgangene Sperren',
+  '{count, plural, one{# sorgu} other{# sorgu}}':
+      '{count, plural, one{# Anfrage} other{# Anfragen}}',
+  'Ölçülüyor…': 'Wird gemessen…',
+  'Şifreli DNS': 'Sicheres DNS',
+  'Şifreli DNS ve erişim kalkanı': 'Sicheres DNS und Zugangsschutz',
+  'Şifreli DNS, operatörün DNS engellerini aşar ve hangi sitelere girdiğinizi operatörden gizler. IP adresinizi gizlemez; tam bir VPN değildir. DNS sorguları seçtiğiniz sağlayıcıya gider, Mesa\'nın sunucusu yoktur.':
+      'Sicheres DNS umgeht DNS-Sperren deines Anbieters und verbirgt vor ihm, welche Websites du besuchst. Es verbirgt nicht deine IP-Adresse; es ist kein vollständiges VPN. DNS-Anfragen gehen an den gewählten Anbieter; Mesa hat keine Server.',
 };

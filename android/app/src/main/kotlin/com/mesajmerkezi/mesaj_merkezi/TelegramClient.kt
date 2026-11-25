@@ -916,6 +916,80 @@ object TelegramClient {
         current.send(function) { result -> done(result) }
     }
 
+    // ---- Proxy: Telegram'ın engellendiği ağlarda bağlantı ----
+    // TDLib proxy listesini kendi veritabanında tutar; girişten önce de eklenebilir.
+
+    /** Kullanıcı Telegram'ı açtıysa istemci hazır (gerekirse başlatılır). */
+    private fun proxyClientReady(context: Context): Boolean {
+        if (client == null && TelegramPrefs.enabled(context)) start(context)
+        return client != null
+    }
+
+    fun proxies(context: Context, done: (List<Map<String, Any?>>?) -> Unit) {
+        if (!proxyClientReady(context)) return done(null)
+        callAsync(TdApi.GetProxies()) { result ->
+            done((result as? TdApi.AddedProxies)?.proxies?.map(::proxyMap))
+        }
+    }
+
+    fun addProxy(
+        context: Context,
+        server: String,
+        port: Int,
+        type: String,
+        secret: String,
+        username: String,
+        password: String,
+        done: (String?) -> Unit,
+    ) {
+        // appContext henüz kurulmamış olabilir: metin verilen bağlamdan.
+        if (!proxyClientReady(context)) return done(Lang.str(context, R.string.tg_not_connected))
+        val proxyType = when (type) {
+            "mtproto" -> TdApi.ProxyTypeMtproto(secret)
+            "socks5" -> TdApi.ProxyTypeSocks5(username, password)
+            "http" -> TdApi.ProxyTypeHttp(username, password, false)
+            else -> return done("unsupported proxy type")
+        }
+        Log.i(TAG, "Telegram proxy ekleniyor: $type")
+        send(TdApi.AddProxy(TdApi.Proxy(server.trim(), port, proxyType), true, ""), done)
+    }
+
+    fun setProxyEnabled(id: Int, enabled: Boolean, done: (String?) -> Unit) =
+        send(if (enabled) TdApi.EnableProxy(id) else TdApi.DisableProxy(), done)
+
+    fun removeProxy(id: Int, done: (String?) -> Unit) = send(TdApi.RemoveProxy(id), done)
+
+    /**
+     * Telegram'a gidiş-dönüş süresi (ms). [id] null ise proxy'siz doğrudan
+     * bağlantı denenir (Telegram bu ağda engelli mi?). Ulaşılamazsa null.
+     */
+    fun pingProxy(context: Context, id: Int?, done: (Long?) -> Unit) {
+        if (!proxyClientReady(context)) return done(null)
+        fun ping(proxy: TdApi.Proxy?) = callAsync(TdApi.PingProxy(proxy)) { result ->
+            done((result as? TdApi.Seconds)?.let { (it.seconds * 1000).toLong() })
+        }
+        if (id == null) return ping(null)
+        callAsync(TdApi.GetProxies()) { result ->
+            val proxy = (result as? TdApi.AddedProxies)?.proxies?.firstOrNull { it.id == id }?.proxy
+            if (proxy == null) done(null) else ping(proxy)
+        }
+    }
+
+    /** Arayüze giden bilgi; MTProto anahtarı ve parolalar gönderilmez. */
+    private fun proxyMap(added: TdApi.AddedProxy): Map<String, Any?> = mapOf(
+        "id" to added.id,
+        "server" to added.proxy.server,
+        "port" to added.proxy.port,
+        "type" to when (added.proxy.type) {
+            is TdApi.ProxyTypeMtproto -> "mtproto"
+            is TdApi.ProxyTypeSocks5 -> "socks5"
+            is TdApi.ProxyTypeHttp -> "http"
+            else -> "other"
+        },
+        "enabled" to added.isEnabled,
+        "lastUsed" to added.lastUsedDate * 1000L,
+    )
+
     private fun send(function: TdApi.Function<*>, done: ((String?) -> Unit)? = null) {
         val current = client
         if (current == null) {

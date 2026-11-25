@@ -116,6 +116,8 @@ object WebHost {
     private fun init(context: Context) {
         if (::appContext.isInitialized) return
         appContext = context.applicationContext
+        // Erişim kalkanı açıksa sayfalar yüklenmeden önce proxy kurulsun.
+        AccessShield.apply(appContext)
         // Tarayıcı site simgelerini yalnızca bu (eski) veritabanı açıldıysa indirir.
         main.post {
             try {
@@ -746,6 +748,20 @@ object WebHost {
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
             main.post { onRendererGone() }
             return true
+        }
+
+        // Erişim kalkanının yerel proxy'si kimlik ister; parolayı yalnızca Mesa bilir.
+        override fun onReceivedHttpAuthRequest(
+            view: WebView,
+            handler: android.webkit.HttpAuthHandler,
+            host: String?,
+            realm: String?,
+        ) {
+            if (AccessShield.isOwnChallenge(host, realm)) {
+                handler.proceed(AccessShield.USER, AccessShield.token)
+            } else {
+                super.onReceivedHttpAuthRequest(view, handler, host, realm)
+            }
         }
     }
 

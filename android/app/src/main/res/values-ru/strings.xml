@@ -97,6 +97,12 @@
     <string name="label_contact">👤 Контакт</string>
     <string name="label_poll">📊 Опрос</string>
     <string name="label_sticker">Стикер</string>
+    <string name="notif_snooze">Напомнить через 1 час</string>
+    <string name="dns_channel">Защищённый DNS</string>
+    <string name="dns_channel_desc">Показывается, пока включён зашифрованный DNS</string>
+    <string name="dns_on_title">Зашифрованный DNS включён</string>
+    <string name="dns_on_text">%1$s · DNS-запросы зашифрованы</string>
+    <string name="dns_stop">Выключить</string>
     <plurals name="notif_new">
         <item quantity="one">%d новое</item>
         <item quantity="few">%d новых</item>

@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
+    <!-- Şifreli DNS (yalnızca DNS taşıyan yerel VPN): VPN uygulamalarına izinli ön plan türü. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Uygulama kilidi: parmak izi / yuz tanima / ekran kilidi. -->
@@ -101,6 +103,38 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/messages_widget_info" />
         </receiver>
+        <!-- Şifreli DNS: bütün telefonun DNS sorgularını DoH ile taşıyan yerel VPN.
+             Yalnızca sistem bağlanabilir (BIND_VPN_SERVICE). -->
+        <service
+            android:name=".DnsVpnService"
+            android:exported="true"
+            android:foregroundServiceType="systemExempted"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
+        <!-- Bildirim panelindeki "Şifreli DNS" kutucuğu. -->
+        <service
+            android:name=".DnsTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_secure_dns"
+            android:label="@string/dns_channel"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
+        <!-- VPN izni penceresini açan görünmez ara ekran. -->
+        <activity
+            android:name=".DnsPermissionActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <receiver
             android:name=".BootReceiver"
             android:exported="true">

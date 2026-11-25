@@ -153,6 +153,16 @@ s("label_contact", en="👤 Contact", tr="👤 Kişi", es="👤 Contacto", pt="�
 s("label_poll", en="📊 Poll", tr="📊 Anket", es="📊 Encuesta", pt="📊 Enquete", de="📊 Umfrage", fr="📊 Sondage", ar="📊 استطلاع", ru="📊 Опрос")
 s("label_sticker", en="Sticker", tr="Çıkartma", es="Sticker", pt="Figurinha", de="Sticker", fr="Autocollant", ar="ملصق", ru="Стикер")
 
+# ---- Bildirimden erteleme ----
+s("notif_snooze", en="Remind in 1 hour", tr="1 saat sonra hatırlat", es="Recordar en 1 hora", pt="Lembrar em 1 hora", de="In 1 Stunde erinnern", fr="Rappeler dans 1 heure", ar="ذكّرني بعد ساعة", ru="Напомнить через 1 час")
+
+# ---- Şifreli DNS ----
+s("dns_channel", en="Secure DNS", tr="Şifreli DNS", es="DNS seguro", pt="DNS seguro", de="Sicheres DNS", fr="DNS sécurisé", ar="DNS آمن", ru="Защищённый DNS")
+s("dns_channel_desc", en="Shown while encrypted DNS is on", tr="Şifreli DNS açıkken gösterilir", es="Se muestra mientras el DNS cifrado está activado", pt="Exibida enquanto o DNS criptografado está ativado", de="Wird angezeigt, solange verschlüsseltes DNS aktiv ist", fr="Affichée tant que le DNS chiffré est activé", ar="يظهر أثناء تشغيل DNS المشفّر", ru="Показывается, пока включён зашифрованный DNS")
+s("dns_on_title", en="Encrypted DNS is on", tr="Şifreli DNS açık", es="DNS cifrado activado", pt="DNS criptografado ativado", de="Verschlüsseltes DNS ist aktiv", fr="DNS chiffré activé", ar="DNS المشفّر قيد التشغيل", ru="Зашифрованный DNS включён")
+s("dns_on_text", en="%1$s · DNS lookups are encrypted", tr="%1$s · DNS sorguları şifreli", es="%1$s · Las consultas DNS están cifradas", pt="%1$s · As consultas DNS estão criptografadas", de="%1$s · DNS-Anfragen sind verschlüsselt", fr="%1$s · Les requêtes DNS sont chiffrées", ar="%1$s · استعلامات DNS مشفّرة", ru="%1$s · DNS-запросы зашифрованы")
+s("dns_stop", en="Turn off", tr="Kapat", es="Desactivar", pt="Desativar", de="Ausschalten", fr="Désactiver", ar="إيقاف", ru="Выключить")
+
 
 def esc(text):
     out = text.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')
