@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Odak modu: hilal (hızlı ayarlar kutucuğu, tek renk). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12.3,2.02C7.2,2.4 3.2,6.67 3.2,11.87c0,5.45 4.42,9.88 9.88,9.88 4.27,0 7.9,-2.71 9.27,-6.5 -0.85,0.25 -1.75,0.38 -2.68,0.38 -5.22,0 -9.45,-4.23 -9.45,-9.45 0,-1.6 0.4,-3.11 1.1,-4.43 -0.36,-0.02 -0.68,0.25 -1.02,0.27z" />
+</vector>

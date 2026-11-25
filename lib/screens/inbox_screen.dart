@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../core/app_scope.dart';
 import '../core/apps.dart';
 import '../core/bridge.dart';
+import '../core/focus.dart';
 import '../core/models.dart';
 import '../core/people.dart';
 import '../core/settings.dart';
@@ -49,6 +50,9 @@ class _InboxScreenState extends State<InboxScreen> with WidgetsBindingObserver {
   List<Conversation> _conversations = const [];
   List<WaitingPerson> _waiting = const [];
   List<SnoozedConversation> _snoozed = const [];
+
+  /// Odak modu açıkken listenin üstünde şerit.
+  FocusStatus? _focus;
   List<PersonSuggestion> _suggestions = const [];
 
   /// Kurulum listesi için; okunamazsa (eski yerel taraf) eski öneri kartı.
@@ -160,8 +164,15 @@ class _InboxScreenState extends State<InboxScreen> with WidgetsBindingObserver {
     } catch (_) {
       // Eski yerel taraf ya da test: kurulum listesi gösterilmez.
     }
+    var focus = _focus;
+    try {
+      focus = await widget.bridge.focusStatus();
+    } catch (_) {
+      // Eski yerel taraf ya da test: odak şeridi gösterilmez.
+    }
     if (!mounted) return;
     setState(() {
+      _focus = focus;
       _conversations = conversations;
       _archivedCount = archivedCount;
       _unifiedEnabled = settings.unifiedNotifications;
@@ -457,6 +468,8 @@ class _InboxScreenState extends State<InboxScreen> with WidgetsBindingObserver {
               ),
             ),
           ),
+        if (_focus case final focus? when focus.active)
+          SliverToBoxAdapter(child: _focusBanner(focus)),
         if (promo != null) SliverToBoxAdapter(child: promo),
         if (_waiting.isNotEmpty)
           SliverToBoxAdapter(
@@ -521,6 +534,40 @@ class _InboxScreenState extends State<InboxScreen> with WidgetsBindingObserver {
 
   /// Özet ya da Kaydedilenler'den bir sohbete: o ekranı kapatmadan üstüne açılır.
   void _openFromScreen(String key) => _openByKey(key);
+
+  Widget _focusBanner(FocusStatus focus) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+      child: Material(
+        color: theme.colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          leading: Icon(
+            Icons.bedtime_rounded,
+            color: theme.colorScheme.onSecondaryContainer,
+          ),
+          title: Text(tr('Odak modu açık')),
+          subtitle: Text(
+            focus.silenced > 0
+                ? tr(
+                    '{count, plural, one{# mesaj susturuldu} other{# mesaj susturuldu}}',
+                    {'count': focus.silenced},
+                  )
+                : tr('Yalnızca VIP kişiler bildirim verir'),
+          ),
+          trailing: TextButton(
+            onPressed: () async {
+              await widget.bridge.setFocusManual(0);
+              await _load();
+            },
+            child: Text(tr('Kapat')),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _filterChip(String label, String? value, String? packageName) =>
       Padding(

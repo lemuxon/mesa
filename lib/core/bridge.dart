@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 
+import 'focus.dart';
 import 'models.dart';
 import 'rules.dart';
 import 'settings.dart';
@@ -108,6 +109,53 @@ class CoreBridge {
 
   Future<void> openNotificationSettings() =>
       _channel.invokeMethod<void>('openNotificationSettings');
+
+  // ---- Odak modu (Focus.kt) ----
+
+  Future<FocusStatus> focusStatus() async => FocusStatus.fromMap(
+    (await _channel.invokeMapMethod<Object?, Object?>('focusStatus')) ??
+        const {},
+  );
+
+  /// [until]: 0 kapat, [FocusStatus.indefinite] kapatılana kadar, diğer: bitiş (ms).
+  Future<FocusStatus> setFocusManual(int until) async => FocusStatus.fromMap(
+    (await _channel.invokeMapMethod<Object?, Object?>('focusSetManual', {
+          'until': until,
+        })) ??
+        const {},
+  );
+
+  Future<FocusStatus> setFocusSchedule({
+    required bool enabled,
+    required int from,
+    required int to,
+    required int days,
+  }) async => FocusStatus.fromMap(
+    (await _channel.invokeMapMethod<Object?, Object?>('focusSetSchedule', {
+          'enabled': enabled,
+          'from': from,
+          'to': to,
+          'days': days,
+        })) ??
+        const {},
+  );
+
+  Future<FocusStatus> setFocusVip(List<String> keys) async =>
+      FocusStatus.fromMap(
+        (await _channel.invokeMapMethod<Object?, Object?>('focusSetVip', {
+              'keys': keys,
+            })) ??
+            const {},
+      );
+
+  Future<FocusStatus> setFocusBreakthrough(bool enabled) async =>
+      FocusStatus.fromMap(
+        (await _channel.invokeMapMethod<Object?, Object?>(
+              'focusSetBreakthrough',
+              {'enabled': enabled},
+            )) ??
+            const {},
+      );
 
   /// Gelen kutusu; [archived] ise yalnızca arşivlenenler.
   Future<List<Conversation>> conversations({bool archived = false}) async {

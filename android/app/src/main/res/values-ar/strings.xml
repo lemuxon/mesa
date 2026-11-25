@@ -103,6 +103,12 @@
     <string name="dns_on_title">DNS المشفّر قيد التشغيل</string>
     <string name="dns_on_text">%1$s · استعلامات DNS مشفّرة</string>
     <string name="dns_stop">إيقاف</string>
+    <string name="focus_channel">وضع التركيز</string>
+    <string name="focus_tile_on">يمكن لأشخاص VIP فقط الوصول إليك</string>
+    <string name="focus_and_more">%1$s و%2$d آخرون</string>
+    <string name="backup_channel">النسخ الاحتياطية</string>
+    <string name="backup_auto_failed">فشل النسخ الاحتياطي التلقائي</string>
+    <string name="backup_auto_failed_text">افتح Mesa ← الإعدادات ← النسخ الاحتياطي للتحقق من المجلد.</string>
     <plurals name="notif_new">
         <item quantity="zero">%d جديدة</item>
         <item quantity="one">رسالة جديدة</item>
@@ -134,5 +140,13 @@
         <item quantity="few">⏳ %d أشخاص ينتظرون الرد</item>
         <item quantity="many">⏳ %d شخصًا ينتظرون الرد</item>
         <item quantity="other">⏳ %d شخص ينتظرون الرد</item>
+    </plurals>
+    <plurals name="focus_summary">
+        <item quantity="zero">انتهى التركيز · لم تصل رسائل</item>
+        <item quantity="one">انتهى التركيز · وصلت رسالة واحدة</item>
+        <item quantity="two">انتهى التركيز · وصلت رسالتان</item>
+        <item quantity="few">انتهى التركيز · وصلت %d رسائل</item>
+        <item quantity="many">انتهى التركيز · وصلت %d رسالة</item>
+        <item quantity="other">انتهى التركيز · وصلت %d رسالة</item>
     </plurals>
 </resources>

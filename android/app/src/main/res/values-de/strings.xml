@@ -103,6 +103,12 @@
     <string name="dns_on_title">Verschlüsseltes DNS ist aktiv</string>
     <string name="dns_on_text">%1$s · DNS-Anfragen sind verschlüsselt</string>
     <string name="dns_stop">Ausschalten</string>
+    <string name="focus_channel">Fokusmodus</string>
+    <string name="focus_tile_on">Nur VIPs erreichen dich</string>
+    <string name="focus_and_more">%1$s und %2$d weitere</string>
+    <string name="backup_channel">Sicherungen</string>
+    <string name="backup_auto_failed">Automatische Sicherung fehlgeschlagen</string>
+    <string name="backup_auto_failed_text">Öffne Mesa → Einstellungen → Sicherung, um den Ordner zu prüfen.</string>
     <plurals name="notif_new">
         <item quantity="one">%d neue</item>
         <item quantity="other">%d neue</item>
@@ -118,5 +124,9 @@
     <plurals name="widget_waiting">
         <item quantity="one">⏳ %d Person wartet auf Antwort</item>
         <item quantity="other">⏳ %d Personen warten auf Antwort</item>
+    </plurals>
+    <plurals name="focus_summary">
+        <item quantity="one">Fokus beendet · %d Nachricht eingegangen</item>
+        <item quantity="other">Fokus beendet · %d Nachrichten eingegangen</item>
     </plurals>
 </resources>

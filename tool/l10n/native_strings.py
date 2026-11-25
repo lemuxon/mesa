@@ -163,6 +163,24 @@ s("dns_on_title", en="Encrypted DNS is on", tr="Şifreli DNS açık", es="DNS ci
 s("dns_on_text", en="%1$s · DNS lookups are encrypted", tr="%1$s · DNS sorguları şifreli", es="%1$s · Las consultas DNS están cifradas", pt="%1$s · As consultas DNS estão criptografadas", de="%1$s · DNS-Anfragen sind verschlüsselt", fr="%1$s · Les requêtes DNS sont chiffrées", ar="%1$s · استعلامات DNS مشفّرة", ru="%1$s · DNS-запросы зашифрованы")
 s("dns_stop", en="Turn off", tr="Kapat", es="Desactivar", pt="Desativar", de="Ausschalten", fr="Désactiver", ar="إيقاف", ru="Выключить")
 
+# ---- Odak modu ----
+s("focus_channel", en="Focus mode", tr="Odak modu", es="Modo concentración", pt="Modo foco", de="Fokusmodus", fr="Mode concentration", ar="وضع التركيز", ru="Режим фокусировки")
+s("focus_tile_on", en="Only VIPs can reach you", tr="Yalnızca VIP'ler ulaşabilir", es="Solo los VIP pueden contactarte", pt="Só os VIPs conseguem falar com você", de="Nur VIPs erreichen dich", fr="Seuls les VIP peuvent vous joindre", ar="يمكن لأشخاص VIP فقط الوصول إليك", ru="Достучаться могут только VIP")
+s("focus_and_more", en="%1$s and %2$d more", tr="%1$s ve %2$d kişi daha", es="%1$s y %2$d más", pt="%1$s e mais %2$d", de="%1$s und %2$d weitere", fr="%1$s et %2$d autres", ar="%1$s و%2$d آخرون", ru="%1$s и ещё %2$d")
+p("focus_summary", en={"one": "Focus ended · %d message arrived", "other": "Focus ended · %d messages arrived"},
+  tr={"one": "Odak bitti · %d mesaj geldi", "other": "Odak bitti · %d mesaj geldi"},
+  es={"one": "Concentración terminada · llegó %d mensaje", "other": "Concentración terminada · llegaron %d mensajes"},
+  pt={"one": "Foco encerrado · chegou %d mensagem", "other": "Foco encerrado · chegaram %d mensagens"},
+  de={"one": "Fokus beendet · %d Nachricht eingegangen", "other": "Fokus beendet · %d Nachrichten eingegangen"},
+  fr={"one": "Concentration terminée · %d message reçu", "other": "Concentration terminée · %d messages reçus"},
+  ar={"zero": "انتهى التركيز · لم تصل رسائل", "one": "انتهى التركيز · وصلت رسالة واحدة", "two": "انتهى التركيز · وصلت رسالتان", "few": "انتهى التركيز · وصلت %d رسائل", "many": "انتهى التركيز · وصلت %d رسالة", "other": "انتهى التركيز · وصلت %d رسالة"},
+  ru={"one": "Фокус завершён · пришло %d сообщение", "few": "Фокус завершён · пришло %d сообщения", "many": "Фокус завершён · пришло %d сообщений", "other": "Фокус завершён · пришло %d сообщения"})
+
+# ---- Otomatik yedek ----
+s("backup_channel", en="Backups", tr="Yedekler", es="Copias de seguridad", pt="Backups", de="Sicherungen", fr="Sauvegardes", ar="النسخ الاحتياطية", ru="Резервные копии")
+s("backup_auto_failed", en="Automatic backup failed", tr="Otomatik yedek alınamadı", es="La copia automática falló", pt="O backup automático falhou", de="Automatische Sicherung fehlgeschlagen", fr="La sauvegarde automatique a échoué", ar="فشل النسخ الاحتياطي التلقائي", ru="Не удалось создать автоматическую копию")
+s("backup_auto_failed_text", en="Open Mesa → Settings → Backup to check the folder.", tr="Klasörü kontrol etmek için Mesa → Ayarlar → Yedek'i açın.", es="Abre Mesa → Ajustes → Copia de seguridad para revisar la carpeta.", pt="Abra Mesa → Configurações → Backup para verificar a pasta.", de="Öffne Mesa → Einstellungen → Sicherung, um den Ordner zu prüfen.", fr="Ouvrez Mesa → Réglages → Sauvegarde pour vérifier le dossier.", ar="افتح Mesa ← الإعدادات ← النسخ الاحتياطي للتحقق من المجلد.", ru="Откройте Mesa → Настройки → Резервная копия, чтобы проверить папку.")
+
 
 def esc(text):
     out = text.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')

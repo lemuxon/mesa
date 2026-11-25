@@ -103,6 +103,12 @@
     <string name="dns_on_title">Зашифрованный DNS включён</string>
     <string name="dns_on_text">%1$s · DNS-запросы зашифрованы</string>
     <string name="dns_stop">Выключить</string>
+    <string name="focus_channel">Режим фокусировки</string>
+    <string name="focus_tile_on">Достучаться могут только VIP</string>
+    <string name="focus_and_more">%1$s и ещё %2$d</string>
+    <string name="backup_channel">Резервные копии</string>
+    <string name="backup_auto_failed">Не удалось создать автоматическую копию</string>
+    <string name="backup_auto_failed_text">Откройте Mesa → Настройки → Резервная копия, чтобы проверить папку.</string>
     <plurals name="notif_new">
         <item quantity="one">%d новое</item>
         <item quantity="few">%d новых</item>
@@ -126,5 +132,11 @@
         <item quantity="few">⏳ %d человека ждут ответа</item>
         <item quantity="many">⏳ %d человек ждут ответа</item>
         <item quantity="other">⏳ %d человека ждут ответа</item>
+    </plurals>
+    <plurals name="focus_summary">
+        <item quantity="one">Фокус завершён · пришло %d сообщение</item>
+        <item quantity="few">Фокус завершён · пришло %d сообщения</item>
+        <item quantity="many">Фокус завершён · пришло %d сообщений</item>
+        <item quantity="other">Фокус завершён · пришло %d сообщения</item>
     </plurals>
 </resources>

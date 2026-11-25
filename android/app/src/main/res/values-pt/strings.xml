@@ -103,6 +103,12 @@
     <string name="dns_on_title">DNS criptografado ativado</string>
     <string name="dns_on_text">%1$s · As consultas DNS estão criptografadas</string>
     <string name="dns_stop">Desativar</string>
+    <string name="focus_channel">Modo foco</string>
+    <string name="focus_tile_on">Só os VIPs conseguem falar com você</string>
+    <string name="focus_and_more">%1$s e mais %2$d</string>
+    <string name="backup_channel">Backups</string>
+    <string name="backup_auto_failed">O backup automático falhou</string>
+    <string name="backup_auto_failed_text">Abra Mesa → Configurações → Backup para verificar a pasta.</string>
     <plurals name="notif_new">
         <item quantity="one">%d nova</item>
         <item quantity="other">%d novas</item>
@@ -118,5 +124,9 @@
     <plurals name="widget_waiting">
         <item quantity="one">⏳ %d pessoa aguarda resposta</item>
         <item quantity="other">⏳ %d pessoas aguardam resposta</item>
+    </plurals>
+    <plurals name="focus_summary">
+        <item quantity="one">Foco encerrado · chegou %d mensagem</item>
+        <item quantity="other">Foco encerrado · chegaram %d mensagens</item>
     </plurals>
 </resources>

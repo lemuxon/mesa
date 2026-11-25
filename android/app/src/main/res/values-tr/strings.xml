@@ -103,6 +103,12 @@
     <string name="dns_on_title">Şifreli DNS açık</string>
     <string name="dns_on_text">%1$s · DNS sorguları şifreli</string>
     <string name="dns_stop">Kapat</string>
+    <string name="focus_channel">Odak modu</string>
+    <string name="focus_tile_on">Yalnızca VIP\'ler ulaşabilir</string>
+    <string name="focus_and_more">%1$s ve %2$d kişi daha</string>
+    <string name="backup_channel">Yedekler</string>
+    <string name="backup_auto_failed">Otomatik yedek alınamadı</string>
+    <string name="backup_auto_failed_text">Klasörü kontrol etmek için Mesa → Ayarlar → Yedek\'i açın.</string>
     <plurals name="notif_new">
         <item quantity="one">%d yeni</item>
         <item quantity="other">%d yeni</item>
@@ -118,5 +124,9 @@
     <plurals name="widget_waiting">
         <item quantity="one">⏳ %d kişi yanıt bekliyor</item>
         <item quantity="other">⏳ %d kişi yanıt bekliyor</item>
+    </plurals>
+    <plurals name="focus_summary">
+        <item quantity="one">Odak bitti · %d mesaj geldi</item>
+        <item quantity="other">Odak bitti · %d mesaj geldi</item>
     </plurals>
 </resources>

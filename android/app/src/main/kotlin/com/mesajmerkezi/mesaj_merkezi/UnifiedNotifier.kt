@@ -77,6 +77,9 @@ object UnifiedNotifier {
             return
         }
         if (key in activeConversations) return
+        // Odak modu: VIP, önemli ve acil durum dışındaki yeni mesajlar bildirim vermez
+        // (Mesa'da kalır, odak bitince özet bildirimi çıkar).
+        if (alert && Focus.shouldSilence(context, key, important)) return
         val store = Hub.store(context)
         val info = store.conversation(key) ?: return
         val packageName = info["package"] as String

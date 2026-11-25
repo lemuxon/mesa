@@ -271,6 +271,29 @@ class MainActivity : FlutterFragmentActivity() {
             "markAllRead" -> background(result) { store.markAllRead() }
             "search" -> background(result) { store.search(call.argument<String>("query").orEmpty()) }
             "getSettings" -> result.success(AppSettings.toMap(this))
+            "focusStatus" -> result.success(Focus.status(this))
+            "focusSetManual" -> {
+                Focus.setManual(this, call.argument<Number>("until")?.toLong() ?: 0L)
+                result.success(Focus.status(this))
+            }
+            "focusSetSchedule" -> {
+                Focus.setSchedule(
+                    this,
+                    call.argument<Boolean>("enabled") ?: false,
+                    call.argument<Int>("from") ?: 22 * 60,
+                    call.argument<Int>("to") ?: 7 * 60,
+                    call.argument<Int>("days") ?: Rule.ALL_DAYS,
+                )
+                result.success(Focus.status(this))
+            }
+            "focusSetVip" -> {
+                Focus.setVip(this, call.argument<List<String>>("keys").orEmpty())
+                result.success(Focus.status(this))
+            }
+            "focusSetBreakthrough" -> {
+                Focus.setBreakthrough(this, call.argument<Boolean>("enabled") ?: true)
+                result.success(Focus.status(this))
+            }
             "updateSettings" -> {
                 val wasUnified = AppSettings.unifiedNotifications(this)
                 val keptBefore = AppSettings.keepSourcePackages(this)

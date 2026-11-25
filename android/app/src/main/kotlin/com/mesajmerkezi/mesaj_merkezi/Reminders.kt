@@ -225,7 +225,7 @@ object Reminders {
 
     private fun alarmManager(context: Context) = context.getSystemService(AlarmManager::class.java)
 
-    private fun alarm(context: Context, intent: PendingIntent, at: Long) {
+    internal fun alarm(context: Context, intent: PendingIntent, at: Long) {
         val manager = alarmManager(context)
         try {
             if (Build.VERSION.SDK_INT >= 31 && !manager.canScheduleExactAlarms()) {
@@ -266,6 +266,7 @@ class ReminderReceiver : BroadcastReceiver() {
                     Reminders.ACTION_SCHEDULED ->
                         intent.getLongExtra(Reminders.EXTRA_ID, -1).takeIf { it >= 0 }
                             ?.let { Reminders.deliverScheduled(context, it) }
+                    Focus.ACTION_END -> Focus.onAlarm(context)
                 }
             } finally {
                 pending.finish()

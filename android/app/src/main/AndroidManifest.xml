@@ -128,6 +128,20 @@
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
         </service>
+        <!-- Bildirim panelindeki "Odak modu" kutucuğu. -->
+        <service
+            android:name=".FocusTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_focus"
+            android:label="@string/focus_channel"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
         <!-- VPN izni penceresini açan görünmez ara ekran (şifreli DNS ve WireGuard). -->
         <activity
             android:name=".VpnPermissionActivity"

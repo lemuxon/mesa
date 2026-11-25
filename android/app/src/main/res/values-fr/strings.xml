@@ -103,6 +103,12 @@
     <string name="dns_on_title">DNS chiffré activé</string>
     <string name="dns_on_text">%1$s · Les requêtes DNS sont chiffrées</string>
     <string name="dns_stop">Désactiver</string>
+    <string name="focus_channel">Mode concentration</string>
+    <string name="focus_tile_on">Seuls les VIP peuvent vous joindre</string>
+    <string name="focus_and_more">%1$s et %2$d autres</string>
+    <string name="backup_channel">Sauvegardes</string>
+    <string name="backup_auto_failed">La sauvegarde automatique a échoué</string>
+    <string name="backup_auto_failed_text">Ouvrez Mesa → Réglages → Sauvegarde pour vérifier le dossier.</string>
     <plurals name="notif_new">
         <item quantity="one">%d nouveau</item>
         <item quantity="other">%d nouveaux</item>
@@ -118,5 +124,9 @@
     <plurals name="widget_waiting">
         <item quantity="one">⏳ %d personne attend une réponse</item>
         <item quantity="other">⏳ %d personnes attendent une réponse</item>
+    </plurals>
+    <plurals name="focus_summary">
+        <item quantity="one">Concentration terminée · %d message reçu</item>
+        <item quantity="other">Concentration terminée · %d messages reçus</item>
     </plurals>
 </resources>

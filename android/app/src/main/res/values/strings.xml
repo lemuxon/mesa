@@ -103,6 +103,12 @@
     <string name="dns_on_title">Encrypted DNS is on</string>
     <string name="dns_on_text">%1$s · DNS lookups are encrypted</string>
     <string name="dns_stop">Turn off</string>
+    <string name="focus_channel">Focus mode</string>
+    <string name="focus_tile_on">Only VIPs can reach you</string>
+    <string name="focus_and_more">%1$s and %2$d more</string>
+    <string name="backup_channel">Backups</string>
+    <string name="backup_auto_failed">Automatic backup failed</string>
+    <string name="backup_auto_failed_text">Open Mesa → Settings → Backup to check the folder.</string>
     <plurals name="notif_new">
         <item quantity="one">%d new</item>
         <item quantity="other">%d new</item>
@@ -118,5 +124,9 @@
     <plurals name="widget_waiting">
         <item quantity="one">⏳ %d person awaiting a reply</item>
         <item quantity="other">⏳ %d people awaiting a reply</item>
+    </plurals>
+    <plurals name="focus_summary">
+        <item quantity="one">Focus ended · %d message arrived</item>
+        <item quantity="other">Focus ended · %d messages arrived</item>
     </plurals>
 </resources>

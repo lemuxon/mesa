@@ -11,6 +11,7 @@ import '../ui/avatars.dart';
 import '../ui/large_title.dart';
 import '../ui/text_dialog.dart';
 import 'backup_card.dart';
+import 'focus_screen.dart';
 import 'language_tile.dart';
 import 'secure_connection_screen.dart';
 import 'storage_card.dart';
@@ -262,6 +263,21 @@ class _SettingsScreenState extends State<SettingsScreen>
                       ),
                       value: settings.importantNotifications,
                       onChanged: _setImportantNotifications,
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.bedtime_outlined),
+                      title: Text(tr('Odak modu')),
+                      subtitle: Text(
+                        tr(
+                          'VIP kişiler dışında sessizlik; zamanlanabilir, bitince özet',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => FocusScreen(bridge: widget.bridge),
+                        ),
+                      ),
                     ),
                   ],
                 ),

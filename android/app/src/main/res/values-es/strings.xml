@@ -103,6 +103,12 @@
     <string name="dns_on_title">DNS cifrado activado</string>
     <string name="dns_on_text">%1$s · Las consultas DNS están cifradas</string>
     <string name="dns_stop">Desactivar</string>
+    <string name="focus_channel">Modo concentración</string>
+    <string name="focus_tile_on">Solo los VIP pueden contactarte</string>
+    <string name="focus_and_more">%1$s y %2$d más</string>
+    <string name="backup_channel">Copias de seguridad</string>
+    <string name="backup_auto_failed">La copia automática falló</string>
+    <string name="backup_auto_failed_text">Abre Mesa → Ajustes → Copia de seguridad para revisar la carpeta.</string>
     <plurals name="notif_new">
         <item quantity="one">%d nuevo</item>
         <item quantity="other">%d nuevos</item>
@@ -118,5 +124,9 @@
     <plurals name="widget_waiting">
         <item quantity="one">⏳ %d persona espera respuesta</item>
         <item quantity="other">⏳ %d personas esperan respuesta</item>
+    </plurals>
+    <plurals name="focus_summary">
+        <item quantity="one">Concentración terminada · llegó %d mensaje</item>
+        <item quantity="other">Concentración terminada · llegaron %d mensajes</item>
     </plurals>
 </resources>
