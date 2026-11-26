@@ -12,6 +12,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
@@ -29,25 +30,40 @@ import android.widget.ProgressBar
 import android.widget.TextView
 
 /**
- * WhatsApp'ta yazılan yanıtları Mesa'ya ekleyen, Mesa'dan yazılanları da
- * WhatsApp'ta gönderen isteğe bağlı erişilebilirlik servisi ([OwnReplies]).
- * Sistem yalnızca WhatsApp ve WhatsApp Business olaylarını iletir
- * (res/xml/own_replies.xml); kullanıcı Android'in Erişilebilirlik ayarından
- * açar ve kapatır.
+ * WhatsApp sohbetlerini Mesa ile eşleyen isteğe bağlı erişilebilirlik servisi
+ * ([OwnReplies]). Sistem yalnızca WhatsApp ve WhatsApp Business olaylarını
+ * iletir (res/xml/own_replies.xml); kullanıcı Android'in Erişilebilirlik
+ * ayarından açar ve kapatır. Üç işi var:
  *
- * WhatsApp 2.26 sohbet ekranı (paketindeki düzenden, 2026-11-26): kutu boşken
- * yalnızca mikrofon düğmesi (voice_note_btn, dokunmayı kendisi işler) var;
- * metin yazılınca send_container içinde ayrı bir "send" düğmesi
- * (ImageButton) oluşur ve erişilebilir tıklamayla gönderir. Boş kutu metin
- * yerine ipucunu ("Mesaj") bildirir; gönderim bu yüzden mesajın sohbet
- * listesinde belirmesinden de doğrulanır.
+ * 1. Açık sohbetin listesinde en altta beliren yeni mesajları (kullanıcının
+ *    gönderdikleri ✓ simgeli, gelenler simgesiz) Mesa'ya ekler. Mesaj
+ *    kutusunun yazma olayları WhatsApp'ta güvenilir gelmiyordu (2026-11-26,
+ *    cihazda hiçbiri yakalanmadı); liste ise her gönderimde ve gelişte değişir.
+ * 2. Sohbet WhatsApp'ta açılınca Mesa'da okundu sayar.
+ * 3. Yanıt yolu olmayan sohbette Mesa'dan yazılan mesajı, ekranı Mesa'nın
+ *    görüntüsüyle örterek WhatsApp'ta gönderir.
+ *
+ * WhatsApp 2.26 ekranı (paketindeki düzenden): kutu boşken yalnızca mikrofon
+ * düğmesi (voice_note_btn) var; metin yazılınca send_container içinde ayrı bir
+ * "send" düğmesi oluşur ve erişilebilir tıklamayla gönderir. Boş kutu metin
+ * yerine ipucunu ("Mesaj") bildirir. Paylaşım ekranında kişi satırları
+ * contactpicker_row_name, seçimden sonra beliren gönder düğmesi "send" (WDSFab).
  */
 class OwnReplyService : AccessibilityService() {
 
-    private val tracker = ReplyTracker()
     private val main = Handler(Looper.getMainLooper())
 
-    /** En son açık görülen sohbet; aynı sohbet için tekrar okundu yazılmasın. */
+    /** Liste izleyicisi: düğüm okumaları Mesa'nın ana iş parçacığını yormasın. */
+    private val scanThread = HandlerThread("whatsapp-izleyici").apply { start() }
+    private val scanner = Handler(scanThread.looper)
+
+    // ---- İzleyici durumu (yalnızca scanner iş parçacığında) ----
+    private var watchedTitle: String? = null
+    private var watchedSince = 0L
+    private var knownRows: List<String> = emptyList()
+    private var scanQueued = false
+
+    /** En son açık görülen sohbet; aynı sohbet için tekrar okundu yazılmasın (ana iş parçacığı). */
     private var openChat: String? = null
     private var windowCheck: Runnable? = null
     private var lastSendCheck = 0L
@@ -57,6 +73,9 @@ class OwnReplyService : AccessibilityService() {
 
     /** Kutuda Mesa'nın metni görüldüğü an; Gönder düğmesi bu süre içinde belirmeli. */
     private var matchedAt = 0L
+
+    /** Paylaşım ekranında doğru kişi seçildi; gönder düğmesi bekleniyor. */
+    private var pickerChosen = false
 
     /** WhatsApp'ı gizleyen, Mesa'nın görüntüsünü gösteren örtü. */
     private var overlay: View? = null
@@ -77,6 +96,8 @@ class OwnReplyService : AccessibilityService() {
     override fun onDestroy() {
         instance = null
         main.removeCallbacksAndMessages(null)
+        scanner.removeCallbacksAndMessages(null)
+        scanThread.quitSafely()
         removeOverlay()
         super.onDestroy()
     }
@@ -90,10 +111,12 @@ class OwnReplyService : AccessibilityService() {
         val ids = ChatIds(packageName)
         try {
             when (event.eventType) {
-                AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED -> onText(event, ids)
-                AccessibilityEvent.TYPE_VIEW_CLICKED -> onClick(event, ids)
                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> onWindow(ids)
-                AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> maybeAutoSend(ids)
+                AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
+                    queueScan(ids)
+                    maybeAutoSend(ids)
+                }
+                AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED -> maybeAutoSend(ids)
             }
         } catch (e: RuntimeException) {
             // WhatsApp'ın ekranı habersiz değişebilir; servis düşmemeli.
@@ -101,53 +124,98 @@ class OwnReplyService : AccessibilityService() {
         }
     }
 
-    // ---- WhatsApp'ta yazılan yanıtları yakalama ----
+    // ---- Açık sohbetin listesini izleme ----
 
-    private fun onText(event: AccessibilityEvent, ids: ChatIds) {
-        val node = event.source ?: return
-        if (node.viewIdResourceName != ids.entry) return
-        val before = event.beforeText?.toString()
-        // Boş kutu metin yerine ipucunu ("Mesaj") bildirir; boşalma olaydan anlaşılır.
-        val cleared = event.addedCount == 0 && !before.isNullOrEmpty() && event.removedCount >= before.length
-        val text = if (cleared || isEmptyEntry(node)) "" else node.text?.toString() ?: event.text.joinToString("")
-        val candidate = tracker.onTextChanged(text, before, event.removedCount, event.addedCount)
-        if (candidate != null) {
-            Log.i(TAG, "WhatsApp: kutu boşaldı, gönderim doğrulanıyor")
-            main.postDelayed({ verify(ids, candidate, attempt = 1) }, VERIFY_DELAY_MS)
-        } else if (text.isNotBlank()) {
-            maybeAutoSend(ids)
+    /** İçerik değişti: liste kısa bir süre sonra bir kez okunur (art arda olaylar birleşir). */
+    private fun queueScan(ids: ChatIds) {
+        scanner.post {
+            if (scanQueued) return@post
+            scanQueued = true
+            scanner.postDelayed({
+                scanQueued = false
+                safeScan(ids)
+            }, SCAN_DELAY_MS)
         }
     }
 
-    private fun onClick(event: AccessibilityEvent, ids: ChatIds) {
-        if (event.source?.viewIdResourceName != ids.send) return
-        val text = tracker.onSendClicked() ?: return
-        record(ids, text)
+    private fun safeScan(ids: ChatIds) {
+        try {
+            scan(ids)
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "WhatsApp listesi okunamadı: ${e.javaClass.simpleName}")
+        }
     }
 
-    private fun verify(ids: ChatIds, text: String, attempt: Int) {
+    private fun scan(ids: ChatIds) {
         val root = appRoot(ids)
-        val shown = root != null && listedNearBottom(root, ids, text)
-        if (!shown && attempt == 1) {
-            main.postDelayed({ verify(ids, text, attempt = 2) }, VERIFY_DELAY_MS)
+        val title = chatTitle(root, ids)
+        if (root == null || title == null) {
+            // Sohbet ekranı değil (sohbet listesi, ayarlar…): izleme sıfırlanır.
+            watchedTitle = null
+            knownRows = emptyList()
             return
         }
-        Log.i(TAG, "WhatsApp: gönderilen metin listede " + if (shown) "görüldü" else "görülmedi")
-        if (tracker.onVerified(text, shown)) record(ids, text, root)
+        val rows = readRows(root, ids)
+        val signatures = rows.map { it.signature }
+        if (title != watchedTitle) {
+            // Yeni açılan sohbet: görünen satırlar geçmiştir, yalnızca bundan sonrakiler eklenir.
+            watchedTitle = title
+            watchedSince = SystemClock.uptimeMillis()
+            knownRows = signatures
+            return
+        }
+        // Kullanıcı yukarıda eski mesajlara bakıyor: en alttaki satırlar yeni değildir.
+        if (root.findAccessibilityNodeInfosByViewId(ids.scrollBottom).any { it.isVisibleToUser }) return
+        // Boş görünen sohbet gerçekten boş mu (yeni sohbet), yoksa liste geç mi çizildi?
+        val emptyChat = knownRows.isEmpty() && SystemClock.uptimeMillis() - watchedSince > EMPTY_CHAT_SETTLE_MS
+        val first = OwnReplies.firstNewRow(knownRows, signatures, emptyChat)
+        knownRows = signatures
+        if (first >= rows.size) return
+        val fresh = rows.subList(first, rows.size).map { OwnReplies.ChatRow(it.text, it.outgoing, it.sender) }
+        val isGroup = rows.any { it.sender != null }
+        val app = applicationContext
+        Hub.io.execute { OwnReplies.recordRows(app, ids.packageName, title, isGroup, fresh) }
     }
 
-    private fun record(ids: ChatIds, text: String, root: AccessibilityNodeInfo? = appRoot(ids)) {
-        val title = chatTitle(root, ids) ?: run {
-            Log.i(TAG, "WhatsApp yanıtı: sohbet adı okunamadı")
-            return
+    /** Görünen metinli mesaj satırları, yukarıdan aşağı (en alttaki birkaçı). */
+    private fun readRows(root: AccessibilityNodeInfo, ids: ChatIds): List<SeenRow> =
+        root.findAccessibilityNodeInfosByViewId(ids.messageText)
+            .map { it to Rect().also(it::getBoundsInScreen).top }
+            .sortedBy { it.second }
+            .takeLast(MAX_ROWS)
+            .mapNotNull { (node, top) ->
+                val text = OwnReplies.normalize(node.text).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+                val row = rowOf(node, ids) ?: return@mapNotNull null
+                val outgoing = row.findAccessibilityNodeInfosByViewId(ids.status).isNotEmpty()
+                val time = row.findAccessibilityNodeInfosByViewId(ids.date).firstOrNull()?.text?.toString().orEmpty()
+                val sender = if (outgoing) {
+                    null
+                } else {
+                    ids.senderNames.firstNotNullOfOrNull { id ->
+                        row.findAccessibilityNodeInfosByViewId(id).firstOrNull()?.text?.let(Names::normalize)
+                    }
+                }
+                SeenRow(text, time, outgoing, sender, top)
+            }
+
+    /** Mesajın satırı: kimliği conversation_row_ ile başlayan ilk üst düğüm. */
+    private fun rowOf(node: AccessibilityNodeInfo, ids: ChatIds): AccessibilityNodeInfo? {
+        var current: AccessibilityNodeInfo? = node.parent
+        repeat(6) {
+            val candidate = current ?: return null
+            val id = candidate.viewIdResourceName
+            if (id != null && id.startsWith(ids.rowPrefix) && id != ids.dateDivider) return candidate
+            current = candidate.parent
         }
-        val app = applicationContext
-        Hub.io.execute { OwnReplies.record(app, ids.packageName, title, text) }
+        return null
+    }
+
+    private class SeenRow(val text: String, val time: String, val outgoing: Boolean, val sender: String?, val top: Int) {
+        val signature = "$outgoing|$time|${sender.orEmpty()}|$text"
     }
 
     /** Yeni ekran: sohbet açıldıysa (başlık görünüyorsa) Mesa'da okundu sayılır. */
     private fun onWindow(ids: ChatIds) {
-        tracker.reset()
         windowCheck?.let(main::removeCallbacks)
         // Ekran çizilmeden başlık henüz yok; kısa bir süre sonra bakılır.
         val check = Runnable {
@@ -163,6 +231,7 @@ class OwnReplyService : AccessibilityService() {
         }
         windowCheck = check
         main.postDelayed(check, WINDOW_DELAY_MS)
+        queueScan(ids)
         // Otomatik gönderim okundu bilgisini beklemez: sohbet çizilir çizilmez denenir.
         if (OwnReplies.pendingSend != null) main.postDelayed({ maybeAutoSend(ids) }, AUTO_WINDOW_DELAY_MS)
     }
@@ -176,6 +245,7 @@ class OwnReplyService : AccessibilityService() {
     internal fun beginAutoSend(shot: ScreenShot.Shot?) {
         val start = Runnable {
             matchedAt = 0L
+            pickerChosen = false
             showOverlay(shot)
             main.removeCallbacks(giveUp)
             main.postDelayed(giveUp, OwnReplies.AUTO_SEND_WINDOW_MS)
@@ -192,10 +262,13 @@ class OwnReplyService : AccessibilityService() {
         if (tick - lastSendCheck < 80) return
         lastSendCheck = tick
         val root = appRoot(ids) ?: return
+        val title = chatTitle(root, ids)
+        // Mesa sohbetin WhatsApp kimliğini bilmiyorsa (WhatsApp'ta başlatılan sohbet) paylaşım ekranı açılır.
+        if (title == null && choosePickerContact(root, ids, pending)) return
         val entry = root.findAccessibilityNodeInfosByViewId(ids.entry).firstOrNull()
         val entryText = entry?.let { if (isEmptyEntry(it)) "" else it.text?.toString() }
         val now = System.currentTimeMillis()
-        when (OwnReplies.autoSendStep(pending, ids.packageName, chatTitle(root, ids), entryText, now)) {
+        when (OwnReplies.autoSendStep(pending, ids.packageName, title, entryText, now)) {
             OwnReplies.Step.WAIT -> Unit
             OwnReplies.Step.EXPIRED -> onTimeout()
             OwnReplies.Step.FILL -> {
@@ -211,14 +284,72 @@ class OwnReplyService : AccessibilityService() {
                     main.postDelayed({ maybeAutoSend(ids) }, 100)
                     return
                 }
-                OwnReplies.pendingSend = null
-                sending = pending
-                // Basmadan önce: kutu boşalınca yakalanan metin ikinci kez kaydedilmesin.
-                OwnReplies.markSending(pending.key, pending.text)
-                tracker.onAutoSend(pending.text)
+                startSending(pending)
                 // Erişilebilir tıklama düğmenin yerine bakmaz: beklemeden basılır.
                 press(ids, pending, attempt = 1)
             }
+        }
+    }
+
+    private fun startSending(pending: OwnReplies.PendingSend) {
+        OwnReplies.pendingSend = null
+        sending = pending
+        // Kayıt Mesa'da zaten var: listede görülünce ikinci kez yazılmasın.
+        OwnReplies.markSending(pending.key, pending.text)
+    }
+
+    /**
+     * Paylaşım ekranı: adı Mesa'daki sohbetle birebir aynı tek kişi seçilir,
+     * sonra beliren gönder düğmesine basılır. Aynı adda birden çok satır
+     * varsa hiçbirine dokunulmaz (yanlış kişiye gitmesin).
+     * @return paylaşım ekranındaydı (işlendi ya da bekleniyor)
+     */
+    private fun choosePickerContact(root: AccessibilityNodeInfo, ids: ChatIds, pending: OwnReplies.PendingSend): Boolean {
+        val rows = root.findAccessibilityNodeInfosByViewId(ids.pickerName)
+        if (rows.isEmpty()) return false
+        if (pickerChosen) {
+            val send = root.findAccessibilityNodeInfosByViewId(ids.send).firstOrNull { it.isVisibleToUser } ?: run {
+                main.postDelayed({ maybeAutoSend(ids) }, 120)
+                return true
+            }
+            startSending(pending)
+            val clicked = send.isClickable && send.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            if (!clicked) tap(send)
+            Log.i(TAG, "Otomatik gönderim: paylaşım ekranında gönderildi (${if (clicked) "tıklama" else "dokunma"})")
+            pressedAt = SystemClock.uptimeMillis()
+            main.postDelayed({ confirmPicker(ids, pending) }, CONFIRM_POLL_MS)
+            return true
+        }
+        val matches = rows.filter { it.isVisibleToUser && Names.title(it.text) == pending.title }
+        if (matches.size != 1) {
+            if (matches.size > 1) Log.w(TAG, "Otomatik gönderim: paylaşım ekranında aynı adda ${matches.size} satır, seçilmedi")
+            return true
+        }
+        var target: AccessibilityNodeInfo = matches[0]
+        repeat(4) { if (!target.isClickable) target.parent?.let { target = it } }
+        pickerChosen = target.isClickable && target.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        Log.i(TAG, "Otomatik gönderim: paylaşım ekranında kişi " + if (pickerChosen) "seçildi" else "seçilemedi")
+        main.postDelayed({ maybeAutoSend(ids) }, 150)
+        return true
+    }
+
+    /** Paylaşım ekranından gönderildikten sonra: sohbet açılır ya da WhatsApp kapanır. */
+    private fun confirmPicker(ids: ChatIds, pending: OwnReplies.PendingSend) {
+        if (sending !== pending) return
+        val root = appRoot(ids)
+        val waited = SystemClock.uptimeMillis() - pressedAt
+        when {
+            // Paylaşım bitince WhatsApp Mesa'ya dönüyor: gönderildi.
+            root == null -> finish(pending, sent = true, how = "paylaşım ekranı kapandı, $waited ms")
+            Names.title(chatTitle(root, ids)) == pending.title && listedNearBottom(root, ids, pending.text) ->
+                finish(pending, sent = true, how = "paylaşım ekranı, $waited ms")
+            // Sohbet taslakla açıldıysa normal gönderime geçilir.
+            Names.title(chatTitle(root, ids)) == pending.title &&
+                root.findAccessibilityNodeInfosByViewId(ids.entry).firstOrNull()
+                    ?.let { !isEmptyEntry(it) && OwnReplies.sameMessage(it.text, pending.text) } == true ->
+                press(ids, pending, attempt = 1)
+            waited < PICKER_CONFIRM_MAX_MS -> main.postDelayed({ confirmPicker(ids, pending) }, CONFIRM_POLL_MS)
+            else -> finish(pending, sent = false, how = "paylaşım ekranı")
         }
     }
 
@@ -294,6 +425,7 @@ class OwnReplyService : AccessibilityService() {
     private fun finish(pending: OwnReplies.PendingSend, sent: Boolean, how: String) {
         sending = null
         matchedAt = 0L
+        pickerChosen = false
         main.removeCallbacks(giveUp)
         OwnReplies.markResult(pending.key, sent)
         if (sent) {
@@ -542,14 +674,23 @@ class OwnReplyService : AccessibilityService() {
         root?.findAccessibilityNodeInfosByViewId(ids.title)
             ?.firstNotNullOfOrNull { it.text?.toString()?.takeIf(String::isNotBlank) }
 
-    /** WhatsApp sohbet ekranının öğe kimlikleri (iki uygulamada da aynı adlar). */
+    /** WhatsApp ekranlarının öğe kimlikleri (iki uygulamada da aynı adlar). */
     private class ChatIds(val packageName: String) {
         val entry = "$packageName:id/entry"
         val send = "$packageName:id/send"
         val title = "$packageName:id/conversation_contact_name"
         val messageText = "$packageName:id/message_text"
+        val status = "$packageName:id/status"
+        val date = "$packageName:id/date"
+        val rowPrefix = "$packageName:id/conversation_row_"
+        val dateDivider = "$packageName:id/conversation_row_date_divider"
+        val scrollBottom = "$packageName:id/scroll_bottom"
         val buttons = "$packageName:id/buttons"
         val sendContainer = "$packageName:id/send_container"
+        val pickerName = "$packageName:id/contactpicker_row_name"
+
+        /** Grup mesajında gönderenin adı. */
+        val senderNames = listOf("$packageName:id/name_in_group_tv", "$packageName:id/name_in_group")
 
         /** "send" henüz yokken düğmenin yeri (2.26: voice_note_btn ve kapları). */
         val fallbackTargets = listOf(
@@ -561,16 +702,25 @@ class OwnReplyService : AccessibilityService() {
 
     companion object {
         private const val TAG = "MesajMerkezi"
-        private const val VERIFY_DELAY_MS = 800L
         private const val WINDOW_DELAY_MS = 400L
         private const val AUTO_WINDOW_DELAY_MS = 100L
         private const val SETTLE_MS = 200L
         private const val SEND_BUTTON_WAIT_MS = 1_500L
         private const val CONFIRM_POLL_MS = 100L
         private const val CONFIRM_MAX_MS = 1_000L
+        private const val PICKER_CONFIRM_MAX_MS = 2_500L
         private const val TAP_MS = 100L
         private const val OVERLAY_LINGER_MS = 700L
         private const val OVERLAY_FALLBACK_MS = 1_200L
+
+        /** Liste değişikliklerinden sonra okumadan önce beklenen süre (art arda olaylar birleşir). */
+        private const val SCAN_DELAY_MS = 300L
+
+        /** Açılışta boş görünen sohbet bu süre sonra da boşsa gerçekten yenidir. */
+        private const val EMPTY_CHAT_SETTLE_MS = 1_500L
+
+        /** Listenin en altından okunan en fazla satır. */
+        private const val MAX_ROWS = 10
 
         /** Bağlı servis; Mesa göndermeden önce örtüyü açtırır. */
         @Volatile

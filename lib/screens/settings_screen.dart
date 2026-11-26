@@ -414,7 +414,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                       title: Text(tr('WhatsApp\'ta yazdıklarım')),
                       subtitle: Text(
                         tr(
-                          'WhatsApp\'tan gönderdiğiniz yanıtlar da sohbette görünür; Mesa\'dan yazdıklarınız WhatsApp\'ta kendiliğinden gönderilir',
+                          'WhatsApp\'ta yazdıklarınız ve orada açıkken gelenler de Mesa\'da görünür; Mesa\'dan yazdıklarınız WhatsApp\'ta kendiliğinden gönderilir',
                         ),
                       ),
                       value: _ownReplies,

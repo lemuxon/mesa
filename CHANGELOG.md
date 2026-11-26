@@ -3,25 +3,28 @@
 ## 1.2.1 (unreleased)
 
 ### New
-- **Your WhatsApp replies show up in Mesa.** Until now, a reply you typed inside WhatsApp never reached Mesa, so chats
-  looked one-sided. An optional accessibility service ("Mesa: my WhatsApp replies") adds what you send in WhatsApp to the
-  same chat in Mesa and marks chats you open in WhatsApp as read. It only receives WhatsApp and WhatsApp Business events,
-  reads only the message box, the Send button and the chat name, and only adds to chats that are already in Mesa. Turn it
-  on from Settings → Apps being read, or from the tip in a WhatsApp chat.
+- **WhatsApp chats stay complete in Mesa.** Until now, a reply you typed inside WhatsApp never reached Mesa, and while a
+  chat was open in WhatsApp the other side's messages didn't either (WhatsApp shows no notification for the open chat),
+  so chats looked one-sided. An optional accessibility service ("Mesa: my WhatsApp replies") watches the bottom of the
+  WhatsApp chat on screen and adds every new message there, yours and theirs, to the same chat in Mesa. A chat you start
+  in WhatsApp with someone who hasn't written to you appears in Mesa too. Chats you open in WhatsApp are marked as read.
+  It only receives WhatsApp and WhatsApp Business events and only text messages are added. Turn it on from Settings →
+  Apps being read, or from the tip in a WhatsApp chat.
 - **You stay in Mesa when you send.** When a chat has no reply path (for example after the phone restarts), WhatsApp
   has to open for a moment; with the same service on, Mesa keeps a still image of its own screen on top (with a small
   "Sending via WhatsApp…" chip) while the service fills the message box, presses WhatsApp's Send button and brings Mesa
   back. Your taps go to that image, not to WhatsApp. It only acts within 10 seconds of your tap and only in the chat whose
   name matches. A send counts as done when the box empties or the message appears at the bottom of the chat; if it can't
-  send, your text goes back into Mesa's message box and the WhatsApp draft is cleared.
+  send, your text goes back into Mesa's message box and the WhatsApp draft is cleared. For a chat Mesa only knows from
+  WhatsApp's screen, the service picks that chat on WhatsApp's share screen, and only if exactly one chat there has that
+  name.
 
 ### Fixed
 - **Chat bubbles closed right as they opened.** Opening the chat in the bubble marked it read, which removed its
   notification, and Android closes a bubble together with its notification. A bubbling chat now keeps its bubble and is only
   hidden from the notification shade. Deleting or snoozing the chat still closes the bubble.
-- **Replies written in WhatsApp were not picked up on WhatsApp 2.26.** It has no separate Send button, and an empty
-  message box reports its hint ("Message") as text; sends are now recognised from the box emptying and the text appearing
-  in the chat.
+- **Replies written in WhatsApp were not picked up.** The message box's typing events don't arrive reliably from
+  WhatsApp (none did on the test phone); new messages are now read from the chat list itself.
 
 ## 1.2.0 (unreleased)
 

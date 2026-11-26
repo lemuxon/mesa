@@ -373,6 +373,10 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
                 db.insertWithOnConflict("conversations", null, conversation, SQLiteDatabase.CONFLICT_IGNORE)
                 // Telegram sohbetlerinin anahtarı kimliktir; ad değişebilir.
                 db.execSQL("UPDATE conversations SET title = ? WHERE key = ?", arrayOf(conv.title, conv.key))
+                // WhatsApp ekranından açılan sohbetin grup olduğu ilk bildirimde anlaşılabilir.
+                if (conv.isGroup) {
+                    db.execSQL("UPDATE conversations SET is_group = 1 WHERE key = ? AND is_group = 0", arrayOf(conv.key))
+                }
                 refreshConversation(db, conv.key, newIncoming.size)
             }
             if (conv.shortcutId != null) {

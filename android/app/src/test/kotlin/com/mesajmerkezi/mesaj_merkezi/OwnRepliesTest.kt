@@ -21,95 +21,47 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.util.concurrent.Callable
 
-/** Mesaj kutusunu izleyip gönderimi tanıma (Android'siz). */
-class ReplyTrackerTest {
+/** WhatsApp sohbet listesinde yeni beliren satırların bulunması (Android'siz). */
+class ChatRowsTest {
 
-    private var clock = 1_000_000L
-    private val tracker = ReplyTracker { clock }
-
-    private fun type(text: String) {
-        tracker.onTextChanged(text, before = text.dropLast(1), removed = 0, added = 1)
-    }
-
-    /** Gönderim sonrası kutunun bir anda boşalması. */
-    private fun clear(before: String) =
-        tracker.onTextChanged("", before = before, removed = before.length, added = 0)
+    private fun first(known: List<String>, current: List<String>, baseline: Boolean = false) =
+        OwnReplies.firstNewRow(known, current, baseline)
 
     @Test
-    fun sendButtonRecordsDraftOnce() {
-        type("Geliyorum ")
-        assertEquals("Geliyorum", tracker.onSendClicked())
-        clock += 50
-        // Dokunmanın ardından kutu boşalır: ikinci kez aday olmaz.
-        assertNull(clear("Geliyorum "))
-        assertNull(tracker.onSendClicked())
+    fun newRowsAtTheBottomAreFound() {
+        assertEquals(2, first(listOf("a", "b"), listOf("a", "b", "c")))
+        // Liste kaydı: üstteki satır ekrandan çıktı, altta iki yeni satır var.
+        assertEquals(2, first(listOf("a", "b", "c"), listOf("b", "c", "d", "e")))
     }
 
     @Test
-    fun enterKeySendIsVerifiedInList() {
-        type("Tamam")
-        assertEquals("Tamam", clear("Tamam"))
-        assertTrue(tracker.onVerified("Tamam", shownInList = true))
-        // Aynı aday ikinci kez kaydedilmez.
-        assertFalse(tracker.onVerified("Tamam", shownInList = true))
+    fun nothingNewWhenUnchanged() {
+        assertEquals(2, first(listOf("a", "b"), listOf("a", "b")))
     }
 
     @Test
-    fun clearingWithoutSendingIsNotRecorded() {
-        type("Yanlış")
-        assertEquals("Yanlış", clear("Yanlış"))
-        assertFalse(tracker.onVerified("Yanlış", shownInList = false))
+    fun sameTextTwiceInARowIsStillNew() {
+        // "tamam" art arda gönderildi: ikincisi kaçmamalı.
+        assertEquals(2, first(listOf("x", "tamam"), listOf("x", "tamam", "tamam")))
     }
 
     @Test
-    fun deletingLetterByLetterIsNotASend() {
-        type("ab")
-        assertNull(tracker.onTextChanged("a", before = "ab", removed = 1, added = 0))
-        // Son harfin silinmesi gönderimle aynı görünür; listede görünmediği için kaydedilmez.
-        assertEquals("a", tracker.onTextChanged("", before = "a", removed = 1, added = 0))
-        assertFalse(tracker.onVerified("a", shownInList = false))
-        // Kısmi silme (yeni metin eklenerek) aday olmaz.
-        type("Merhaba")
-        assertNull(tracker.onTextChanged("", before = "Merhaba", removed = 3, added = 0))
+    fun unknownListIsNotTreatedAsNew() {
+        // Önceki bakışın hiçbir satırı görünmüyor (başka yere kaydı): yeni sayılmaz.
+        assertEquals(2, first(listOf("a", "b"), listOf("y", "z")))
+        // Açılışta liste henüz çizilmemişti: görünenler geçmiştir.
+        assertEquals(2, first(emptyList(), listOf("y", "z")))
     }
 
     @Test
-    fun clearThenClickRecordsOnce() {
-        type("Selam")
-        assertEquals("Selam", clear("Selam"))
-        clock += 30
-        assertEquals("Selam", tracker.onSendClicked())
-        // Gecikmeli doğrulama artık bir şey kaydetmez.
-        assertFalse(tracker.onVerified("Selam", shownInList = true))
-    }
-
-    @Test
-    fun sameTextSentTwiceIsRecordedTwice() {
-        type("ok")
-        assertEquals("ok", tracker.onSendClicked())
-        assertNull(clear("ok"))
-        clock += 5_000
-        type("ok")
-        assertEquals("ok", tracker.onSendClicked())
-    }
-
-    @Test
-    fun autoSendIsNotCapturedAgain() {
-        type("Yoldayım")
-        tracker.onAutoSend("Yoldayım")
-        clock += 300
-        assertNull(clear("Yoldayım"))
-    }
-
-    @Test
-    fun screenChangeDropsDraft() {
-        type("Taslak")
-        tracker.reset()
-        assertNull(tracker.onSendClicked())
+    fun brandNewChatCountsEveryRow() {
+        // Gerçekten boş (yeni) sohbet: ilk mesaj da yenidir.
+        assertEquals(0, first(emptyList(), listOf("merhaba"), baseline = true))
+        assertEquals(0, first(emptyList(), emptyList(), baseline = true))
     }
 }
 
-/** WhatsApp'ta yazılan yanıtların Mesa'ya eklenmesi ve balonun korunması. */
+/** WhatsApp sohbetlerinin Mesa ile eşlenmesi, otomatik gönderim ve balonun korunması. */
 @RunWith(RobolectricTestRunner::class)
 class OwnRepliesTest {
 
@@ -129,24 +81,28 @@ class OwnRepliesTest {
         context.deleteDatabase("mesajlar.db")
     }
 
-    private fun incoming(text: String) {
+    private fun incoming(text: String, chat: String = key, title: String = "Ayşe", isGroup: Boolean = false) {
         Hub.store(context).ingest(
             CapturedConversation(
-                key, wa, "Ayşe", isGroup = false,
+                chat, wa, title, isGroup = isGroup,
                 messages = listOf(CapturedMessage("Ayşe", text, t0, outgoing = false, fromFallback = false)),
                 replyAction = null,
             ),
         )
     }
 
-    private fun unread() = Hub.store(context).conversation(key)?.get("unread") as Int?
+    private fun unread(chat: String = key) = Hub.store(context).conversation(chat)?.get("unread") as Int?
+
+    private fun mine(text: String) = OwnReplies.ChatRow(text, outgoing = true, sender = null)
+
+    private fun theirs(text: String, sender: String? = null) = OwnReplies.ChatRow(text, outgoing = false, sender = sender)
 
     @Test
     fun replyWrittenInWhatsAppJoinsTheSameChat() {
         incoming("Akşam geliyor musun?")
         assertEquals(1, unread())
         // WhatsApp başlığı görünmez yön işaretiyle başlayabilir.
-        assertTrue(OwnReplies.record(context, wa, "\u200EAyşe", "Geliyorum"))
+        assertEquals(1, OwnReplies.recordRows(context, wa, "‎Ayşe", isGroup = false, listOf(mine("Geliyorum"))))
         val messages = Hub.store(context).messages(key)
         assertEquals(listOf("Akşam geliyor musun?", "Geliyorum"), messages.map { it["text"] })
         assertEquals(true, messages.last()["outgoing"])
@@ -154,9 +110,51 @@ class OwnRepliesTest {
     }
 
     @Test
-    fun unknownChatIsNotCreated() {
-        assertFalse(OwnReplies.record(context, wa, "Yabancı", "Merhaba"))
-        assertNull(Hub.store(context).conversation("$wa|Yabancı"))
+    fun chatStartedInWhatsAppAppearsInMesa() {
+        // Kullanıcı WhatsApp'ta size hiç yazmamış birine yazdı.
+        assertNull(Hub.store(context).conversation("$wa|Mehmet"))
+        assertEquals(1, OwnReplies.recordRows(context, wa, "Mehmet", isGroup = false, listOf(mine("Selam, nasılsın?"))))
+        val chat = Hub.store(context).conversation("$wa|Mehmet")!!
+        assertEquals("Mehmet", chat["title"])
+        assertEquals(false, chat["isGroup"])
+        assertEquals(listOf("Selam, nasılsın?"), Hub.store(context).messages("$wa|Mehmet").map { it["text"] })
+    }
+
+    @Test
+    fun repliesArrivingWhileTheChatIsOpenAreAdded() {
+        incoming("Neredesin?")
+        // Sohbet WhatsApp'ta açıkken WhatsApp bildirim göstermez; satırlar listeden okunur.
+        OwnReplies.recordRows(context, wa, "Ayşe", isGroup = false, listOf(mine("Yoldayım"), theirs("Tamam, bekliyorum")))
+        val messages = Hub.store(context).messages(key)
+        assertEquals(listOf("Neredesin?", "Yoldayım", "Tamam, bekliyorum"), messages.map { it["text"] })
+        assertEquals("Ayşe", messages.last()["sender"])
+        assertEquals(false, messages.last()["outgoing"])
+        // Kullanıcı sohbeti WhatsApp'ta görüyor: okunmamış sayılmaz.
+        assertEquals(0, unread())
+    }
+
+    @Test
+    fun groupSenderNamesAreKept() {
+        OwnReplies.recordRows(context, wa, "Aile", isGroup = true, listOf(theirs("Yemek hazır", sender = "Annem")))
+        val chat = Hub.store(context).conversation("$wa|Aile")!!
+        assertEquals(true, chat["isGroup"])
+        assertEquals("Annem", Hub.store(context).messages("$wa|Aile").single()["sender"])
+    }
+
+    @Test
+    fun aGroupStartedFromWhatsAppBecomesAGroupWithItsFirstNotification() {
+        // Yalnızca kendi mesajlarımız görülünce grup olduğu anlaşılamaz.
+        OwnReplies.recordRows(context, wa, "Okul", isGroup = false, listOf(mine("Yarın toplantı var mı?")))
+        assertEquals(false, Hub.store(context).conversation("$wa|Okul")!!["isGroup"])
+        incoming("Var, 10'da", chat = "$wa|Okul", title = "Okul", isGroup = true)
+        assertEquals(true, Hub.store(context).conversation("$wa|Okul")!!["isGroup"])
+    }
+
+    @Test
+    fun theSameIncomingMessageIsNotAddedTwice() {
+        OwnReplies.recordRows(context, wa, "Ayşe", isGroup = false, listOf(theirs("Geldim")))
+        OwnReplies.recordRows(context, wa, "Ayşe", isGroup = false, listOf(theirs("Geldim")))
+        assertEquals(1, Hub.store(context).messages(key).count { it["text"] == "Geldim" })
     }
 
     @Test
@@ -196,7 +194,7 @@ class OwnRepliesTest {
         val pending = OwnReplies.PendingSend(wa, key, "Ayşe", "Geliyorum", until = now + 10_000, returnToMesa = true)
         fun step(pkg: String, title: String?, entry: String?, at: Long = now) =
             OwnReplies.autoSendStep(pending, pkg, title, entry, at)
-        assertEquals(OwnReplies.Step.PRESS, step(wa, "\u200EAyşe", " Geliyorum "))
+        assertEquals(OwnReplies.Step.PRESS, step(wa, "‎Ayşe", " Geliyorum "))
         // Doğru sohbette kutu boş ya da eski taslak var: kutu Mesa'nın metniyle doldurulur.
         assertEquals(OwnReplies.Step.FILL, step(wa, "Ayşe", ""))
         assertEquals(OwnReplies.Step.FILL, step(wa, "Ayşe", "eski taslak Geliyorum"))
@@ -211,10 +209,10 @@ class OwnRepliesTest {
     @Test
     fun messagesMatchDespiteInvisiblePadding() {
         // WhatsApp balondaki metne saat için görünmez boşluklar ekleyebiliyor.
-        assertTrue(OwnReplies.sameMessage("Geliyorum \u00A0\u00A0\u200B", "Geliyorum"))
+        assertTrue(OwnReplies.sameMessage("Geliyorum   ​", "Geliyorum"))
         assertTrue(OwnReplies.sameMessage("Akşam  görüşürüz", "Akşam görüşürüz "))
         // Emoji birleştiricisi korunur; farklı metin eşleşmez, boş metin hiç eşleşmez.
-        assertTrue(OwnReplies.sameMessage("👨\u200D👩", "👨\u200D👩"))
+        assertTrue(OwnReplies.sameMessage("👨‍👩", "👨‍👩"))
         assertFalse(OwnReplies.sameMessage("Geliyorum", "Geliyorum ama"))
         assertFalse(OwnReplies.sameMessage("", ""))
         assertFalse(OwnReplies.sameMessage(null, "x"))
@@ -226,7 +224,7 @@ class OwnRepliesTest {
         OwnReplies.markSending(key, "Yoldayım")
         // Otomatik gönderim olmadı, Mesa kaydını sildi; kullanıcı WhatsApp'tan gönderdi.
         OwnReplies.clearSending(key)
-        assertTrue(OwnReplies.record(context, wa, "Ayşe", "Yoldayım"))
+        assertEquals(1, OwnReplies.recordRows(context, wa, "Ayşe", isGroup = false, listOf(mine("Yoldayım"))))
         assertEquals(1, Hub.store(context).messages(key).count { it["text"] == "Yoldayım" })
     }
 
@@ -248,10 +246,10 @@ class OwnRepliesTest {
     @Test
     fun autoSentMessageIsNotRecordedTwice() {
         incoming("Neredesin?")
-        // Mesa mesajı WhatsApp'a vermeden önce kendisi kaydeder.
+        // Mesa mesajı WhatsApp'a vermeden önce kendisi kaydeder; sonra listede görünür.
         Hub.store(context).recordOutgoing(key, "Yoldayım")
         OwnReplies.markSending(key, "Yoldayım")
-        assertFalse(OwnReplies.record(context, wa, "Ayşe", "Yoldayım"))
+        assertEquals(0, OwnReplies.recordRows(context, wa, "Ayşe", isGroup = false, listOf(mine("Yoldayım"))))
         assertEquals(1, Hub.store(context).messages(key).count { it["text"] == "Yoldayım" })
         // Dönüşte sonuç bir kez sorulur.
         assertNull(OwnReplies.takeResult(key))
@@ -260,6 +258,15 @@ class OwnRepliesTest {
         assertNull(OwnReplies.takeResult(key))
         OwnReplies.markResult(key, sent = false)
         assertEquals("failed", OwnReplies.takeResult(key))
+    }
+
+    @Test
+    fun mesaSentReplyIsNotDuplicatedWithoutTheSendingMark() {
+        incoming("Neredesin?")
+        // Bildirimin yanıt yolundan gönderilip Mesa'ya yazılan mesaj, sonra WhatsApp listesinde görünür.
+        Hub.store(context).recordOutgoing(key, "Geliyorum")
+        assertEquals(0, OwnReplies.recordRows(context, wa, "Ayşe", isGroup = false, listOf(mine("Geliyorum"))))
+        assertEquals(1, Hub.store(context).messages(key).count { it["text"] == "Geliyorum" })
     }
 
     private fun post(tag: String, bubble: Boolean) {

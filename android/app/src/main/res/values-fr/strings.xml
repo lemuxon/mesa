@@ -107,7 +107,7 @@
     <string name="focus_tile_on">Seuls les VIP peuvent vous joindre</string>
     <string name="focus_and_more">%1$s et %2$d autres</string>
     <string name="own_replies_label">Mesa : mes réponses WhatsApp</string>
-    <string name="own_replies_desc">Ajoute dans Mesa, dans la même discussion, les messages que vous envoyez dans WhatsApp, et marque comme lues les discussions que vous ouvrez dans WhatsApp. Quand un message écrit dans Mesa s\'ouvre dans WhatsApp, il touche Envoyer à votre place. Seul WhatsApp est lu : la zone de saisie, le bouton Envoyer et le nom de la discussion. Rien ne quitte votre téléphone.</string>
+    <string name="own_replies_desc">Ajoute dans Mesa, dans la même discussion, les nouveaux messages de la discussion WhatsApp ouverte, reçus comme envoyés par vous (et crée la discussion dans Mesa si elle n\'existe pas), marque comme lues les discussions ouvertes dans WhatsApp et envoie via WhatsApp les messages écrits dans Mesa. Seul WhatsApp est lu et rien ne quitte votre téléphone.</string>
     <string name="auto_send_progress">Envoi via WhatsApp…</string>
     <string name="backup_channel">Sauvegardes</string>
     <string name="backup_auto_failed">La sauvegarde automatique a échoué</string>

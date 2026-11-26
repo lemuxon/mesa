@@ -107,7 +107,7 @@
     <string name="focus_tile_on">Only VIPs can reach you</string>
     <string name="focus_and_more">%1$s and %2$d more</string>
     <string name="own_replies_label">Mesa: my WhatsApp replies</string>
-    <string name="own_replies_desc">Adds the messages you send in WhatsApp to the same chat in Mesa and marks chats you open in WhatsApp as read. When a message you wrote in Mesa opens in WhatsApp, it taps Send for you. Only WhatsApp is read: the message box, the Send button and the chat name. Nothing leaves your phone.</string>
+    <string name="own_replies_desc">Adds new messages in the WhatsApp chat you have open, both received and sent by you, to the same chat in Mesa (and starts the chat in Mesa if it isn\'t there), marks chats you open in WhatsApp as read, and sends messages you write in Mesa through WhatsApp for you. Only WhatsApp is read and nothing leaves your phone.</string>
     <string name="auto_send_progress">Sending via WhatsApp…</string>
     <string name="backup_channel">Backups</string>
     <string name="backup_auto_failed">Automatic backup failed</string>

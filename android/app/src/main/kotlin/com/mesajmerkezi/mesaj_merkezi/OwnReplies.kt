@@ -10,10 +10,12 @@ import android.util.Log
 /**
  * "WhatsApp'ta yazdıklarım da görünsün": kullanıcı WhatsApp'ı açıp oradan
  * yanıt verince WhatsApp bildirimini yalnızca kaldırır, yazılan metin hiçbir
- * bildirimde yer almaz. Mesa'da sohbet tek taraflı kalıyordu (2026-11-26,
- * kullanıcı bildirdi). İsteğe bağlı erişilebilirlik servisi ([OwnReplyService])
- * WhatsApp'ta Gönder'e basılınca metni Mesa'daki aynı sohbete ekler ve
- * WhatsApp'ta açılan sohbeti okundu sayar.
+ * bildirimde yer almaz; açık sohbete gelen mesajlar için de WhatsApp bildirim
+ * göstermez. Mesa'da sohbetler tek taraflı kalıyordu (2026-11-26, kullanıcı
+ * bildirdi). İsteğe bağlı erişilebilirlik servisi ([OwnReplyService]) WhatsApp'ta
+ * açık sohbetin listesinin en altında beliren yeni mesajları (gönderilen ve
+ * gelen) Mesa'daki aynı sohbete ekler; sohbet Mesa'da yoksa açar. WhatsApp'ta
+ * açılan sohbet Mesa'da da okunmuş sayılır.
  *
  * Otomatik gönderim: yanıt yolu olmayan sohbette (ör. telefon yeniden
  * başladıktan sonra) Mesa mesajı WhatsApp'ta hazır açar ve kullanıcı orada
@@ -31,6 +33,90 @@ object OwnReplies {
 
     /** Ekran öğe kimlikleri WhatsApp ve WhatsApp Business'ta aynı adlarla. */
     val packages = setOf("com.whatsapp", "com.whatsapp.w4b")
+
+    /** WhatsApp sohbet listesinde görülen bir mesaj satırı (yalnızca metinli satırlar). */
+    data class ChatRow(val text: String, val outgoing: Boolean, val sender: String?)
+
+    /**
+     * Listenin en altında yeni beliren satırların başladığı yer. [known] bir
+     * önceki bakıştaki satırların imzaları, [current] şimdiki (ikisi de
+     * yukarıdan aşağı). Önceki bakışın sonu şimdikinde en uzun eşleşmeyle
+     * aranır; aynı metin art arda gönderilse de yeni satır kaçmaz.
+     * [knownIsBaseline]: önceki bakış boştu ve sohbet gerçekten boş (yeni
+     * sohbet): şimdiki satırların hepsi yeni.
+     * @return yeni satırların ilk sırası; yeni satır yoksa [current] boyu
+     */
+    internal fun firstNewRow(known: List<String>, current: List<String>, knownIsBaseline: Boolean): Int {
+        if (current.isEmpty()) return 0
+        if (known.isEmpty()) return if (knownIsBaseline) 0 else current.size
+        var best = -1
+        var bestLength = 0
+        for (p in current.indices.reversed()) {
+            var length = 0
+            while (length < known.size && p - length >= 0 &&
+                current[p - length] == known[known.size - 1 - length]
+            ) {
+                length++
+            }
+            if (length > bestLength) {
+                bestLength = length
+                best = p
+            }
+        }
+        // Önceki bakışın hiçbir satırı görünmüyor: liste değişti; yeni sayılmaz.
+        return if (best >= 0) best + 1 else current.size
+    }
+
+    /**
+     * Hub.io'da çağrılır. WhatsApp'ta açık sohbette yeni beliren satırları
+     * Mesa'daki aynı sohbete ekler; sohbet yoksa açılır. Kullanıcı sohbeti
+     * WhatsApp'ta görmekte: okunmuş sayılır, bildirim gösterilmez, kurallar
+     * çalışmaz. Aynı mesajın ikinci kopyası (Mesa'dan gönderilen ya da
+     * bildirimden gelen) deponun yineleme denetimine takılır.
+     * @return eklenen mesaj sayısı
+     */
+    fun recordRows(
+        context: Context,
+        packageName: String,
+        chatTitle: String,
+        isGroup: Boolean,
+        rows: List<ChatRow>,
+    ): Int {
+        if (rows.isEmpty() || !AppSettings.isCaptured(context, packageName)) return 0
+        val title = Names.title(chatTitle) ?: return 0
+        val key = "$packageName|$title"
+        val now = System.currentTimeMillis()
+        val messages = rows
+            // Mesa'nın az önce WhatsApp'ta gönderdiği mesaj zaten kayıtlı.
+            .filterNot { it.outgoing && wasAutoSent(key, it.text) }
+            .mapIndexed { i, row ->
+                CapturedMessage(
+                    sender = if (row.outgoing) null else row.sender ?: title.takeUnless { isGroup },
+                    text = row.text,
+                    // Aynı anda görülen satırların sırası korunur.
+                    time = now + i,
+                    outgoing = row.outgoing,
+                    // Gelen satırın zamanı tahmini: bildirimden gelmiş kopyasıyla metin ve göndericiden eşleşir.
+                    fromFallback = !row.outgoing,
+                )
+            }
+        if (messages.isEmpty()) return 0
+        val store = Hub.store(context)
+        val created = store.conversation(key) == null
+        val result = store.ingest(
+            CapturedConversation(key, packageName, title, isGroup, messages, replyAction = null),
+        )
+        if (result.added == 0) return 0
+        store.markRead(key)
+        UnifiedNotifier.cancel(context, key)
+        Hub.notifyChanged(key)
+        Log.i(
+            TAG,
+            "WhatsApp'ta açık sohbetten ${result.added} mesaj Mesa'ya eklendi" +
+                if (created) " (sohbet Mesa'da yeni açıldı)" else "",
+        )
+        return result.added
+    }
 
     /** Mesa'nın WhatsApp'ta hazır açtığı, servisin göndereceği mesaj. */
     internal data class PendingSend(
@@ -182,31 +268,6 @@ object OwnReplies {
     }
 
     /**
-     * Hub.io'da çağrılır. WhatsApp'ta gönderilen metni, sohbet Mesa'da
-     * varsa giden mesaj olarak ekler; sohbet okunmuş sayılır.
-     * @return sohbet bulundu ve mesaj eklendi
-     */
-    fun record(context: Context, packageName: String, chatTitle: String, text: String): Boolean {
-        if (!AppSettings.isCaptured(context, packageName)) return false
-        val store = Hub.store(context)
-        val key = knownKey(store, packageName, chatTitle) ?: run {
-            Log.i(TAG, "WhatsApp yanıtı: sohbet Mesa'da yok, eklenmedi")
-            return false
-        }
-        // Mesa'dan gönderilen mesaj zaten kaydedildi.
-        if (wasAutoSent(key, text)) {
-            Log.i(TAG, "WhatsApp yanıtı: Mesa'dan gönderilen mesaj, ikinci kez yazılmadı")
-            return false
-        }
-        store.recordOutgoing(key, text)
-        store.markRead(key)
-        UnifiedNotifier.cancel(context, key)
-        Hub.notifyChanged(key)
-        Log.i(TAG, "WhatsApp'ta yazılan yanıt Mesa'ya eklendi")
-        return true
-    }
-
-    /**
      * Hub.io'da çağrılır. Sohbet WhatsApp'ta açıldı: Mesa'da da okunmuş sayılır.
      * @return okunmamış mesajı vardı ve okundu yapıldı
      */
@@ -222,91 +283,9 @@ object OwnReplies {
         return true
     }
 
-    /**
-     * Sohbet başlığı bildirimdekiyle aynı biçimde sadeleştirilir (görünmez
-     * yön işaretleri vb.). Mesa'da olmayan sohbet açılmaz: WhatsApp'ta
-     * yazılan her sohbet gelen kutusuna dolmasın.
-     */
+    /** Sohbet başlığı bildirimdekiyle aynı biçimde sadeleştirilir (görünmez yön işaretleri vb.). */
     internal fun knownKey(store: MessageStore, packageName: String, chatTitle: String): String? {
         val title = Names.title(chatTitle) ?: return null
         return "$packageName|$title".takeIf { store.conversation(it) != null }
-    }
-}
-
-/**
- * Mesaj kutusundaki metni izleyip gönderimi tanır. Android'e bağımlı değildir.
- *
- * İki yol var: Gönder düğmesine dokunma (kesin) ve klavyedeki Enter ile
- * gönderim. İkincisinde yalnızca kutunun bir anda boşaldığı görülür;
- * hepsini seçip silmekle karışmasın diye metnin sohbet listesinde
- * belirdiği ayrıca doğrulanır ([onVerified]).
- */
-internal class ReplyTracker(private val now: () -> Long = System::currentTimeMillis) {
-    private var draft: String? = null
-    private var pending: Pair<String, Long>? = null
-    private var lastSent: Pair<String, Long>? = null
-
-    /**
-     * Mesaj kutusunun metni değişti.
-     * @return kutu bir anda boşaldı: doğrulanması gereken aday metin
-     */
-    fun onTextChanged(text: String, before: String?, removed: Int, added: Int): String? {
-        if (text.isNotBlank()) {
-            draft = text
-            pending = null
-            return null
-        }
-        val previousRaw = before?.takeIf { it.isNotBlank() } ?: draft
-        draft = null
-        val previous = previousRaw?.trim()?.takeIf { it.isNotEmpty() } ?: return null
-        // Harf harf silmek gönderim değildir: gönderince kutu tek seferde boşalır.
-        if (added != 0 || removed < previousRaw.length) return null
-        // Gönder'e basıldı, ardından kutu boşaldı: zaten kaydedildi.
-        val sent = lastSent
-        if (sent != null && sent.first == previous && now() - sent.second < SAME_SEND_MS) return null
-        pending = previous to now()
-        return previous
-    }
-
-    /** Gönder düğmesine dokunuldu. @return kaydedilecek metin */
-    fun onSendClicked(): String? {
-        val text = draft?.trim()?.takeIf { it.isNotEmpty() }
-            ?: pending?.takeIf { now() - it.second < SAME_SEND_MS }?.first
-            ?: return null
-        draft = null
-        pending = null
-        lastSent = text to now()
-        return text
-    }
-
-    /**
-     * Boşalan kutunun metni sohbet listesinde arandı.
-     * @return kaydedilmeli (aday hâlâ bekliyor ve listede göründü)
-     */
-    fun onVerified(text: String, shownInList: Boolean): Boolean {
-        val candidate = pending ?: return false
-        if (candidate.first != text) return false
-        pending = null
-        if (!shownInList) return false
-        lastSent = text to now()
-        return true
-    }
-
-    /** Servis, Mesa'nın verdiği metni gönderiyor: boşalan kutu aday olmasın. */
-    fun onAutoSend(text: String) {
-        draft = null
-        pending = null
-        lastSent = text to now()
-    }
-
-    /** Ekran değişti: yarım kalan taslak başka sohbete taşınmasın. */
-    fun reset() {
-        draft = null
-        pending = null
-    }
-
-    companion object {
-        /** Dokunma ile kutunun boşalması arasındaki en uzun süre. */
-        const val SAME_SEND_MS = 2_000L
     }
 }
