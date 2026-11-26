@@ -106,6 +106,8 @@
     <string name="focus_channel">Fokusmodus</string>
     <string name="focus_tile_on">Nur VIPs erreichen dich</string>
     <string name="focus_and_more">%1$s und %2$d weitere</string>
+    <string name="notif_copy_code">%1$s kopieren</string>
+    <string name="code_copied">Code kopiert</string>
     <string name="own_replies_label">Mesa: meine WhatsApp-Antworten</string>
     <string name="own_replies_desc">Fügt neue Nachrichten im geöffneten WhatsApp-Chat, empfangene und von dir gesendete, demselben Chat in Mesa hinzu (und legt den Chat in Mesa an, falls er fehlt), markiert in WhatsApp geöffnete Chats als gelesen und sendet in Mesa geschriebene Nachrichten für dich über WhatsApp. Gelesen wird nur WhatsApp, und nichts verlässt dein Telefon.</string>
     <string name="auto_send_progress">Wird über WhatsApp gesendet…</string>

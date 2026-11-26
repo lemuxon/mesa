@@ -870,4 +870,18 @@ const pt = <String, String>{
   'Otomatik gönder': 'Envio automático',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'Não foi possível enviar no WhatsApp; sua mensagem está na caixa de texto.',
+  // Mesajdan işe tek dokunuş
+  'Açılamadı.': 'Não foi possível abrir.',
+  'Bağlantıyı aç': 'Abrir link',
+  'E-postayı kopyala': 'Copiar e-mail',
+  'Haritada aç': 'Abrir no mapa',
+  'Hatırlat': 'Lembrar',
+  'Hatırlatma kurulamadı.': 'Não foi possível criar o lembrete.',
+  'IBAN\'ı kopyala': 'Copiar IBAN',
+  'Kodu kopyala': 'Copiar código',
+  'Kopyalandı': 'Copiado',
+  'Takvim uygulaması bulunamadı.': 'Nenhum app de calendário encontrado.',
+  'Takvime ekle': 'Adicionar à agenda',
+  'Telefonla ara': 'Ligar',
+  '{time} için hatırlatma kuruldu': 'Lembrete criado para {time}',
 };

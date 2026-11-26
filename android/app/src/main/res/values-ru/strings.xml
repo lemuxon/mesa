@@ -106,6 +106,8 @@
     <string name="focus_channel">Режим фокусировки</string>
     <string name="focus_tile_on">Достучаться могут только VIP</string>
     <string name="focus_and_more">%1$s и ещё %2$d</string>
+    <string name="notif_copy_code">Копировать %1$s</string>
+    <string name="code_copied">Код скопирован</string>
     <string name="own_replies_label">Mesa: мои ответы в WhatsApp</string>
     <string name="own_replies_desc">Добавляет новые сообщения из открытого чата WhatsApp, полученные и отправленные вами, в тот же чат в Mesa (и создаёт чат в Mesa, если его нет), отмечает прочитанными чаты, открытые в WhatsApp, и отправляет через WhatsApp сообщения, написанные в Mesa. Читается только WhatsApp, и ничего не покидает телефон.</string>
     <string name="auto_send_progress">Отправка через WhatsApp…</string>

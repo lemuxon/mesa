@@ -157,6 +157,28 @@ class CoreBridge {
   Future<void> openOwnRepliesSettings() =>
       _channel.invokeMethod<void>('openOwnRepliesSettings');
 
+  /// Mesajdaki bağlantı, telefon (tel:), harita (geo:) ya da e-posta (mailto:).
+  /// Açacak uygulama yoksa false.
+  Future<bool> openUri(String uri) async =>
+      await _channel.invokeMethod<bool>('openUri', {'uri': uri}) ?? false;
+
+  /// Takvim uygulamasının yeni etkinlik ekranı, bilgiler doldurulmuş.
+  Future<bool> addToCalendar({
+    required String title,
+    required String description,
+    required DateTime begin,
+    required DateTime end,
+    bool allDay = false,
+  }) async =>
+      await _channel.invokeMethod<bool>('addToCalendar', {
+        'title': title,
+        'description': description,
+        'begin': begin.millisecondsSinceEpoch,
+        'end': end.millisecondsSinceEpoch,
+        'allDay': allDay,
+      }) ??
+      false;
+
   /// Sistemin sohbet balonu ayarı (Android 11+).
   Future<void> openBubbleSettings() =>
       _channel.invokeMethod<void>('openBubbleSettings');

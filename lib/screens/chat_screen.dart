@@ -16,6 +16,7 @@ import '../core/format.dart';
 import '../core/models.dart';
 import '../core/presence.dart';
 import '../core/settings.dart';
+import '../core/smart_actions.dart';
 import '../core/telegram.dart';
 import '../ui/avatars.dart';
 import '../ui/text_dialog.dart';
@@ -1041,12 +1042,122 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   onOpenMedia: () => _openMedia(m),
                   onLongPress: () => _messageActions(m),
                 ),
+                if (_smartActionsFor(m, now) case final smart
+                    when smart.isNotEmpty)
+                  SmartChips(
+                    actions: smart,
+                    mine: m.outgoing,
+                    onTap: (action, remind) =>
+                        _runSmart(m, action, remind: remind),
+                  ),
               ],
             );
           },
         );
       },
     );
+  }
+
+  /// Mesajdaki işe yarar parçalar (kod, telefon, IBAN, tarih…). Silinmiş ve
+  /// yalnızca medya etiketi olan mesajlarda aranmaz; kod 24 saat sonra önerilmez.
+  List<SmartAction> _smartActionsFor(Message m, DateTime now) {
+    if (m.deleted || m.mediaPath != null || m.isVoice) return const [];
+    final found = findSmartActions(m.text, sentAt: m.time, now: now);
+    if (now.difference(m.time) > const Duration(hours: 24)) {
+      return found.where((a) => a.kind != SmartKind.code).toList();
+    }
+    return found;
+  }
+
+  Future<void> _runSmart(
+    Message m,
+    SmartAction action, {
+    bool remind = false,
+  }) async {
+    switch (action.kind) {
+      case SmartKind.code || SmartKind.iban || SmartKind.email:
+        await Clipboard.setData(ClipboardData(text: action.value));
+        _snack(tr('Kopyalandı'));
+      case SmartKind.phone:
+        await _openSmart('tel:${action.value}');
+      case SmartKind.link || SmartKind.map:
+        await _openSmart(action.value);
+      case SmartKind.address:
+        final q = Uri.encodeComponent(action.value);
+        // Harita uygulaması yoksa tarayıcıda Google Haritalar.
+        if (!await _tryOpen('geo:0,0?q=$q')) {
+          await _openSmart(
+            'https://www.google.com/maps/search/?api=1&query=$q',
+          );
+        }
+      case SmartKind.when:
+        if (remind) {
+          await _remindAt(action);
+        } else {
+          await _addToCalendar(m, action);
+        }
+    }
+  }
+
+  Future<bool> _tryOpen(String uri) async {
+    try {
+      return await widget.bridge.openUri(uri);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _openSmart(String uri) async {
+    if (!await _tryOpen(uri)) _snack(tr('Açılamadı.'));
+  }
+
+  Future<void> _addToCalendar(Message m, SmartAction action) async {
+    final when = action.when!;
+    final begin = action.allDay
+        ? DateTime(when.year, when.month, when.day)
+        : when;
+    final end = action.allDay
+        ? begin.add(const Duration(days: 1))
+        : begin.add(const Duration(hours: 1));
+    final firstLine = m.text.trim().split('\n').first;
+    final title = firstLine.length > 60
+        ? '${firstLine.substring(0, 60)}…'
+        : firstLine;
+    bool ok;
+    try {
+      ok = await widget.bridge.addToCalendar(
+        title: title,
+        description: '$_title · $_appName',
+        begin: begin,
+        end: end,
+        allDay: action.allDay,
+      );
+    } catch (_) {
+      ok = false;
+    }
+    if (!ok) _snack(tr('Takvim uygulaması bulunamadı.'));
+  }
+
+  /// Sohbet o an (saat belliyse yarım saat önce) hatırlatılır.
+  Future<void> _remindAt(SmartAction action) async {
+    final when = action.when!;
+    final now = DateTime.now();
+    var at = action.allDay
+        ? DateTime(when.year, when.month, when.day, 9)
+        : when.subtract(const Duration(minutes: 30));
+    if (!at.isAfter(now))
+      at = action.allDay ? now.add(const Duration(minutes: 1)) : when;
+    if (!at.isAfter(now)) return;
+    try {
+      await widget.bridge.snooze(_active.key, at);
+    } catch (_) {
+      _snack(tr('Hatırlatma kurulamadı.'));
+      return;
+    }
+    final label = isSameDay(at, now)
+        ? formatClock(at)
+        : '${at.day.toString().padLeft(2, '0')}.${at.month.toString().padLeft(2, '0')} ${formatClock(at)}';
+    _snack(tr('{time} için hatırlatma kuruldu', {'time': label}));
   }
 
   Widget _composer(MessagingApp app) {
@@ -2646,6 +2757,116 @@ class _UploadStatusState extends State<_UploadStatus> {
 }
 
 /// "Yanıtlar WhatsApp açılmadan gitsin": gönderim kaynak uygulamayı açacakken.
+/// Balonun altındaki tek dokunuşluk işler: kodu kopyala, ara, takvime ekle…
+class SmartChips extends StatelessWidget {
+  const SmartChips({
+    super.key,
+    required this.actions,
+    required this.mine,
+    required this.onTap,
+  });
+
+  final List<SmartAction> actions;
+  final bool mine;
+
+  /// [remind]: tarih için "Hatırlat" (yoksa "Takvime ekle").
+  final void Function(SmartAction action, bool remind) onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    Widget chip(IconData icon, String label, VoidCallback onPressed) =>
+        Material(
+          color: scheme.surfaceContainerHigh,
+          shape: StadiumBorder(side: BorderSide(color: scheme.outlineVariant)),
+          child: InkWell(
+            customBorder: const StadiumBorder(),
+            onTap: onPressed,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 16, color: scheme.primary),
+                  const SizedBox(width: 6),
+                  Text(label, style: theme.textTheme.labelMedium),
+                ],
+              ),
+            ),
+          ),
+        );
+    final chips = <Widget>[
+      for (final a in actions)
+        ...switch (a.kind) {
+          SmartKind.code => [
+            chip(
+              Icons.password_rounded,
+              tr('Kodu kopyala'),
+              () => onTap(a, false),
+            ),
+          ],
+          SmartKind.phone => [
+            chip(
+              Icons.call_rounded,
+              tr('Telefonla ara'),
+              () => onTap(a, false),
+            ),
+          ],
+          SmartKind.iban => [
+            chip(
+              Icons.account_balance_rounded,
+              tr('IBAN\'ı kopyala'),
+              () => onTap(a, false),
+            ),
+          ],
+          SmartKind.email => [
+            chip(
+              Icons.alternate_email_rounded,
+              tr('E-postayı kopyala'),
+              () => onTap(a, false),
+            ),
+          ],
+          SmartKind.link => [
+            chip(
+              Icons.link_rounded,
+              tr('Bağlantıyı aç'),
+              () => onTap(a, false),
+            ),
+          ],
+          SmartKind.map || SmartKind.address => [
+            chip(Icons.place_rounded, tr('Haritada aç'), () => onTap(a, false)),
+          ],
+          SmartKind.when => [
+            chip(
+              Icons.event_rounded,
+              tr('Takvime ekle'),
+              () => onTap(a, false),
+            ),
+            chip(Icons.alarm_rounded, tr('Hatırlat'), () => onTap(a, true)),
+          ],
+        },
+    ];
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 4,
+        bottom: 4,
+        left: mine ? 48 : 4,
+        right: mine ? 4 : 48,
+      ),
+      child: Align(
+        alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+        child: Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          alignment: mine ? WrapAlignment.end : WrapAlignment.start,
+          children: chips,
+        ),
+      ),
+    );
+  }
+}
+
 class _KeepNudge extends StatelessWidget {
   const _KeepNudge({
     required this.appName,

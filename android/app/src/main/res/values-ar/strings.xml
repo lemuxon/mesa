@@ -106,6 +106,8 @@
     <string name="focus_channel">وضع التركيز</string>
     <string name="focus_tile_on">يمكن لأشخاص VIP فقط الوصول إليك</string>
     <string name="focus_and_more">%1$s و%2$d آخرون</string>
+    <string name="notif_copy_code">نسخ %1$s</string>
+    <string name="code_copied">تم نسخ الرمز</string>
     <string name="own_replies_label">Mesa: ردودي في WhatsApp</string>
     <string name="own_replies_desc">يضيف الرسائل الجديدة في محادثة WhatsApp المفتوحة، المستلمة والمرسلة منك، إلى المحادثة نفسها في Mesa (وينشئ المحادثة في Mesa إن لم تكن موجودة)، ويعلّم المحادثات التي تفتحها في WhatsApp كمقروءة، ويرسل عبر WhatsApp الرسائل التي تكتبها في Mesa. يُقرأ WhatsApp فقط ولا يغادر أي شيء هاتفك.</string>
     <string name="auto_send_progress">جارٍ الإرسال عبر WhatsApp…</string>

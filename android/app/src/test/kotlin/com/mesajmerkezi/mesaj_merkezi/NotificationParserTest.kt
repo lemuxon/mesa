@@ -65,6 +65,37 @@ class NotificationParserTest {
     }
 
     @Test
+    fun `okundu olarak isaretle eylemi yalnizca isaretliyse alinir`() {
+        val read = PendingIntent.getBroadcast(context, 1, Intent("okundu"), PendingIntent.FLAG_IMMUTABLE)
+        fun conversation(semantic: Int) = NotificationParser.parse(
+            sbn(
+                builder()
+                    .setStyle(NotificationCompat.MessagingStyle(me).addMessage("Selam", t0, ayse))
+                    .addAction(replyAction())
+                    .addAction(
+                        NotificationCompat.Action.Builder(0, "Okundu olarak işaretle", read)
+                            .setSemanticAction(semantic)
+                            .build(),
+                    )
+                    .build(),
+            ),
+        )!!
+        assertEquals(read, conversation(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ).markReadAction?.actionIntent)
+        // Adına bakılarak tahmin edilmez: işaretsiz eylem alınmaz.
+        assertNull(conversation(NotificationCompat.Action.SEMANTIC_ACTION_NONE).markReadAction)
+    }
+
+    @Test
+    fun `kaynak bildirim okunarak mi kalkti`() {
+        assertTrue(NotificationParser.isReadSignal(NotificationParser.REASON_APP_CANCEL))
+        assertTrue(NotificationParser.isReadSignal(NotificationParser.REASON_APP_CANCEL_ALL))
+        assertTrue(NotificationParser.isReadSignal(NotificationParser.REASON_CLICK))
+        // Kullanıcı kaydırıp kapattı (2) ya da Mesa kendisi kaldırdı (10): okunmuş sayılmaz.
+        assertFalse(NotificationParser.isReadSignal(2))
+        assertFalse(NotificationParser.isReadSignal(10))
+    }
+
+    @Test
     fun `grup sohbeti grup adiyla kaydedilir`() {
         val n = builder()
             .setStyle(

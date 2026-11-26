@@ -176,6 +176,10 @@ p("focus_summary", en={"one": "Focus ended · %d message arrived", "other": "Foc
   ar={"zero": "انتهى التركيز · لم تصل رسائل", "one": "انتهى التركيز · وصلت رسالة واحدة", "two": "انتهى التركيز · وصلت رسالتان", "few": "انتهى التركيز · وصلت %d رسائل", "many": "انتهى التركيز · وصلت %d رسالة", "other": "انتهى التركيز · وصلت %d رسالة"},
   ru={"one": "Фокус завершён · пришло %d сообщение", "few": "Фокус завершён · пришло %d сообщения", "many": "Фокус завершён · пришло %d сообщений", "other": "Фокус завершён · пришло %d сообщения"})
 
+# ---- Mesajdan işe ----
+s("notif_copy_code", en="Copy %1$s", tr="%1$s kopyala", es="Copiar %1$s", pt="Copiar %1$s", de="%1$s kopieren", fr="Copier %1$s", ar="نسخ %1$s", ru="Копировать %1$s")
+s("code_copied", en="Code copied", tr="Kod kopyalandı", es="Código copiado", pt="Código copiado", de="Code kopiert", fr="Code copié", ar="تم نسخ الرمز", ru="Код скопирован")
+
 # ---- WhatsApp'ta yazılan yanıtlar (erişilebilirlik servisi) ----
 s("own_replies_label", en="Mesa: my WhatsApp replies", tr="Mesa: WhatsApp yanıtlarım", es="Mesa: mis respuestas de WhatsApp", pt="Mesa: minhas respostas do WhatsApp", de="Mesa: meine WhatsApp-Antworten", fr="Mesa : mes réponses WhatsApp", ar="Mesa: ردودي في WhatsApp", ru="Mesa: мои ответы в WhatsApp")
 s("own_replies_desc",

@@ -38,6 +38,48 @@ class MessageListenerService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) = handle(sbn)
 
     /**
+     * Kaynak bildirim kalktı. Kullanıcı WhatsApp'ın kendi "Okundu olarak
+     * işaretle"sine bastıysa ya da sohbeti WhatsApp'ta açtıysa Mesa'da da
+     * okundu sayılır ve Mesa'nın bildirimi kalkar (2026-11-26: üstteki
+     * bildirimden okundu yapınca Mesa'da okunmamış kalıyordu).
+     */
+    override fun onNotificationRemoved(sbn: StatusBarNotification, rankingMap: RankingMap, reason: Int) {
+        if (!NotificationParser.isReadSignal(reason)) return
+        if (sbn.packageName !in SupportedApps.packages || !AppSettings.isCaptured(this, sbn.packageName)) return
+        // Telegram hesabı bağlıyken okundu bilgisi TDLib'den gelir.
+        if (sbn.packageName in SupportedApps.telegramPackages && TelegramPrefs.loggedIn(this)) return
+        val key = try {
+            NotificationParser.parse(sbn)?.key
+        } catch (e: RuntimeException) {
+            null
+        } ?: return
+        // Bazı uygulamalar bildirimi kaldırıp hemen yenisini koyar: o sohbetin bildirimi geri geldiyse okunmamıştır.
+        main.postDelayed({ markReadIfGone(sbn.packageName, key) }, SOURCE_READ_DELAY_MS)
+    }
+
+    private fun markReadIfGone(packageName: String, key: String) {
+        val stillThere = try {
+            activeNotifications.orEmpty().any { other ->
+                other.packageName == packageName &&
+                    runCatching { NotificationParser.parse(other)?.key }.getOrNull() == key
+            }
+        } catch (e: SecurityException) {
+            false
+        }
+        if (stillThere) return
+        val app = applicationContext
+        Hub.io.execute {
+            val store = Hub.store(app)
+            val unread = (store.conversation(key)?.get("unread") as Int?) ?: return@execute
+            UnifiedNotifier.cancel(app, key)
+            if (unread == 0) return@execute
+            store.markRead(key)
+            Hub.notifyChanged(key)
+            Log.i(TAG, "Kaynak uygulamada okundu: $packageName (Mesa'da da okundu)")
+        }
+    }
+
+    /**
      * Çubukta duran bildirimleri yeniden işler. Birleşik bildirimler açılınca
      * var olan kaynak bildirimleri hemen Mesa bildirimine dönüşsün diye.
      */
@@ -93,6 +135,7 @@ class MessageListenerService : NotificationListenerService() {
         if (conversation == null) return
 
         conversation.replyAction?.let { Hub.rememberReply(this, conversation.key, it) }
+        conversation.markReadAction?.let { Hub.rememberMarkRead(conversation.key, it) }
         sbn.notification.contentIntent?.let { Hub.rememberOpen(this, conversation.key, it) }
         val style = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(sbn.notification)
         Hub.io.execute {
@@ -159,8 +202,13 @@ class MessageListenerService : NotificationListenerService() {
         }
     }
 
+    private val main = android.os.Handler(android.os.Looper.getMainLooper())
+
     companion object {
         private const val TAG = "MesajMerkezi"
+
+        /** Kaynak bildirim kalktıktan sonra yenisinin gelip gelmediğine bakılan süre. */
+        private const val SOURCE_READ_DELAY_MS = 1_500L
 
         @Volatile
         private var instance: MessageListenerService? = null

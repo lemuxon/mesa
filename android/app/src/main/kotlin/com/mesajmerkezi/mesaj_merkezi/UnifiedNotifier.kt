@@ -42,6 +42,8 @@ object UnifiedNotifier {
     const val ACTION_REPLY = "com.mesajmerkezi.mesaj_merkezi.REPLY"
     const val ACTION_MARK_READ = "com.mesajmerkezi.mesaj_merkezi.MARK_READ"
     const val ACTION_SNOOZE_HOUR = "com.mesajmerkezi.mesaj_merkezi.SNOOZE_HOUR"
+    const val ACTION_COPY_CODE = "com.mesajmerkezi.mesaj_merkezi.COPY_CODE"
+    private const val EXTRA_CODE = "code"
     private const val SNOOZE_MS = 60 * 60 * 1000L
     const val EXTRA_KEY = "conversation_key"
     const val REPLY_INPUT = "reply_text"
@@ -182,6 +184,7 @@ object UnifiedNotifier {
             .setContentIntent(open)
             .apply { if (!web) addAction(reply) }
             .addAction(markRead)
+            .apply { copyCodeAction(context, key, requestCode, messages)?.let(::addAction) }
             .addAction(snooze)
             .setWhen(messages.last()["time"] as Long)
             .apply { if (shortcut != null) setShortcutInfo(shortcut) }
@@ -257,6 +260,33 @@ object UnifiedNotifier {
     } catch (e: RuntimeException) {
         Log.i(TAG, "Balon hazırlanamadı: ${e.javaClass.simpleName}")
         null
+    }
+
+    /**
+     * Son gelen mesajda doğrulama kodu varsa "Kodu kopyala": uygulamayı açmadan
+     * kod panoya alınır ([SmartText]).
+     */
+    private fun copyCodeAction(
+        context: Context,
+        key: String,
+        requestCode: Int,
+        messages: List<Map<String, Any?>>,
+    ): NotificationCompat.Action? {
+        val last = messages.lastOrNull { it["outgoing"] == false } ?: return null
+        val code = SmartText.verificationCode(last["text"] as String?) ?: return null
+        val intent = actionIntent(context, ACTION_COPY_CODE, key).putExtra(EXTRA_CODE, code)
+        return NotificationCompat.Action.Builder(
+            android.R.drawable.ic_menu_edit,
+            Lang.str(context, R.string.notif_copy_code, code),
+            PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            ),
+        )
+            .setShowsUserInterface(false)
+            .build()
     }
 
     /** Sohbet silinince kısayolu da kalkar. */
@@ -382,10 +412,28 @@ object UnifiedNotifier {
                         Hub.store(context).markRead(key)
                         Hub.notifyChanged(key)
                         cancel(context, key)
+                        // Kaynak uygulamada da okunsun (bildirimi duruyorsa o da kalkar).
+                        if (Hub.markReadInSource(context, key)) Log.i(TAG, "Okundu kaynak uygulamaya da iletildi")
                     } finally {
                         // Hata olsa da yayın bitmiş sayılmalı (yoksa sistem ANR sayar).
                         pending.finish()
                     }
+                }
+                // Doğrulama kodu panoya; Android 13+ kopyalandığını kendisi gösterir.
+                ACTION_COPY_CODE -> {
+                    val code = intent.getStringExtra(EXTRA_CODE)
+                    if (code != null) {
+                        val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
+                        clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("kod", code))
+                        if (Build.VERSION.SDK_INT < 33) {
+                            android.widget.Toast.makeText(
+                                context,
+                                Lang.str(context, R.string.code_copied),
+                                android.widget.Toast.LENGTH_SHORT,
+                            ).show()
+                        }
+                    }
+                    pending.finish()
                 }
                 // "1 saat sonra hatırlat": sohbet ertelenir, bildirim kalkar, saati gelince ⏰ ile döner.
                 ACTION_SNOOZE_HOUR -> Hub.io.execute {

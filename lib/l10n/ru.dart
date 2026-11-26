@@ -866,4 +866,18 @@ const ru = <String, String>{
   'Otomatik gönder': 'Автоотправка',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'Не удалось отправить в WhatsApp; сообщение снова в поле ввода.',
+  // Mesajdan işe tek dokunuş
+  'Açılamadı.': 'Не удалось открыть.',
+  'Bağlantıyı aç': 'Открыть ссылку',
+  'E-postayı kopyala': 'Скопировать e-mail',
+  'Haritada aç': 'Открыть на карте',
+  'Hatırlat': 'Напомнить',
+  'Hatırlatma kurulamadı.': 'Не удалось создать напоминание.',
+  'IBAN\'ı kopyala': 'Скопировать IBAN',
+  'Kodu kopyala': 'Скопировать код',
+  'Kopyalandı': 'Скопировано',
+  'Takvim uygulaması bulunamadı.': 'Приложение календаря не найдено.',
+  'Takvime ekle': 'Добавить в календарь',
+  'Telefonla ara': 'Позвонить',
+  '{time} için hatırlatma kuruldu': 'Напоминание на {time} создано',
 };

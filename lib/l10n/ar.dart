@@ -847,4 +847,18 @@ const ar = <String, String>{
   'Otomatik gönder': 'إرسال تلقائي',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'تعذّر الإرسال في WhatsApp؛ رسالتك في مربع الكتابة.',
+  // Mesajdan işe tek dokunuş
+  'Açılamadı.': 'تعذّر الفتح.',
+  'Bağlantıyı aç': 'فتح الرابط',
+  'E-postayı kopyala': 'نسخ البريد الإلكتروني',
+  'Haritada aç': 'فتح في الخرائط',
+  'Hatırlat': 'ذكّرني',
+  'Hatırlatma kurulamadı.': 'تعذّر ضبط التذكير.',
+  'IBAN\'ı kopyala': 'نسخ رقم IBAN',
+  'Kodu kopyala': 'نسخ الرمز',
+  'Kopyalandı': 'تم النسخ',
+  'Takvim uygulaması bulunamadı.': 'لم يُعثر على تطبيق تقويم.',
+  'Takvime ekle': 'إضافة إلى التقويم',
+  'Telefonla ara': 'اتصال',
+  '{time} için hatırlatma kuruldu': 'تم ضبط التذكير على {time}',
 };

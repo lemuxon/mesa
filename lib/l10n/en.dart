@@ -859,4 +859,18 @@ const en = <String, String>{
   'Otomatik gönder': 'Auto-send',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'Couldn\'t send in WhatsApp; your message is back in the box.',
+  // Mesajdan işe tek dokunuş
+  'Açılamadı.': 'Couldn\'t open it.',
+  'Bağlantıyı aç': 'Open link',
+  'E-postayı kopyala': 'Copy email',
+  'Haritada aç': 'Open in maps',
+  'Hatırlat': 'Remind me',
+  'Hatırlatma kurulamadı.': 'Couldn\'t set the reminder.',
+  'IBAN\'ı kopyala': 'Copy IBAN',
+  'Kodu kopyala': 'Copy code',
+  'Kopyalandı': 'Copied',
+  'Takvim uygulaması bulunamadı.': 'No calendar app found.',
+  'Takvime ekle': 'Add to calendar',
+  'Telefonla ara': 'Call',
+  '{time} için hatırlatma kuruldu': 'Reminder set for {time}',
 };

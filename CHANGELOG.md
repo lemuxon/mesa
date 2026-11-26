@@ -24,7 +24,18 @@
   routes of the 80 most recent chats with Android itself and takes them back when it starts again, so replies keep going
   out directly and invisibly. Restarting the phone or updating Mesa still clears them until a new message arrives.
 
+- **From message to action in one tap.** Under a message, Mesa offers what you'd do next: copy a verification code,
+  call a phone number, copy an IBAN (only when its check digits are valid) or an email address, open a link, open an
+  address or a map link in maps, and for dates and times ("yarın 15:00", "akşam 8", "cuma", "25 Kasım", "01.12.2026")
+  add to calendar or get reminded half an hour before. Words like "yarın" count from the day the message was sent, and
+  past times aren't offered. A notification with a verification code gets a "Copy 123456" button. Everything runs on
+  the phone.
+
 ### Fixed
+- **"Mark as read" on WhatsApp's own notification didn't reach Mesa.** With WhatsApp's notification kept, marking a chat
+  read there (or opening it in WhatsApp) left it unread in Mesa with Mesa's notification still up. Mesa now follows
+  WhatsApp when it removes its notification that way, and Mesa's own "Mark as read" also presses WhatsApp's, so the chat
+  is read in both.
 - **Chat bubbles closed right as they opened.** Opening the chat in the bubble marked it read, which removed its
   notification, and Android closes a bubble together with its notification. A bubbling chat now keeps its bubble and is only
   hidden from the notification shade. Deleting or snoozing the chat still closes the bubble.

@@ -879,4 +879,18 @@ const fr = <String, String>{
   'Otomatik gönder': 'Envoi auto',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'Envoi impossible dans WhatsApp ; votre message est de retour dans la zone de saisie.',
+  // Mesajdan işe tek dokunuş
+  'Açılamadı.': 'Impossible d\'ouvrir.',
+  'Bağlantıyı aç': 'Ouvrir le lien',
+  'E-postayı kopyala': 'Copier l\'e-mail',
+  'Haritada aç': 'Ouvrir dans Plans',
+  'Hatırlat': 'Me rappeler',
+  'Hatırlatma kurulamadı.': 'Impossible de créer le rappel.',
+  'IBAN\'ı kopyala': 'Copier l\'IBAN',
+  'Kodu kopyala': 'Copier le code',
+  'Kopyalandı': 'Copié',
+  'Takvim uygulaması bulunamadı.': 'Aucune appli d\'agenda trouvée.',
+  'Takvime ekle': 'Ajouter à l\'agenda',
+  'Telefonla ara': 'Appeler',
+  '{time} için hatırlatma kuruldu': 'Rappel créé pour {time}',
 };

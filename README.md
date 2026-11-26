@@ -27,6 +27,7 @@ Check a downloaded APK with `apksigner verify --print-certs Mesa.apk` (Android S
 - **Read without sending "seen".** Opening a WhatsApp or Instagram message in Mesa sends no read receipt until you reply. Optional ghost mode for Telegram.
 - **Reply from the notification** with unified notifications and one-tap quick replies.
 - **Deleted messages keep their text.** If the sender deletes a message, what they wrote stays in Mesa, labeled "deleted".
+- **From message to action:** copy a code, call a number, copy an IBAN, open an address in maps, or add a date to your calendar with one tap under the message.
 - **Stay on top:** people waiting for your reply come first; snooze chats, schedule messages, save important messages and search across every app.
 - **Rules:** automatic replies (with safety limits), mute, mark important; they run even when the app is closed.
 - **Weekly summary**, **home screen widget**, **app lock** (fingerprint, face or screen lock).

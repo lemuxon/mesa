@@ -106,6 +106,8 @@
     <string name="focus_channel">Odak modu</string>
     <string name="focus_tile_on">Yalnızca VIP\'ler ulaşabilir</string>
     <string name="focus_and_more">%1$s ve %2$d kişi daha</string>
+    <string name="notif_copy_code">%1$s kopyala</string>
+    <string name="code_copied">Kod kopyalandı</string>
     <string name="own_replies_label">Mesa: WhatsApp yanıtlarım</string>
     <string name="own_replies_desc">WhatsApp\'ta açık sohbete gelen ve sizin gönderdiğiniz yeni mesajları Mesa\'daki aynı sohbete ekler (sohbet Mesa\'da yoksa açar), WhatsApp\'ta açtığınız sohbeti okundu sayar ve Mesa\'dan yazdığınız mesajı WhatsApp\'ta sizin yerinize gönderir. Yalnızca WhatsApp okunur ve hiçbir şey telefondan çıkmaz.</string>
     <string name="auto_send_progress">WhatsApp üzerinden gönderiliyor…</string>

@@ -56,6 +56,8 @@ data class CapturedConversation(
      * paylaşım (metin, fotoğraf, video, ses) yapılabilir.
      */
     val shortcutId: String? = null,
+    /** Kaynak bildirimin "Okundu olarak işaretle" eylemi (Mesa'nın "Okundu"su bunu da tetikler). */
+    val markReadAction: NotificationCompat.Action? = null,
 )
 
 /** Mesajlaşma uygulamalarının bildirimlerini sohbet + mesaj listesine çevirir. */
@@ -107,6 +109,7 @@ object NotificationParser {
                 messages = messages,
                 replyAction = replyAction,
                 shortcutId = NotificationCompat.getShortcutId(n),
+                markReadAction = findMarkReadAction(n),
             )
         }
 
@@ -126,8 +129,32 @@ object NotificationParser {
             messages = listOf(CapturedMessage(title, text, time, outgoing = false, fromFallback = true)),
             replyAction = replyAction,
             shortcutId = NotificationCompat.getShortcutId(n),
+            markReadAction = findMarkReadAction(n),
         )
     }
+
+    /** "Okundu olarak işaretle": yalnızca uygulamanın böyle işaretlediği eylem (adından tahmin edilmez). */
+    private fun findMarkReadAction(n: Notification): NotificationCompat.Action? =
+        (0 until NotificationCompat.getActionCount(n))
+            .mapNotNull { NotificationCompat.getAction(n, it) }
+            .firstOrNull {
+                it.actionIntent != null && it.semanticAction == NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ
+            }
+
+    /**
+     * Kaynak bildirim neden kalktı: uygulama kendisi kaldırdıysa (Okundu
+     * olarak işaretle, sohbetin uygulamada açılması, başka cihazda okunması)
+     * ya da kullanıcı bildirime dokunduysa sohbet okunmuştur. Kullanıcının
+     * kaydırıp kapatması okumak değildir; Mesa'nın kendi kaldırması da sayılmaz.
+     */
+    fun isReadSignal(reason: Int): Boolean = reason == REASON_APP_CANCEL ||
+        reason == REASON_APP_CANCEL_ALL ||
+        reason == REASON_CLICK
+
+    // NotificationListenerService.REASON_* (Android 8+); sınama için burada da tutulur.
+    const val REASON_CLICK = 1
+    const val REASON_APP_CANCEL = 8
+    const val REASON_APP_CANCEL_ALL = 9
 
     private fun conversationKey(packageName: String, title: String) = "$packageName|$title"
 

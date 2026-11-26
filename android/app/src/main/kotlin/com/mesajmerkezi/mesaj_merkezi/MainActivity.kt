@@ -331,6 +331,17 @@ open class MainActivity : FlutterFragmentActivity() {
             "markAllRead" -> background(result) { store.markAllRead() }
             "search" -> background(result) { store.search(call.argument<String>("query").orEmpty()) }
             "getSettings" -> result.success(AppSettings.toMap(this))
+            // ---- Mesajdan işe tek dokunuş ----
+            "openUri" -> result.success(openUri(call.argument<String>("uri")!!))
+            "addToCalendar" -> result.success(
+                addToCalendar(
+                    title = call.argument<String>("title").orEmpty(),
+                    description = call.argument<String>("description").orEmpty(),
+                    begin = call.argument<Number>("begin")!!.toLong(),
+                    end = call.argument<Number>("end")!!.toLong(),
+                    allDay = call.argument<Boolean>("allDay") ?: false,
+                ),
+            )
             "openBubbleSettings" -> {
                 // Sistemin "balonlar" ayarı (Android 11+); yoksa uygulamanın bildirim ayarları.
                 val intent = if (Build.VERSION.SDK_INT >= 30) {
@@ -727,6 +738,38 @@ open class MainActivity : FlutterFragmentActivity() {
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= 33) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+        }
+    }
+
+    /**
+     * Mesajdaki bağlantı, telefon, harita ya da e-posta. Yalnızca bilinen
+     * şemalar açılır (intent: gibi uygulama içi bağlantılar açılmaz).
+     */
+    private fun openUri(uri: String): Boolean {
+        val parsed = Uri.parse(uri)
+        if (parsed.scheme?.lowercase() !in setOf("http", "https", "tel", "geo", "mailto")) return false
+        return try {
+            startActivity(Intent(Intent.ACTION_VIEW, parsed).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            true
+        } catch (e: ActivityNotFoundException) {
+            false
+        }
+    }
+
+    /** Takvim uygulamasının yeni etkinlik ekranı, bilgiler doldurulmuş (izin gerekmez). */
+    private fun addToCalendar(title: String, description: String, begin: Long, end: Long, allDay: Boolean): Boolean {
+        val intent = Intent(Intent.ACTION_INSERT)
+            .setData(android.provider.CalendarContract.Events.CONTENT_URI)
+            .putExtra(android.provider.CalendarContract.Events.TITLE, title)
+            .putExtra(android.provider.CalendarContract.Events.DESCRIPTION, description)
+            .putExtra(android.provider.CalendarContract.EXTRA_EVENT_BEGIN_TIME, begin)
+            .putExtra(android.provider.CalendarContract.EXTRA_EVENT_END_TIME, end)
+            .putExtra(android.provider.CalendarContract.EXTRA_EVENT_ALL_DAY, allDay)
+        return try {
+            startActivity(intent)
+            true
+        } catch (e: ActivityNotFoundException) {
+            false
         }
     }
 

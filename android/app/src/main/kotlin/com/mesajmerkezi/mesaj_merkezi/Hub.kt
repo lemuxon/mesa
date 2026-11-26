@@ -143,6 +143,29 @@ object Hub {
     // Bildirime dokununca açılacak yer (genelde kaynak uygulamadaki sohbetin kendisi).
     private val openIntents = ConcurrentHashMap<String, PendingIntent>()
 
+    // Kaynak bildirimin "Okundu olarak işaretle" eylemi.
+    private val markReadActions = ConcurrentHashMap<String, NotificationCompat.Action>()
+
+    fun rememberMarkRead(key: String, action: NotificationCompat.Action) {
+        markReadActions[key] = action
+    }
+
+    /**
+     * Mesa'nın bildirimindeki "Okundu": sohbet kaynak uygulamada da okunur
+     * (WhatsApp'ın kendi "Okundu olarak işaretle"si gibi; karşı taraf okundu
+     * bilgisini görür). Sohbeti Mesa'da açmak bunu yapmaz.
+     * @return kaynak uygulamaya iletildi
+     */
+    fun markReadInSource(context: Context, key: String): Boolean {
+        val intent = markReadActions.remove(key)?.actionIntent ?: return false
+        return try {
+            intent.send(context, 0, Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND))
+            true
+        } catch (e: PendingIntent.CanceledException) {
+            false
+        }
+    }
+
     fun rememberOpen(context: Context, key: String, intent: PendingIntent) {
         openIntents[key] = intent
         touchPath(context, key)

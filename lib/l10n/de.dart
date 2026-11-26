@@ -872,4 +872,18 @@ const de = <String, String>{
   'Otomatik gönder': 'Automatisch senden',
   'WhatsApp\'ta gönderilemedi; mesajınız yazma alanında.':
       'In WhatsApp konnte nicht gesendet werden; deine Nachricht steht wieder im Eingabefeld.',
+  // Mesajdan işe tek dokunuş
+  'Açılamadı.': 'Konnte nicht geöffnet werden.',
+  'Bağlantıyı aç': 'Link öffnen',
+  'E-postayı kopyala': 'E-Mail kopieren',
+  'Haritada aç': 'In Karten öffnen',
+  'Hatırlat': 'Erinnern',
+  'Hatırlatma kurulamadı.': 'Erinnerung konnte nicht gesetzt werden.',
+  'IBAN\'ı kopyala': 'IBAN kopieren',
+  'Kodu kopyala': 'Code kopieren',
+  'Kopyalandı': 'Kopiert',
+  'Takvim uygulaması bulunamadı.': 'Keine Kalender-App gefunden.',
+  'Takvime ekle': 'Zum Kalender hinzufügen',
+  'Telefonla ara': 'Anrufen',
+  '{time} için hatırlatma kuruldu': 'Erinnerung für {time} gesetzt',
 };
