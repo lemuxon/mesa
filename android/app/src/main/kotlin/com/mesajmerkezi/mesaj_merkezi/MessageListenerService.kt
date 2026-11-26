@@ -23,6 +23,8 @@ class MessageListenerService : NotificationListenerService() {
     override fun onListenerConnected() {
         Hub.setListenerConnected(true)
         instance = this
+        // Süreç yeniden başladıysa sakladığımız yanıt yolları geri gelir.
+        ReplyStash.restore(this)
         // Servis bağlanmadan önce gelmiş ve hâlâ duran bildirimleri de topla.
         val active = try {
             activeNotifications
@@ -90,8 +92,8 @@ class MessageListenerService : NotificationListenerService() {
         if (Diagnostics.enabled) diagnose(sbn, supported = true, parsed = conversation)
         if (conversation == null) return
 
-        conversation.replyAction?.let { Hub.rememberReply(conversation.key, it) }
-        sbn.notification.contentIntent?.let { Hub.rememberOpen(conversation.key, it) }
+        conversation.replyAction?.let { Hub.rememberReply(this, conversation.key, it) }
+        sbn.notification.contentIntent?.let { Hub.rememberOpen(this, conversation.key, it) }
         val style = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(sbn.notification)
         Hub.io.execute {
             Maintenance.purgeIfDue(this)

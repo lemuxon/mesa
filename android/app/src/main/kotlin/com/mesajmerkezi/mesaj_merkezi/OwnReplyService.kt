@@ -84,6 +84,7 @@ class OwnReplyService : AccessibilityService() {
 
     override fun onServiceConnected() {
         instance = this
+        ReplyStash.restore(this)
         Log.i(TAG, "WhatsApp yanıt servisi bağlandı")
     }
 

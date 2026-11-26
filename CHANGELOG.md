@@ -19,6 +19,11 @@
   WhatsApp's screen, the service picks that chat on WhatsApp's share screen, and only if exactly one chat there has that
   name.
 
+- **Replies go out instantly more often.** The notification's reply route used to live only in memory, so whenever
+  Android closed Mesa in the background every chat fell back to sending through WhatsApp's screen. Mesa now leaves the
+  routes of the 80 most recent chats with Android itself and takes them back when it starts again, so replies keep going
+  out directly and invisibly. Restarting the phone or updating Mesa still clears them until a new message arrives.
+
 ### Fixed
 - **Chat bubbles closed right as they opened.** Opening the chat in the bubble marked it read, which removed its
   notification, and Android closes a bubble together with its notification. A bubbling chat now keeps its bubble and is only

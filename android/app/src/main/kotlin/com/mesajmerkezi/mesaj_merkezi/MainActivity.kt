@@ -129,6 +129,8 @@ open class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        // Süreç yeniden başladıysa sakladığımız yanıt yolları geri gelir.
+        ReplyStash.restore(this)
         // WhatsApp üzerinden gönderimden dönünce örtü, Mesa ekranı çizilir çizilmez kalksın.
         flutterEngine.renderer.addIsDisplayingFlutterUiListener(
             object : io.flutter.embedding.engine.renderer.FlutterUiDisplayListener {

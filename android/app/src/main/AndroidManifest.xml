@@ -73,6 +73,10 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/own_replies" />
         </service>
+        <!-- Saklanan yanit yollari surec yeniden baslayinca buraya geri doner (ReplyStash.kt). -->
+        <receiver
+            android:name=".ReplyStashReceiver"
+            android:exported="false" />
         <!-- Birlesik bildirimlerdeki "Yanitla" ve "Okundu" dugmeleri. -->
         <receiver
             android:name=".UnifiedNotifier$NotificationActionReceiver"

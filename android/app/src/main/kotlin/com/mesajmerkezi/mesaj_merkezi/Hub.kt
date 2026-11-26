@@ -31,9 +31,15 @@ object Hub {
 
     private val main = Handler(Looper.getMainLooper())
 
-    // PendingIntent kalıcı saklanamaz; süreç ölünce yanıt yolları da kaybolur
-    // ve o sohbete yeni bildirim gelene kadar yanıt verilemez.
+    // PendingIntent diske yazılamaz; süreç ölünce kaybolmasın diye sisteme
+    // bırakılır ve süreç başında geri alınır ([ReplyStash]).
     private val replyActions = ConcurrentHashMap<String, NotificationCompat.Action>()
+
+    /** Yolların geliş sırası (en eskisi başta); saklaçta en son [ReplyStash.MAX_CHATS] sohbet tutulur. */
+    private val pathOrder = LinkedHashSet<String>()
+
+    @Volatile
+    private var stashQueued = false
 
     @Volatile
     var onChanged: ((String) -> Unit)? = null
@@ -80,8 +86,55 @@ object Hub {
     @Volatile
     private var appContext: Context? = null
 
-    fun rememberReply(key: String, action: NotificationCompat.Action) {
+    fun rememberReply(context: Context, key: String, action: NotificationCompat.Action) {
         replyActions[key] = action
+        touchPath(context, key)
+    }
+
+    private fun touchPath(context: Context, key: String) {
+        synchronized(pathOrder) {
+            pathOrder.remove(key)
+            pathOrder.add(key)
+        }
+        stashPaths(context)
+    }
+
+    /** Yolların güncel kopyası sisteme bırakılır (art arda değişiklikler tek seferde). */
+    private fun stashPaths(context: Context) {
+        if (stashQueued) return
+        stashQueued = true
+        val app = context.applicationContext
+        io.execute {
+            stashQueued = false
+            val keys = synchronized(pathOrder) { pathOrder.toList() }
+            val entries = keys.mapNotNull { key ->
+                val entry = ReplyStash.Entry(replyActions[key], openIntents[key])
+                if (entry.reply == null && entry.open == null) null else key to entry
+            }
+            ReplyStash.save(app, entries)
+        }
+    }
+
+    /**
+     * Saklaçtan dönen yollar ([ReplyStashReceiver]): bu süreçte gelmiş taze
+     * yollar ezilmez. @return yanıt yolu geri gelen sohbet sayısı
+     */
+    internal fun restorePaths(entries: List<Pair<String, ReplyStash.Entry>>): Int {
+        var restored = 0
+        for ((key, entry) in entries) {
+            if (entry.reply != null && replyActions.putIfAbsent(key, entry.reply) == null) restored++
+            entry.open?.let { openIntents.putIfAbsent(key, it) }
+            synchronized(pathOrder) { if (key !in pathOrder) pathOrder.add(key) }
+        }
+        if (restored > 0) main.post { entries.forEach { onChanged?.invoke(it.first) } }
+        return restored
+    }
+
+    /** Testler için: süreç yeniden başlamış gibi bellekteki yollar silinir. */
+    internal fun forgetPathsForTest() {
+        replyActions.clear()
+        openIntents.clear()
+        synchronized(pathOrder) { pathOrder.clear() }
     }
 
     /** Bu süreçte doğrudan yanıt verilebilen sohbet sayısı (tanılama). */
@@ -90,8 +143,9 @@ object Hub {
     // Bildirime dokununca açılacak yer (genelde kaynak uygulamadaki sohbetin kendisi).
     private val openIntents = ConcurrentHashMap<String, PendingIntent>()
 
-    fun rememberOpen(key: String, intent: PendingIntent) {
+    fun rememberOpen(context: Context, key: String, intent: PendingIntent) {
         openIntents[key] = intent
+        touchPath(context, key)
     }
 
     /**
@@ -239,6 +293,7 @@ object Hub {
             pendingIntent.send(context, 0, fillIn)
         } catch (e: PendingIntent.CanceledException) {
             replyActions.remove(key)
+            stashPaths(context)
             throw NoReplyActionException(canceled = true)
         }
     }
