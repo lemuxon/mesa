@@ -415,67 +415,72 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     });
   }
 
-  /// Mesaja basılı tutunca: kaydet / kaydedilenlerden çıkar, kopyala.
+  /// Mesaja basılı tutunca: kaydet / kaydedilenlerden çıkar, kopyala, çevir.
+  /// Küçük ekranda ya da büyük yazıda seçenekler kaydırılır.
   Future<void> _messageActions(Message m) async {
     final choice = await showModalBottomSheet<String>(
       context: context,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (m.failed) ...[
-              ListTile(
-                leading: const Icon(Icons.refresh_rounded),
-                title: Text(tr('Tekrar gönder')),
-                subtitle: Text(m.sendError ?? tr('Mesaj gönderilemedi')),
-                onTap: () => Navigator.of(context).pop('resend'),
-              ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (m.failed) ...[
+                ListTile(
+                  leading: const Icon(Icons.refresh_rounded),
+                  title: Text(tr('Tekrar gönder')),
+                  subtitle: Text(m.sendError ?? tr('Mesaj gönderilemedi')),
+                  onTap: () => Navigator.of(context).pop('resend'),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.delete_outline_rounded,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  title: Text(tr('Sil')),
+                  subtitle: Text(tr('Karşı tarafa hiç gitmedi')),
+                  onTap: () => Navigator.of(context).pop('deleteFailed'),
+                ),
+                const Divider(height: 8),
+              ],
               ListTile(
                 leading: Icon(
-                  Icons.delete_outline_rounded,
-                  color: Theme.of(context).colorScheme.error,
+                  m.starred
+                      ? Icons.bookmark_remove_outlined
+                      : Icons.bookmark_add_outlined,
                 ),
-                title: Text(tr('Sil')),
-                subtitle: Text(tr('Karşı tarafa hiç gitmedi')),
-                onTap: () => Navigator.of(context).pop('deleteFailed'),
+                title: Text(
+                  m.starred ? tr('Kaydedilenlerden çıkar') : tr('Kaydet'),
+                ),
+                subtitle: m.starred
+                    ? null
+                    : Text(tr('Tüm uygulamalardan kaydedilenler tek listede')),
+                onTap: () => Navigator.of(context).pop('star'),
               ),
-              const Divider(height: 8),
-            ],
-            ListTile(
-              leading: Icon(
-                m.starred
-                    ? Icons.bookmark_remove_outlined
-                    : Icons.bookmark_add_outlined,
+              ListTile(
+                leading: const Icon(Icons.copy_rounded),
+                title: Text(tr('Kopyala')),
+                onTap: () => Navigator.of(context).pop('copy'),
               ),
-              title: Text(
-                m.starred ? tr('Kaydedilenlerden çıkar') : tr('Kaydet'),
-              ),
-              subtitle: m.starred
-                  ? null
-                  : Text(tr('Tüm uygulamalardan kaydedilenler tek listede')),
-              onTap: () => Navigator.of(context).pop('star'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.copy_rounded),
-              title: Text(tr('Kopyala')),
-              onTap: () => Navigator.of(context).pop('copy'),
-            ),
-            if (_translatable(m))
-              _translationOf(m) == null
-                  ? ListTile(
-                      leading: const Icon(Icons.translate_rounded),
-                      title: Text(tr('Çevir')),
-                      subtitle: Text(
-                        tr('Telefonda çevrilir; mesaj hiçbir yere gönderilmez'),
+              if (_translatable(m))
+                _translationOf(m) == null
+                    ? ListTile(
+                        leading: const Icon(Icons.translate_rounded),
+                        title: Text(tr('Çevir')),
+                        subtitle: Text(
+                          tr(
+                            'Telefonda çevrilir; mesaj hiçbir yere gönderilmez',
+                          ),
+                        ),
+                        onTap: () => Navigator.of(context).pop('translate'),
+                      )
+                    : ListTile(
+                        leading: const Icon(Icons.translate_rounded),
+                        title: Text(tr('Çeviriyi gizle')),
+                        onTap: () => Navigator.of(context).pop('untranslate'),
                       ),
-                      onTap: () => Navigator.of(context).pop('translate'),
-                    )
-                  : ListTile(
-                      leading: const Icon(Icons.translate_rounded),
-                      title: Text(tr('Çeviriyi gizle')),
-                      onTap: () => Navigator.of(context).pop('untranslate'),
-                    ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1207,8 +1212,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     try {
       var r = await widget.bridge.translate(m.id, currentLanguage, hint: hint);
       if (r.error == 'NEED_DOWNLOAD') {
-        if (!mounted || !await _askLanguagePack(r.missing)) return;
-        setState(() => _downloadingPack.add(m.id));
+        if (!mounted) return;
+        // Soru açıkken arkada gösterge dönmesin.
+        setState(() => _translating.remove(m.id));
+        if (!await _askLanguagePack(r.missing) || !mounted) return;
+        setState(() {
+          _translating.add(m.id);
+          _downloadingPack.add(m.id);
+        });
         r = await widget.bridge.translate(
           m.id,
           currentLanguage,
