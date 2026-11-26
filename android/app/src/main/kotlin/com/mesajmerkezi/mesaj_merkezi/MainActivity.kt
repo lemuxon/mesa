@@ -428,7 +428,8 @@ open class MainActivity : FlutterFragmentActivity() {
                 val keys = call.argument<List<String>>("keys")?.toSet()
                     ?: setOfNotNull(call.argument<String>("key"))
                 UnifiedNotifier.activeConversations = keys
-                keys.forEach { UnifiedNotifier.cancel(this, it) }
+                // Balonda açılan sohbetin balonu kapanmasın; Mesa'da açılanın bildirimi kalksın.
+                keys.forEach { UnifiedNotifier.cancel(this, it, keepBubble = isBubble) }
                 // Telegram'da açık sohbetler: "yazıyor" bilgisi eksiksiz gelsin.
                 val telegram = keys.filter(TelegramClient::isTelegramKey).toSet()
                 (openTelegramChats - telegram).forEach { TelegramClient.setChatOpen(it, false) }
@@ -596,7 +597,7 @@ open class MainActivity : FlutterFragmentActivity() {
             "deleteConversation" -> background(result) {
                 val key = call.argument<String>("key")!!
                 store.deleteConversation(key)
-                UnifiedNotifier.cancel(this, key, keepBubble = false)
+                UnifiedNotifier.cancel(this, key)
                 UnifiedNotifier.removeShortcut(this, key)
             }
             "sendReply" -> {

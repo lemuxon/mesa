@@ -290,14 +290,20 @@ class OwnRepliesTest {
         .activeNotifications.firstOrNull { it.tag == tag }
 
     @Test
-    fun readingABubbleChatKeepsTheBubble() {
+    fun openingTheChatInItsBubbleKeepsTheBubble() {
         post(key, bubble = true)
-        UnifiedNotifier.cancel(context, key)
+        // Balon penceresi sohbeti açtı: bildirim kaldırılmaz, çubuktan gizlenir.
+        UnifiedNotifier.cancel(context, key, keepBubble = true)
         val kept = active(key)
         assertTrue("balon kapanmamalı", kept != null)
         assertTrue(kept!!.notification.bubbleMetadata!!.isNotificationSuppressed)
-        // Sohbet silinince balon da kalkar.
-        UnifiedNotifier.cancel(context, key, keepBubble = false)
+    }
+
+    @Test
+    fun markAsReadRemovesEvenABubblingNotification() {
+        post(key, bubble = true)
+        // "Okundu", WhatsApp'ta okuma, Mesa'da açma: bildirim tamamen kalkar (Xiaomi gizlemeyi yok sayıyor).
+        UnifiedNotifier.cancel(context, key)
         assertNull(active(key))
     }
 

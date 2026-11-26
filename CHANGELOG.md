@@ -36,6 +36,9 @@
   read there (or opening it in WhatsApp) left it unread in Mesa with Mesa's notification still up. Mesa now follows
   WhatsApp when it removes its notification that way, and Mesa's own "Mark as read" also presses WhatsApp's, so the chat
   is read in both.
+- **Mesa's notification stayed after "Mark as read" on Xiaomi.** To keep a bubble alive, the notification was re-posted
+  as "hidden from the shade", which Xiaomi ignores. Now only a chat opened inside its bubble keeps the bubble; mark as
+  read, reading in WhatsApp and opening the chat in Mesa remove the notification.
 - **Chat bubbles closed right as they opened.** Opening the chat in the bubble marked it read, which removed its
   notification, and Android closes a bubble together with its notification. A bubbling chat now keeps its bubble and is only
   hidden from the notification shade. Deleting or snoozing the chat still closes the bubble.

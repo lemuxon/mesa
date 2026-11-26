@@ -298,10 +298,12 @@ object UnifiedNotifier {
      * Sohbetin bildirimini kaldırır. Bildirim balon olarak gösteriliyorsa
      * iptal etmek balonu da kapatır: balonda sohbet açılınca okundu sayılıp
      * bildirim kalkıyor, balon tam açılırken kapanıyordu (2026-11-26, cihazda).
-     * Bu yüzden balonu olan bildirim yalnızca çubuktan gizlenir; sohbet
-     * silinince ya da ertelenince ([keepBubble] = false) balon da kapanır.
+     * Bu yüzden yalnızca balonun kendisi açıldığında ([keepBubble] = true)
+     * bildirim kaldırılmaz, çubuktan gizlenir. Xiaomi bu gizlemeyi yok
+     * sayıyor; "Okundu"ya basınca bildirim yeniden yayınlanıp yerinde
+     * kalıyordu (2026-11-26). Diğer her yerde bildirim tamamen kalkar.
      */
-    fun cancel(context: Context, key: String, keepBubble: Boolean = true) {
+    fun cancel(context: Context, key: String, keepBubble: Boolean = false) {
         if (keepBubble && hideKeepingBubble(context, key)) return
         NotificationManagerCompat.from(context).cancel(key, NOTIFICATION_ID)
     }
