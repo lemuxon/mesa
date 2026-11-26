@@ -13,5 +13,13 @@
                 <action android:name="com.mesajmerkezi.mesaj_merkezi.debug.TRANSCRIBE_PROBE" />
             </intent-filter>
         </receiver>
+        <!-- Yalnizca gelistirme surumu: ceviri motorunu cihazda denemek icin (TranslateProbeReceiver.kt). -->
+        <receiver
+            android:name=".TranslateProbeReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.mesajmerkezi.mesaj_merkezi.debug.TRANSLATE_PROBE" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

@@ -126,25 +126,43 @@ object MessageTranslator {
             }
             val text = StoredLabels.caption(source.text).trim()
             if (text.none { it.isLetter() }) return@execute reply(mapOf("error" to "NOTHING"))
-            worker.post {
-                val result = try {
-                    translate(app, text, target, allowDownload, hint)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Çeviri başarısız: ${e.javaClass.simpleName}")
-                    mapOf("error" to "ERROR")
-                }
+            translateText(app, text, target, allowDownload, hint) { result ->
                 val translated = result["text"] as String?
                 if (translated != null) {
-                    markUsed(app)
                     Hub.io.execute {
                         store.setTranslation(messageId, translated, result["from"] as String?, target)
                         Hub.notifyChanged(source.key)
                     }
                 }
-                worker.removeCallbacks(closeIdle)
-                worker.postDelayed(closeIdle, IDLE_CLOSE_MS)
-                reply(result)
+                done(result)
             }
+        }
+    }
+
+    /**
+     * Yazıyı çevirir (veritabanına dokunmadan); sonuç ana iş parçacığında,
+     * [translateMessage] ile aynı biçimde döner.
+     */
+    internal fun translateText(
+        context: Context,
+        text: String,
+        target: String,
+        allowDownload: Boolean,
+        hint: String?,
+        done: (Map<String, Any?>) -> Unit,
+    ) {
+        val app = context.applicationContext
+        worker.post {
+            val result = try {
+                translate(app, text, target, allowDownload, hint)
+            } catch (e: Exception) {
+                Log.w(TAG, "Çeviri başarısız: ${e.javaClass.simpleName}")
+                mapOf("error" to "ERROR")
+            }
+            if (result["text"] != null) markUsed(app)
+            worker.removeCallbacks(closeIdle)
+            worker.postDelayed(closeIdle, IDLE_CLOSE_MS)
+            main.post { done(result) }
         }
     }
 
