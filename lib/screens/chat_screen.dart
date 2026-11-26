@@ -13,6 +13,7 @@ import '../core/app_scope.dart';
 import '../core/apps.dart';
 import '../core/bridge.dart';
 import '../core/format.dart';
+import '../core/language_guess.dart';
 import '../core/models.dart';
 import '../core/presence.dart';
 import '../core/settings.dart';
@@ -84,6 +85,19 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   /// Bu ekranda az önce çevrilenler (liste yenilenene kadar).
   final Map<String, String> _transcripts = {};
+
+  /// Şu an çevrilen mesajlar; dil paketi inenler ayrıca.
+  final Set<String> _translating = {};
+  final Set<String> _downloadingPack = {};
+
+  /// Bu ekranda az önce yapılan çeviriler (liste yenilenene kadar).
+  final Map<String, ({String text, String? fromName})> _translations = {};
+
+  /// "Çevir" önerilmeyecekler: zaten okuyanın dilinde çıktı ya da çevirisi gizlendi.
+  final Set<String> _noTranslateOffer = {};
+
+  /// Mesajın başka dilde görünüp görünmediği (her çizimde yeniden hesaplanmasın).
+  final Map<String, bool> _foreign = {};
 
   /// WhatsApp yanıt servisi açık mı; bilinmiyorsa null (öneri de otomatik
   /// gönderim yazısı da gösterilmez).
@@ -446,11 +460,35 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               title: Text(tr('Kopyala')),
               onTap: () => Navigator.of(context).pop('copy'),
             ),
+            if (_translatable(m))
+              _translationOf(m) == null
+                  ? ListTile(
+                      leading: const Icon(Icons.translate_rounded),
+                      title: Text(tr('Çevir')),
+                      subtitle: Text(
+                        tr('Telefonda çevrilir; mesaj hiçbir yere gönderilmez'),
+                      ),
+                      onTap: () => Navigator.of(context).pop('translate'),
+                    )
+                  : ListTile(
+                      leading: const Icon(Icons.translate_rounded),
+                      title: Text(tr('Çeviriyi gizle')),
+                      onTap: () => Navigator.of(context).pop('untranslate'),
+                    ),
           ],
         ),
       ),
     );
     switch (choice) {
+      case 'translate':
+        await _translate(m);
+      case 'untranslate':
+        setState(() {
+          _translations.remove(m.id);
+          _noTranslateOffer.add(m.id);
+        });
+        await widget.bridge.clearTranslation(m.id);
+        await _load();
       case 'star':
         await widget.bridge.starMessage(m.id, !m.starred);
         _snack(
@@ -1055,6 +1093,24 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     mine: m.outgoing,
                     onTranscribe: () => _transcribe(m),
                   ),
+                if (_translationOf(m) case final t?)
+                  MessageTranslation(
+                    text: t.text,
+                    fromName: t.fromName,
+                    busy: false,
+                    downloading: false,
+                    mine: m.outgoing,
+                    onTranslate: () {},
+                  )
+                else if (_offersTranslation(m))
+                  MessageTranslation(
+                    text: null,
+                    fromName: null,
+                    busy: _translating.contains(m.id),
+                    downloading: _downloadingPack.contains(m.id),
+                    mine: m.outgoing,
+                    onTranslate: () => _translate(m),
+                  ),
                 if (_smartActionsFor(m, now) case final smart
                     when smart.isNotEmpty)
                   SmartChips(
@@ -1114,6 +1170,125 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     } finally {
       if (mounted) setState(() => _transcribing.remove(m.id));
     }
+  }
+
+  /// Çevrilebilecek yazısı olan mesaj (sesli mesaj ve yalnızca medya etiketi değil).
+  bool _translatable(Message m) =>
+      !m.deleted && !m.isVoice && storedCaption(m.text).trim().isNotEmpty;
+
+  /// Mesajın şu anki dildeki çevirisi (saklanan ya da az önce yapılan).
+  ({String text, String? fromName})? _translationOf(Message m) {
+    final fresh = _translations[m.id];
+    if (fresh != null) return fresh;
+    final saved = m.translation;
+    if (saved != null && m.translationTo == currentLanguage) {
+      return (text: saved, fromName: m.translationFromName);
+    }
+    return null;
+  }
+
+  /// Gelen mesaj başka bir dilde görünüyorsa altında "Çevir".
+  bool _offersTranslation(Message m) {
+    if (m.outgoing || !_translatable(m) || _noTranslateOffer.contains(m.id)) {
+      return false;
+    }
+    return _foreign[m.id] ??= looksForeign(
+      storedCaption(m.text),
+      currentLanguage,
+    );
+  }
+
+  /// Mesajı telefonda çevirir. Dil paketi telefonda yoksa önce sorulur
+  /// (bir kez iner, sonra internetsiz çalışır).
+  Future<void> _translate(Message m) async {
+    if (_translating.contains(m.id)) return;
+    setState(() => _translating.add(m.id));
+    final hint = guessLatinLanguage(storedCaption(m.text));
+    try {
+      var r = await widget.bridge.translate(m.id, currentLanguage, hint: hint);
+      if (r.error == 'NEED_DOWNLOAD') {
+        if (!mounted || !await _askLanguagePack(r.missing)) return;
+        setState(() => _downloadingPack.add(m.id));
+        r = await widget.bridge.translate(
+          m.id,
+          currentLanguage,
+          download: true,
+          hint: hint,
+        );
+      }
+      if (!mounted) return;
+      final text = r.text;
+      if (text != null) {
+        setState(
+          () => _translations[m.id] = (text: text, fromName: r.fromName),
+        );
+        return;
+      }
+      if (r.error == 'SAME_LANGUAGE') {
+        setState(() => _noTranslateOffer.add(m.id));
+      }
+      _snack(switch (r.error) {
+        'SAME_LANGUAGE' => tr('Bu mesaj zaten sizin dilinizde.'),
+        'UNKNOWN_LANGUAGE' => tr('Mesajın dili anlaşılamadı.'),
+        'UNSUPPORTED_LANGUAGE' => tr(
+          'Bu dil ({language}) telefonda çevrilemiyor.',
+          {'language': r.fromName ?? '?'},
+        ),
+        'DOWNLOAD_FAILED' => tr(
+          'Dil paketi indirilemedi. İnternet bağlantınızı kontrol edip yeniden deneyin.',
+        ),
+        'NOTHING' => tr('Bu mesajda çevrilecek yazı yok.'),
+        _ => tr('Mesaj çevrilemedi.'),
+      }, long: true);
+    } catch (_) {
+      _snack(tr('Mesaj çevrilemedi.'));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _translating.remove(m.id);
+          _downloadingPack.remove(m.id);
+        });
+      }
+    }
+  }
+
+  /// Eksik dil paketleri için onay: neyin, neden indirileceği.
+  Future<bool> _askLanguagePack(List<String> languages) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.translate_rounded),
+        title: Text(
+          languages.length == 1
+              ? tr('{language} dil paketi indirilsin mi?', {
+                  'language': languages.first,
+                })
+              : tr('Dil paketleri indirilsin mi?'),
+        ),
+        content: Text(
+          [
+            tr(
+              'Çeviri telefonda yapılır; mesajlarınız hiçbir yere gönderilmez. Bunun için Google\'ın çeviri paketi bir kez indirilir (dil başına yaklaşık 30 MB), sonra internetsiz çalışır.',
+            ),
+            if (languages.length > 1)
+              tr('İndirilecek: {languages}', {
+                'languages': languages.join(', '),
+              }),
+          ].join('\n\n'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(tr('Vazgeç')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(tr('İndir ve çevir')),
+          ),
+        ],
+      ),
+    );
+    return ok == true;
   }
 
   /// WhatsApp'ın ses klasörüne bir kez izin: ne olduğunu anlatır, seçici o klasörde açılır.
@@ -1243,8 +1418,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     var at = action.allDay
         ? DateTime(when.year, when.month, when.day, 9)
         : when.subtract(const Duration(minutes: 30));
-    if (!at.isAfter(now))
+    if (!at.isAfter(now)) {
       at = action.allDay ? now.add(const Duration(minutes: 1)) : when;
+    }
     if (!at.isAfter(now)) return;
     try {
       await widget.bridge.snooze(_active.key, at);
@@ -2854,7 +3030,6 @@ class _UploadStatusState extends State<_UploadStatus> {
   }
 }
 
-/// "Yanıtlar WhatsApp açılmadan gitsin": gönderim kaynak uygulamayı açacakken.
 /// Sesli mesajın altında: yazıya çevrilmiş hali ya da "Yazıya çevir".
 class VoiceTranscript extends StatelessWidget {
   const VoiceTranscript({
@@ -2936,6 +3111,128 @@ class VoiceTranscript extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   busy ? tr('Yazıya çevriliyor…') : tr('Yazıya çevir'),
+                  style: theme.textTheme.labelMedium,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 4,
+        bottom: 4,
+        left: mine ? 48 : 4,
+        right: mine ? 4 : 48,
+      ),
+      child: Align(
+        alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+        child: child,
+      ),
+    );
+  }
+}
+
+/// Başka dildeki mesajın altında: telefonda yapılan çevirisi ya da "Çevir".
+class MessageTranslation extends StatelessWidget {
+  const MessageTranslation({
+    super.key,
+    required this.text,
+    required this.fromName,
+    required this.busy,
+    required this.downloading,
+    required this.mine,
+    required this.onTranslate,
+  });
+
+  /// Çeviri; yoksa "Çevir" düğmesi.
+  final String? text;
+
+  /// Mesajın asıl dilinin adı ("İngilizce").
+  final String? fromName;
+  final bool busy;
+
+  /// Dil paketi iniyor (ilk çeviride).
+  final bool downloading;
+  final bool mine;
+  final VoidCallback onTranslate;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final translation = text;
+    final Widget child;
+    if (translation != null) {
+      final from = fromName;
+      child = Container(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: scheme.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.translate_rounded, size: 14, color: scheme.primary),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    from == null
+                        ? tr('Çeviri')
+                        : tr('Çeviri · aslı {language}', {'language': from}),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: scheme.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            SelectableText(translation, style: theme.textTheme.bodyMedium),
+          ],
+        ),
+      );
+    } else {
+      child = Material(
+        color: scheme.surfaceContainerHigh,
+        shape: StadiumBorder(side: BorderSide(color: scheme.outlineVariant)),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: busy ? null : onTranslate,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (busy)
+                  SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: scheme.primary,
+                    ),
+                  )
+                else
+                  Icon(
+                    Icons.translate_rounded,
+                    size: 16,
+                    color: scheme.primary,
+                  ),
+                const SizedBox(width: 6),
+                Text(
+                  !busy
+                      ? tr('Çevir')
+                      : downloading
+                      ? tr('Dil paketi indiriliyor…')
+                      : tr('Çevriliyor…'),
                   style: theme.textTheme.labelMedium,
                 ),
               ],

@@ -12,6 +12,15 @@ class NoReplyActionException implements Exception {
   const NoReplyActionException();
 }
 
+/// Mesaj çevirisinin sonucu: çeviri ve asıl dilin adı ya da hata kodu
+/// (NEED_DOWNLOAD'da [missing]: indirilecek dil paketlerinin adları).
+typedef TranslateResult = ({
+  String? text,
+  String? fromName,
+  String? error,
+  List<String> missing,
+});
+
 /// MainActivity.kt'deki kanallara erişim.
 class CoreBridge {
   CoreBridge();
@@ -166,6 +175,57 @@ class CoreBridge {
     });
     return (m?['text'] as String?, m?['error'] as String?);
   }
+
+  /// Mesajı telefonda [target] diline ("tr"…) çevirir ve saklar (Google ML
+  /// Kit; mesajın metni telefondan çıkmaz). [download]: eksik dil paketleri
+  /// indirilsin (kullanıcı onayladı). [hint]: dil tanıma emin olamazsa
+  /// kullanılacak tahmin. Hata: NEED_DOWNLOAD (missing: indirilecek paketlerin
+  /// adları), SAME_LANGUAGE, UNKNOWN_LANGUAGE, UNSUPPORTED_LANGUAGE,
+  /// DOWNLOAD_FAILED, NOTHING, NOT_FOUND, ERROR.
+  Future<TranslateResult> translate(
+    String messageId,
+    String target, {
+    bool download = false,
+    String? hint,
+  }) async {
+    final m = await _channel.invokeMapMethod<String, Object?>('translate', {
+      'id': messageId,
+      'target': target,
+      'download': download,
+      'hint': hint,
+    });
+    return (
+      text: m?['text'] as String?,
+      fromName: m?['fromName'] as String?,
+      error: m?['error'] as String?,
+      missing: (m?['missingNames'] as List?)?.cast<String>() ?? const [],
+    );
+  }
+
+  /// Mesajın saklanan çevirisini kaldırır.
+  Future<void> clearTranslation(String messageId) =>
+      _channel.invokeMethod<void>('clearTranslation', {'id': messageId});
+
+  /// Telefona indirilmiş çeviri paketleri: kod ve [language] dilinde adı.
+  Future<List<({String code, String name})>> translationPacks(
+    String language,
+  ) async {
+    final list = await _channel.invokeListMethod<Map<Object?, Object?>>(
+      'translationPacks',
+      {'language': language},
+    );
+    return [
+      for (final p in list ?? const <Map<Object?, Object?>>[])
+        (code: p['code']! as String, name: p['name']! as String),
+    ];
+  }
+
+  /// Çeviri paketini siler; silindiyse true.
+  Future<bool> deleteTranslationPack(String code) async =>
+      await _channel.invokeMethod<bool>('deleteTranslationPack', {
+        'code': code,
+      }) ??
+      false;
 
   /// WhatsApp'ın sesli mesaj klasörüne okuma izni (klasör seçici o klasörde açılır).
   /// Doğru klasör seçildiyse true.

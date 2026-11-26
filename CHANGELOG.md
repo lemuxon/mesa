@@ -29,6 +29,12 @@
   its notifications, so Mesa asks once for read access to WhatsApp's "WhatsApp Voice Notes" folder and matches the file
   by time and duration; when more than one file could fit, it doesn't guess. Telegram voice messages are downloaded as
   before. The text is kept with the message; the audio never leaves the phone.
+- **Translate messages on the phone.** A message that looks like it's in another language gets a "Translate" button
+  (long-press any message for "Translate" too); the translation appears under it and is kept with the message. It runs
+  offline with Google's ML Kit: the first time, Mesa asks before downloading the language pack (about 30 MB per
+  language, once). Message text never leaves the phone, and ML Kit doesn't start until you tap "Translate". The button
+  is decided on the phone from the alphabet and common words, so short messages, names and links don't get one.
+  Downloaded packs can be deleted in Settings → Translation. The translation engine makes the app about 18 MB larger.
 - **From message to action in one tap.** Under a message, Mesa offers what you'd do next: copy a verification code,
   call a phone number, copy an IBAN (only when its check digits are valid) or an email address, open a link, open an
   address or a map link in maps, and for dates and times ("yarın 15:00", "akşam 8", "cuma", "25 Kasım", "01.12.2026")

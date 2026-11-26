@@ -20,6 +20,18 @@ String localizeStored(String text) {
   return text;
 }
 
+/// Mesajın çevrilecek yazısı: baştaki medya etiketi atılır
+/// ("📷 Fotoğraf: Bak" → "Bak"); yalnızca etiketse boş.
+String storedCaption(String text) {
+  for (final label in _labels) {
+    if (text == label) return '';
+    if (text.startsWith('$label: ')) return text.substring(label.length + 2);
+  }
+  const sticker = 'Çıkartma';
+  if (text == sticker || text.endsWith(' $sticker')) return '';
+  return text;
+}
+
 const _labels = [
   '📷 Fotoğraf',
   '🎥 Video',

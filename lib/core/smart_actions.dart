@@ -476,8 +476,9 @@ SmartAction? _findWhen(
 bool _isSundayContext(String lower, int end, String rest) {
   if (rest.startsWith('günü') ||
       rest.startsWith('a kadar') ||
-      rest.startsWith('ya kadar'))
+      rest.startsWith('ya kadar')) {
     return true;
+  }
   final after = lower.substring(end).trimLeft();
   return RegExp(
     r'^(günü|sabah|akşam|öğle|gece|saat|\d)',

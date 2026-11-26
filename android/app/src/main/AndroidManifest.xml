@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Telegram (TDLib) ve kullanicinin ekledigi web servisleri (Discord, Slack...) icin;
          uygulama yalnizca bu servislerin kendi sunuculariyla konusur. -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -81,6 +82,12 @@
         <receiver
             android:name=".UnifiedNotifier$NotificationActionReceiver"
             android:exported="false" />
+        <!-- Ceviri kitapligi (ML Kit) uygulama acilirken kendini baslatmasin: yalnizca
+             kullanici bir mesaji cevirmek isteyince baslatilir (MessageTranslator). -->
+        <provider
+            android:name="com.google.mlkit.common.internal.MlKitInitProvider"
+            android:authorities="${applicationId}.mlkitinitprovider"
+            tools:node="remove" />
         <!-- Gonderilecek fotograf/video/ses kopyalari diger uygulamalara buradan paylasilir. -->
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -155,6 +155,9 @@ dependencies {
     implementation("com.wireguard.android:tunnel:1.0.20260102")
     // Otomatik sifreli yedek: duzenli arka plan isi.
     implementation("androidx.work:work-runtime-ktx:2.12.0")
+    // Mesaj cevirisi telefonda: dil tanima (model uygulamada) ve ceviri (dil paketi bir kez indirilir).
+    implementation("com.google.mlkit:language-id:17.0.6")
+    implementation("com.google.mlkit:translate:17.0.3")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.14.1")
     testImplementation("androidx.test:core:1.6.1")

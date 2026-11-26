@@ -17,6 +17,7 @@ import 'own_replies.dart';
 import 'secure_connection_screen.dart';
 import 'storage_card.dart';
 import 'telegram_screen.dart';
+import 'translation_packs.dart';
 
 /// Kaynak uygulamalar, bildirim, gizlilik ve hazır yanıt ayarları.
 class SettingsScreen extends StatefulWidget {
@@ -475,6 +476,22 @@ class _SettingsScreenState extends State<SettingsScreen>
                         ],
                         onChanged: (v) => _setRetention(v!),
                       ),
+                    ),
+                  ],
+                ),
+                SectionCard(
+                  title: tr('Çeviri'),
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.translate_rounded),
+                      title: Text(tr('Çeviri dil paketleri')),
+                      subtitle: Text(
+                        tr(
+                          'Başka dildeki mesajlar telefonda çevrilir; indirilen paketler burada',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => showTranslationPacks(context, widget.bridge),
                     ),
                   ],
                 ),

@@ -340,6 +340,23 @@ open class MainActivity : FlutterFragmentActivity() {
                 }
                 openBackupFolder.launch(VoiceNotes.initialUri(packageName))
             }
+            // ---- Mesaj çevirisi (telefonda) ----
+            "translate" -> MessageTranslator.translateMessage(
+                this,
+                call.argument<String>("id")!!,
+                call.argument<String>("target")!!,
+                call.argument<Boolean>("download") == true,
+                call.argument<String>("hint"),
+            ) { result.success(it) }
+            "clearTranslation" -> background(result) {
+                store.setTranslation(call.argument<String>("id")!!, null, null, null)
+            }
+            "translationPacks" -> MessageTranslator.downloadedPacks(this, call.argument<String>("language")!!) {
+                result.success(it)
+            }
+            "deleteTranslationPack" -> MessageTranslator.deletePack(this, call.argument<String>("code")!!) {
+                result.success(it)
+            }
             // ---- Mesajdan işe tek dokunuş ----
             "openUri" -> result.success(openUri(call.argument<String>("uri")!!))
             "addToCalendar" -> result.success(

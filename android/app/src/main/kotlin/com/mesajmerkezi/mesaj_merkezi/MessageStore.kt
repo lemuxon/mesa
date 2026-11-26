@@ -23,7 +23,7 @@ data class IngestResult(
  * kullanılmaz; yerine INSERT OR IGNORE + UPDATE yapılır.
  */
 /** Veritabanı sürümü (yedekler bundan yeni olamaz). */
-const val DB_VERSION = 14
+const val DB_VERSION = 15
 
 class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", null, DB_VERSION) {
 
@@ -45,6 +45,7 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
         upgradeToV12(db)
         upgradeToV13(db)
         upgradeToV14(db)
+        upgradeToV15(db)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -62,14 +63,22 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
         if (oldVersion < 12) upgradeToV12(db)
         if (oldVersion < 13) upgradeToV13(db)
         if (oldVersion < 14) upgradeToV14(db)
+        if (oldVersion < 15) upgradeToV15(db)
     }
 
-    /** Gönderilmekte olan / gönderilemeyen mesaj (Telegram) ve sebebi. */
+    /** Mesajın telefonda yapılan çevirisi, kaynak dili ve hangi dile çevrildiği. */
+    private fun upgradeToV15(db: SQLiteDatabase) {
+        db.execSQL("ALTER TABLE messages ADD COLUMN translation TEXT")
+        db.execSQL("ALTER TABLE messages ADD COLUMN translation_from TEXT")
+        db.execSQL("ALTER TABLE messages ADD COLUMN translation_to TEXT")
+    }
+
     /** Sesli mesajın yazıya çevrilmiş hali (telefonda tanınır). */
     private fun upgradeToV14(db: SQLiteDatabase) {
         db.execSQL("ALTER TABLE messages ADD COLUMN transcript TEXT")
     }
 
+    /** Gönderilmekte olan / gönderilemeyen mesaj (Telegram) ve sebebi. */
     private fun upgradeToV13(db: SQLiteDatabase) {
         db.execSQL("ALTER TABLE messages ADD COLUMN send_state INTEGER NOT NULL DEFAULT 0")
         db.execSQL("ALTER TABLE messages ADD COLUMN send_error TEXT")
@@ -457,6 +466,38 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
 
     fun setTranscript(messageId: String, text: String) {
         writableDatabase.execSQL("UPDATE messages SET transcript = ? WHERE id = ?", arrayOf(text, messageId))
+    }
+
+    /** Çevrilecek mesaj: sohbeti, metni ve (varsa) önceki çevirisinin dili. */
+    data class TranslationSource(
+        val key: String,
+        val text: String,
+        val translation: String?,
+        val from: String?,
+        val to: String?,
+    )
+
+    fun translationSource(messageId: String): TranslationSource? =
+        readableDatabase.rawQuery(
+            "SELECT conv_key, text, translation, translation_from, translation_to FROM messages WHERE id = ?",
+            arrayOf(messageId),
+        ).use { c ->
+            if (!c.moveToFirst()) return null
+            TranslationSource(
+                key = c.getString(0),
+                text = c.getString(1) ?: "",
+                translation = c.getString(2),
+                from = c.getString(3),
+                to = c.getString(4),
+            )
+        }
+
+    /** Çeviriyi saklar; [text] null ise çeviri kaldırılır. */
+    fun setTranslation(messageId: String, text: String?, from: String?, to: String?) {
+        writableDatabase.execSQL(
+            "UPDATE messages SET translation = ?, translation_from = ?, translation_to = ? WHERE id = ?",
+            arrayOf(text, from.takeIf { text != null }, to.takeIf { text != null }, messageId),
+        )
     }
 
     /** Sohbetin bilgisi (bildirim oluşturmak için); yoksa null. */
@@ -1222,7 +1263,8 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
         ).use { c -> if (c.moveToFirst()) c.getLong(0) else 0L }
         return readableDatabase.rawQuery(
             "SELECT id, sender, text, time, outgoing, auto, media_path, media_mime, media_kind, media_ref, " +
-                "deleted, starred, media_duration, media_size, send_state, send_error, transcript FROM (" +
+                "deleted, starred, media_duration, media_size, send_state, send_error, transcript, " +
+                "translation, translation_from, translation_to FROM (" +
                 "SELECT * FROM messages WHERE conv_key = ? ORDER BY time DESC LIMIT $MESSAGE_LIMIT" +
                 ") ORDER BY time ASC",
             arrayOf(key),
@@ -1252,6 +1294,13 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
                             },
                             "sendError" to c.getString(15),
                             "transcript" to c.getString(16),
+                            "translation" to c.getString(17),
+                            "translationFrom" to c.getString(18),
+                            "translationTo" to c.getString(19),
+                            // Kaynak dilin adı, çevrildiği dilde ("en" → "İngilizce").
+                            "translationFromName" to c.getString(18)?.let { from ->
+                                c.getString(19)?.let { to -> MessageTranslator.displayName(from, to) }
+                            },
                             "read" to (c.getInt(4) == 1 && readOutbox > 0 &&
                                 TelegramIds.messageId(c.getString(0)).let { it != null && it <= readOutbox }),
                         )

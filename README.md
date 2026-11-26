@@ -28,6 +28,7 @@ Check a downloaded APK with `apksigner verify --print-certs Mesa.apk` (Android S
 - **Reply from the notification** with unified notifications and one-tap quick replies.
 - **Deleted messages keep their text.** If the sender deletes a message, what they wrote stays in Mesa, labeled "deleted".
 - **Voice messages to text:** transcribe a voice message on the phone, offline when the language pack is installed (Android 13+).
+- **Translate messages on the phone:** a message in another language gets a "Translate" button and the translation appears under it, offline after a one-time language pack download (about 30 MB per language).
 - **From message to action:** copy a code, call a number, copy an IBAN, open an address in maps, or add a date to your calendar with one tap under the message.
 - **Stay on top:** people waiting for your reply come first; snooze chats, schedule messages, save important messages and search across every app.
 - **Rules:** automatic replies (with safety limits), mute, mark important; they run even when the app is closed.
@@ -73,6 +74,7 @@ All people and messages in the screenshots are fictional.
 - Secure DNS and the access shield are off until you turn them on. Then DNS lookups go, encrypted, to the DNS provider you pick (Cloudflare, AdGuard, Quad9 or Google), not to your carrier. Secure DNS is not a full VPN: it does not hide your IP address.
 - The optional "Mesa: my WhatsApp replies" accessibility service only receives WhatsApp and WhatsApp Business screens. It reads the chat name and the newest messages at the bottom of the chat you have open (and adds them to Mesa on your phone), and it fills the message box and taps Send only for a message you just wrote in Mesa, in the chat with the matching name. Message text is never logged.
 - Voice message transcription runs on the phone with Android's speech recognition. For WhatsApp, Mesa reads voice files only from the "WhatsApp Voice Notes" folder you grant, and only when you tap "Transcribe".
+- Message translation runs on the phone with Google's ML Kit; message text never leaves the phone. ML Kit stays off until you tap "Translate". From then on it downloads the language packs you approve from Google and, as Google documents for ML Kit, sends Google usage and performance metrics about the library (not your messages). Language packs can be deleted in Settings → Translation.
 - The WireGuard VPN connects only to the server in the configuration you import; Mesa provides no VPN server. That configuration and the automatic backup password are stored encrypted with a key that never leaves the phone's Android Keystore.
 
 ## Build

@@ -270,6 +270,9 @@ class Message {
     this.sendState,
     this.sendError,
     this.transcript,
+    this.translation,
+    this.translationTo,
+    this.translationFromName,
   });
 
   factory Message.fromMap(Map<Object?, Object?> m) => Message(
@@ -291,6 +294,9 @@ class Message {
     sendState: m['sendState'] as String?,
     sendError: m['sendError'] as String?,
     transcript: m['transcript'] as String?,
+    translation: m['translation'] as String?,
+    translationTo: m['translationTo'] as String?,
+    translationFromName: m['translationFromName'] as String?,
   );
 
   /// Gönderdiğimiz mesajın durumu (Telegram): "pending", "failed" ya da null (gitti).
@@ -301,6 +307,13 @@ class Message {
 
   /// Sesli mesajın telefonda yazıya çevrilmiş hali.
   final String? transcript;
+
+  /// Mesajın telefonda yapılan çevirisi ve hangi dile ("tr"…) çevrildiği.
+  final String? translation;
+  final String? translationTo;
+
+  /// Mesajın asıl dilinin adı, çevrildiği dilde ("İngilizce").
+  final String? translationFromName;
 
   bool get pending => sendState == 'pending';
   bool get failed => sendState == 'failed';

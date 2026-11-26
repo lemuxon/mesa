@@ -104,6 +104,19 @@ object StoredLabels {
     )
     private const val STICKER = "Çıkartma"
 
+    /**
+     * Mesajın çevrilecek yazısı: baştaki medya etiketi atılır
+     * ("📷 Fotoğraf: Bak" → "Bak"); yalnızca etiketse boş.
+     */
+    fun caption(text: String): String {
+        for ((label, _) in labels) {
+            if (text == label) return ""
+            if (text.startsWith("$label: ")) return text.substring(label.length + 2)
+        }
+        if (text == STICKER || text.endsWith(" $STICKER")) return ""
+        return text
+    }
+
     fun display(context: Context, text: String): String {
         if (text.isEmpty()) return text
         for ((label, id) in labels) {
