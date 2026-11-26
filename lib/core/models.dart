@@ -269,6 +269,7 @@ class Message {
     this.mediaSize,
     this.sendState,
     this.sendError,
+    this.transcript,
   });
 
   factory Message.fromMap(Map<Object?, Object?> m) => Message(
@@ -289,6 +290,7 @@ class Message {
     mediaSize: m['mediaSize'] as int?,
     sendState: m['sendState'] as String?,
     sendError: m['sendError'] as String?,
+    transcript: m['transcript'] as String?,
   );
 
   /// Gönderdiğimiz mesajın durumu (Telegram): "pending", "failed" ya da null (gitti).
@@ -296,6 +298,9 @@ class Message {
 
   /// Gönderilemediyse sebebi.
   final String? sendError;
+
+  /// Sesli mesajın telefonda yazıya çevrilmiş hali.
+  final String? transcript;
 
   bool get pending => sendState == 'pending';
   bool get failed => sendState == 'failed';

@@ -157,6 +157,24 @@ class CoreBridge {
   Future<void> openOwnRepliesSettings() =>
       _channel.invokeMethod<void>('openOwnRepliesSettings');
 
+  /// Sesli mesajı telefonda yazıya çevirir (internetsiz tanıma varsa o).
+  /// Dönen: (metin, hata); hata MIC, NEED_FOLDER, NOT_FOUND, NO_SPEECH,
+  /// LANGUAGE, UNSUPPORTED, BUSY…
+  Future<(String?, String?)> transcribe(String messageId) async {
+    final m = await _channel.invokeMapMethod<String, Object?>('transcribe', {
+      'id': messageId,
+    });
+    return (m?['text'] as String?, m?['error'] as String?);
+  }
+
+  /// WhatsApp'ın sesli mesaj klasörüne okuma izni (klasör seçici o klasörde açılır).
+  /// Doğru klasör seçildiyse true.
+  Future<bool> pickVoiceFolder(String packageName) async =>
+      await _channel.invokeMethod<bool>('pickVoiceFolder', {
+        'package': packageName,
+      }) ??
+      false;
+
   /// Mesajdaki bağlantı, telefon (tel:), harita (geo:) ya da e-posta (mailto:).
   /// Açacak uygulama yoksa false.
   Future<bool> openUri(String uri) async =>

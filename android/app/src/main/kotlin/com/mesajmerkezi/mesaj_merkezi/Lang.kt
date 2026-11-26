@@ -54,6 +54,28 @@ object Lang {
         return localized
     }
 
+    /**
+     * Sesli mesajları yazıya çevirirken tanıma dili: Mesa'nın seçili dili
+     * (yoksa telefonun dili) ve tanıyıcıların beklediği bölge ("tr" → "tr-TR").
+     */
+    fun speechLanguage(context: Context): String {
+        val chosen = code(context)
+        val locale = if (chosen != null) Locale.forLanguageTag(chosen) else Locale.getDefault()
+        if (locale.country.isNotEmpty()) return locale.toLanguageTag()
+        val region = when (locale.language) {
+            "tr" -> "TR"
+            "en" -> "US"
+            "de" -> "DE"
+            "es" -> "ES"
+            "fr" -> "FR"
+            "pt" -> "BR"
+            "ru" -> "RU"
+            "ar" -> "SA"
+            else -> ""
+        }
+        return if (region.isEmpty()) locale.language else "${locale.language}-$region"
+    }
+
     fun str(context: Context, @StringRes id: Int, vararg args: Any): String =
         if (args.isEmpty()) context(context).getString(id) else context(context).getString(id, *args)
 

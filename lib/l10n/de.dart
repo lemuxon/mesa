@@ -886,4 +886,30 @@ const de = <String, String>{
   'Takvime ekle': 'Zum Kalender hinzufügen',
   'Telefonla ara': 'Anrufen',
   '{time} için hatırlatma kuruldu': 'Erinnerung für {time} gesetzt',
+  // Sesli mesajı yazıya çevirme
+  'Başka bir sesli mesaj çevriliyor; az sonra yeniden deneyin.':
+      'Eine andere Sprachnachricht wird gerade umgewandelt; versuche es gleich noch einmal.',
+  'Bu dilin konuşma paketi indiriliyor; biraz sonra yeniden deneyin.':
+      'Das Sprachpaket für diese Sprache wird geladen; versuche es gleich noch einmal.',
+  'Bu sesli mesajın dosyası telefonda bulunamadı. WhatsApp\'ta bir kez açıp indirin, sonra yeniden deneyin.':
+      'Die Datei dieser Sprachnachricht ist nicht auf dem Telefon. Öffne sie einmal in WhatsApp, damit sie geladen wird, und versuche es erneut.',
+  'Bu telefon sesli mesajı yazıya çeviremiyor (Android 13 gerekli).':
+      'Dieses Telefon kann Sprachnachrichten nicht umwandeln (Android 13 erforderlich).',
+  'Bu, WhatsApp\'ın sesli mesaj klasörü değil. "WhatsApp Voice Notes" klasörünü seçin.':
+      'Das ist nicht der Sprachnachrichten-Ordner von WhatsApp. Wähle den Ordner „WhatsApp Voice Notes“.',
+  'Klasörü seç': 'Ordner wählen',
+  'Sesli mesaj yazıya çevrilemedi.':
+      'Die Sprachnachricht konnte nicht umgewandelt werden.',
+  'Sesli mesajda anlaşılır konuşma bulunamadı.':
+      'In der Sprachnachricht wurde keine verständliche Sprache gefunden.',
+  'WhatsApp ses klasörü seçilmedi.':
+      'Der Sprachordner von WhatsApp wurde nicht gewählt.',
+  'WhatsApp sesli mesajları': 'WhatsApp-Sprachnachrichten',
+  'WhatsApp sesli mesajları bildirime koymuyor, telefondaki kendi klasöründe saklıyor. Yazıya çevirmek için Mesa\'nın o klasörü okuması gerekiyor.\n\nAçılan sayfada "Bu klasörü kullan"a, sonra "İzin ver"e dokunun. Ses telefondan çıkmaz; yazıya çevirme telefonda yapılır.':
+      'WhatsApp legt Sprachnachrichten nicht in seine Benachrichtigungen, sondern in einen eigenen Ordner auf dem Telefon. Zum Umwandeln muss Mesa diesen Ordner lesen.\n\nTippe auf der nächsten Seite auf „Diesen Ordner verwenden“ und dann auf „Zulassen“. Die Audiodatei verlässt dein Telefon nicht; die Umwandlung passiert auf dem Telefon.',
+  'Yazıya çevir': 'In Text umwandeln',
+  'Yazıya çevirmek için Android mikrofon izni istiyor; mikrofon kullanılmaz.':
+      'Android verlangt zum Umwandeln die Mikrofonberechtigung; das Mikrofon wird nicht benutzt.',
+  'Yazıya çevrildi': 'Umgewandelt',
+  'Yazıya çevriliyor…': 'Wird umgewandelt…',
 };

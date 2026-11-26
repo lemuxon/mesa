@@ -880,4 +880,29 @@ const ru = <String, String>{
   'Takvime ekle': 'Добавить в календарь',
   'Telefonla ara': 'Позвонить',
   '{time} için hatırlatma kuruldu': 'Напоминание на {time} создано',
+  // Sesli mesajı yazıya çevirme
+  'Başka bir sesli mesaj çevriliyor; az sonra yeniden deneyin.':
+      'Сейчас расшифровывается другое голосовое сообщение; попробуйте чуть позже.',
+  'Bu dilin konuşma paketi indiriliyor; biraz sonra yeniden deneyin.':
+      'Загружается речевой пакет для этого языка; попробуйте чуть позже.',
+  'Bu sesli mesajın dosyası telefonda bulunamadı. WhatsApp\'ta bir kez açıp indirin, sonra yeniden deneyin.':
+      'Файла этого голосового сообщения нет на телефоне. Откройте его один раз в WhatsApp, чтобы скачать, и попробуйте снова.',
+  'Bu telefon sesli mesajı yazıya çeviremiyor (Android 13 gerekli).':
+      'Этот телефон не может расшифровывать голосовые сообщения (нужен Android 13).',
+  'Bu, WhatsApp\'ın sesli mesaj klasörü değil. "WhatsApp Voice Notes" klasörünü seçin.':
+      'Это не папка голосовых сообщений WhatsApp. Выберите папку «WhatsApp Voice Notes».',
+  'Klasörü seç': 'Выбрать папку',
+  'Sesli mesaj yazıya çevrilemedi.':
+      'Не удалось расшифровать голосовое сообщение.',
+  'Sesli mesajda anlaşılır konuşma bulunamadı.':
+      'В голосовом сообщении не найдено разборчивой речи.',
+  'WhatsApp ses klasörü seçilmedi.': 'Папка голосовых WhatsApp не выбрана.',
+  'WhatsApp sesli mesajları': 'Голосовые сообщения WhatsApp',
+  'WhatsApp sesli mesajları bildirime koymuyor, telefondaki kendi klasöründe saklıyor. Yazıya çevirmek için Mesa\'nın o klasörü okuması gerekiyor.\n\nAçılan sayfada "Bu klasörü kullan"a, sonra "İzin ver"e dokunun. Ses telefondan çıkmaz; yazıya çevirme telefonda yapılır.':
+      'WhatsApp не кладёт голосовые сообщения в уведомления, а хранит их в своей папке на телефоне. Чтобы расшифровывать их, Mesa нужно читать эту папку.\n\nНа следующей странице нажмите «Использовать эту папку», затем «Разрешить». Звук не покидает телефон; расшифровка выполняется на телефоне.',
+  'Yazıya çevir': 'Расшифровать',
+  'Yazıya çevirmek için Android mikrofon izni istiyor; mikrofon kullanılmaz.':
+      'Для расшифровки Android просит разрешение на микрофон; микрофон не используется.',
+  'Yazıya çevrildi': 'Расшифровано',
+  'Yazıya çevriliyor…': 'Расшифровка…',
 };

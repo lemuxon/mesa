@@ -23,7 +23,7 @@ data class IngestResult(
  * kullanılmaz; yerine INSERT OR IGNORE + UPDATE yapılır.
  */
 /** Veritabanı sürümü (yedekler bundan yeni olamaz). */
-const val DB_VERSION = 13
+const val DB_VERSION = 14
 
 class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", null, DB_VERSION) {
 
@@ -44,6 +44,7 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
         upgradeToV10(db)
         upgradeToV12(db)
         upgradeToV13(db)
+        upgradeToV14(db)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -60,9 +61,15 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
         if (oldVersion < 11) dropDeletedMedia(db)
         if (oldVersion < 12) upgradeToV12(db)
         if (oldVersion < 13) upgradeToV13(db)
+        if (oldVersion < 14) upgradeToV14(db)
     }
 
     /** Gönderilmekte olan / gönderilemeyen mesaj (Telegram) ve sebebi. */
+    /** Sesli mesajın yazıya çevrilmiş hali (telefonda tanınır). */
+    private fun upgradeToV14(db: SQLiteDatabase) {
+        db.execSQL("ALTER TABLE messages ADD COLUMN transcript TEXT")
+    }
+
     private fun upgradeToV13(db: SQLiteDatabase) {
         db.execSQL("ALTER TABLE messages ADD COLUMN send_state INTEGER NOT NULL DEFAULT 0")
         db.execSQL("ALTER TABLE messages ADD COLUMN send_error TEXT")
@@ -418,6 +425,39 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
 
     fun messageCount(): Int =
         readableDatabase.rawQuery("SELECT COUNT(*) FROM messages", null).use { c -> if (c.moveToFirst()) c.getInt(0) else 0 }
+
+    /** Yazıya çevrilecek sesli mesajın bilgisi. */
+    data class VoiceInfo(
+        val key: String,
+        val packageName: String,
+        val time: Long,
+        val text: String,
+        val mediaPath: String?,
+        val mediaRef: String?,
+        val transcript: String?,
+    )
+
+    fun voiceInfo(messageId: String): VoiceInfo? =
+        readableDatabase.rawQuery(
+            "SELECT m.conv_key, c.package, m.time, m.text, m.media_path, m.media_ref, m.transcript " +
+                "FROM messages m JOIN conversations c ON c.key = m.conv_key WHERE m.id = ?",
+            arrayOf(messageId),
+        ).use { c ->
+            if (!c.moveToFirst()) return null
+            VoiceInfo(
+                key = c.getString(0),
+                packageName = c.getString(1),
+                time = c.getLong(2),
+                text = c.getString(3) ?: "",
+                mediaPath = c.getString(4),
+                mediaRef = c.getString(5),
+                transcript = c.getString(6),
+            )
+        }
+
+    fun setTranscript(messageId: String, text: String) {
+        writableDatabase.execSQL("UPDATE messages SET transcript = ? WHERE id = ?", arrayOf(text, messageId))
+    }
 
     /** Sohbetin bilgisi (bildirim oluşturmak için); yoksa null. */
     fun conversation(key: String): Map<String, Any?>? =
@@ -1182,7 +1222,7 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
         ).use { c -> if (c.moveToFirst()) c.getLong(0) else 0L }
         return readableDatabase.rawQuery(
             "SELECT id, sender, text, time, outgoing, auto, media_path, media_mime, media_kind, media_ref, " +
-                "deleted, starred, media_duration, media_size, send_state, send_error FROM (" +
+                "deleted, starred, media_duration, media_size, send_state, send_error, transcript FROM (" +
                 "SELECT * FROM messages WHERE conv_key = ? ORDER BY time DESC LIMIT $MESSAGE_LIMIT" +
                 ") ORDER BY time ASC",
             arrayOf(key),
@@ -1211,6 +1251,7 @@ class MessageStore(context: Context) : SQLiteOpenHelper(context, "mesajlar.db", 
                                 else -> null
                             },
                             "sendError" to c.getString(15),
+                            "transcript" to c.getString(16),
                             "read" to (c.getInt(4) == 1 && readOutbox > 0 &&
                                 TelegramIds.messageId(c.getString(0)).let { it != null && it <= readOutbox }),
                         )

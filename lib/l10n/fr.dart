@@ -893,4 +893,30 @@ const fr = <String, String>{
   'Takvime ekle': 'Ajouter à l\'agenda',
   'Telefonla ara': 'Appeler',
   '{time} için hatırlatma kuruldu': 'Rappel créé pour {time}',
+  // Sesli mesajı yazıya çevirme
+  'Başka bir sesli mesaj çevriliyor; az sonra yeniden deneyin.':
+      'Un autre message vocal est en cours de transcription ; réessayez dans un instant.',
+  'Bu dilin konuşma paketi indiriliyor; biraz sonra yeniden deneyin.':
+      'Le pack vocal de cette langue est en cours de téléchargement ; réessayez bientôt.',
+  'Bu sesli mesajın dosyası telefonda bulunamadı. WhatsApp\'ta bir kez açıp indirin, sonra yeniden deneyin.':
+      'Le fichier de ce message vocal n\'est pas sur le téléphone. Ouvrez-le une fois dans WhatsApp pour le télécharger, puis réessayez.',
+  'Bu telefon sesli mesajı yazıya çeviremiyor (Android 13 gerekli).':
+      'Ce téléphone ne peut pas transcrire les messages vocaux (Android 13 requis).',
+  'Bu, WhatsApp\'ın sesli mesaj klasörü değil. "WhatsApp Voice Notes" klasörünü seçin.':
+      'Ce n\'est pas le dossier des messages vocaux de WhatsApp. Choisissez le dossier « WhatsApp Voice Notes ».',
+  'Klasörü seç': 'Choisir le dossier',
+  'Sesli mesaj yazıya çevrilemedi.':
+      'Impossible de transcrire le message vocal.',
+  'Sesli mesajda anlaşılır konuşma bulunamadı.':
+      'Aucune parole compréhensible dans le message vocal.',
+  'WhatsApp ses klasörü seçilmedi.':
+      'Le dossier vocal de WhatsApp n\'a pas été choisi.',
+  'WhatsApp sesli mesajları': 'Messages vocaux WhatsApp',
+  'WhatsApp sesli mesajları bildirime koymuyor, telefondaki kendi klasöründe saklıyor. Yazıya çevirmek için Mesa\'nın o klasörü okuması gerekiyor.\n\nAçılan sayfada "Bu klasörü kullan"a, sonra "İzin ver"e dokunun. Ses telefondan çıkmaz; yazıya çevirme telefonda yapılır.':
+      'WhatsApp ne met pas les messages vocaux dans ses notifications ; il les garde dans son propre dossier sur le téléphone. Pour les transcrire, Mesa doit lire ce dossier.\n\nSur la page suivante, touchez « Utiliser ce dossier », puis « Autoriser ». L\'audio ne quitte pas votre téléphone ; la transcription se fait sur le téléphone.',
+  'Yazıya çevir': 'Transcrire',
+  'Yazıya çevirmek için Android mikrofon izni istiyor; mikrofon kullanılmaz.':
+      'Android demande l\'autorisation du micro pour transcrire ; le micro n\'est pas utilisé.',
+  'Yazıya çevrildi': 'Transcrit',
+  'Yazıya çevriliyor…': 'Transcription…',
 };

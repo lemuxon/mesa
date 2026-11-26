@@ -24,6 +24,11 @@
   routes of the 80 most recent chats with Android itself and takes them back when it starts again, so replies keep going
   out directly and invisibly. Restarting the phone or updating Mesa still clears them until a new message arrives.
 
+- **Voice messages to text, on the phone.** Under a voice message, "Transcribe" turns it into text with Android's own
+  speech recognition, offline when the phone has the language pack (Android 13+). WhatsApp keeps voice messages out of
+  its notifications, so Mesa asks once for read access to WhatsApp's "WhatsApp Voice Notes" folder and matches the file
+  by time and duration; when more than one file could fit, it doesn't guess. Telegram voice messages are downloaded as
+  before. The text is kept with the message; the audio never leaves the phone.
 - **From message to action in one tap.** Under a message, Mesa offers what you'd do next: copy a verification code,
   call a phone number, copy an IBAN (only when its check digits are valid) or an email address, open a link, open an
   address or a map link in maps, and for dates and times ("yarın 15:00", "akşam 8", "cuma", "25 Kasım", "01.12.2026")

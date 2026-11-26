@@ -331,6 +331,15 @@ open class MainActivity : FlutterFragmentActivity() {
             "markAllRead" -> background(result) { store.markAllRead() }
             "search" -> background(result) { store.search(call.argument<String>("query").orEmpty()) }
             "getSettings" -> result.success(AppSettings.toMap(this))
+            // ---- Sesli mesajı yazıya çevirme ----
+            "transcribe" -> VoiceNotes.transcribe(this, call.argument<String>("id")!!) { result.success(it) }
+            "pickVoiceFolder" -> {
+                val packageName = call.argument<String>("package")!!
+                awaitDocument { uri ->
+                    result.success(uri != null && VoiceNotes.saveFolder(this, packageName, uri))
+                }
+                openBackupFolder.launch(VoiceNotes.initialUri(packageName))
+            }
             // ---- Mesajdan işe tek dokunuş ----
             "openUri" -> result.success(openUri(call.argument<String>("uri")!!))
             "addToCalendar" -> result.success(

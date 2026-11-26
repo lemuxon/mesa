@@ -861,4 +861,28 @@ const ar = <String, String>{
   'Takvime ekle': 'إضافة إلى التقويم',
   'Telefonla ara': 'اتصال',
   '{time} için hatırlatma kuruldu': 'تم ضبط التذكير على {time}',
+  // Sesli mesajı yazıya çevirme
+  'Başka bir sesli mesaj çevriliyor; az sonra yeniden deneyin.':
+      'يجري تحويل رسالة صوتية أخرى؛ حاول مجددًا بعد قليل.',
+  'Bu dilin konuşma paketi indiriliyor; biraz sonra yeniden deneyin.':
+      'يجري تنزيل حزمة الكلام لهذه اللغة؛ حاول مجددًا بعد قليل.',
+  'Bu sesli mesajın dosyası telefonda bulunamadı. WhatsApp\'ta bir kez açıp indirin, sonra yeniden deneyin.':
+      'ملف هذه الرسالة الصوتية غير موجود على الهاتف. افتحها مرة في WhatsApp لتنزيلها ثم حاول مجددًا.',
+  'Bu telefon sesli mesajı yazıya çeviremiyor (Android 13 gerekli).':
+      'لا يستطيع هذا الهاتف تحويل الرسائل الصوتية إلى نص (يتطلب Android 13).',
+  'Bu, WhatsApp\'ın sesli mesaj klasörü değil. "WhatsApp Voice Notes" klasörünü seçin.':
+      'هذا ليس مجلد الرسائل الصوتية في WhatsApp. اختر مجلد "WhatsApp Voice Notes".',
+  'Klasörü seç': 'اختيار المجلد',
+  'Sesli mesaj yazıya çevrilemedi.': 'تعذّر تحويل الرسالة الصوتية إلى نص.',
+  'Sesli mesajda anlaşılır konuşma bulunamadı.':
+      'لم يُعثر على كلام واضح في الرسالة الصوتية.',
+  'WhatsApp ses klasörü seçilmedi.': 'لم يتم اختيار مجلد الصوت في WhatsApp.',
+  'WhatsApp sesli mesajları': 'رسائل WhatsApp الصوتية',
+  'WhatsApp sesli mesajları bildirime koymuyor, telefondaki kendi klasöründe saklıyor. Yazıya çevirmek için Mesa\'nın o klasörü okuması gerekiyor.\n\nAçılan sayfada "Bu klasörü kullan"a, sonra "İzin ver"e dokunun. Ses telefondan çıkmaz; yazıya çevirme telefonda yapılır.':
+      'لا يضع WhatsApp الرسائل الصوتية في إشعاراته، بل يحفظها في مجلده الخاص على الهاتف. لتحويلها إلى نص يحتاج Mesa إلى قراءة ذلك المجلد.\n\nفي الصفحة التالية، المس "استخدام هذا المجلد" ثم "سماح". لا يغادر الصوت هاتفك، ويتم التحويل على الهاتف.',
+  'Yazıya çevir': 'تحويل إلى نص',
+  'Yazıya çevirmek için Android mikrofon izni istiyor; mikrofon kullanılmaz.':
+      'يطلب Android إذن الميكروفون للتحويل إلى نص؛ لا يُستخدم الميكروفون.',
+  'Yazıya çevrildi': 'تم التحويل إلى نص',
+  'Yazıya çevriliyor…': 'جارٍ التحويل إلى نص…',
 };

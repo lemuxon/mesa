@@ -873,4 +873,28 @@ const en = <String, String>{
   'Takvime ekle': 'Add to calendar',
   'Telefonla ara': 'Call',
   '{time} için hatırlatma kuruldu': 'Reminder set for {time}',
+  // Sesli mesajı yazıya çevirme
+  'Başka bir sesli mesaj çevriliyor; az sonra yeniden deneyin.':
+      'Another voice message is being transcribed; try again in a moment.',
+  'Bu dilin konuşma paketi indiriliyor; biraz sonra yeniden deneyin.':
+      'The speech pack for this language is downloading; try again shortly.',
+  'Bu sesli mesajın dosyası telefonda bulunamadı. WhatsApp\'ta bir kez açıp indirin, sonra yeniden deneyin.':
+      'This voice message\'s file isn\'t on the phone. Open it once in WhatsApp to download it, then try again.',
+  'Bu telefon sesli mesajı yazıya çeviremiyor (Android 13 gerekli).':
+      'This phone can\'t transcribe voice messages (Android 13 required).',
+  'Bu, WhatsApp\'ın sesli mesaj klasörü değil. "WhatsApp Voice Notes" klasörünü seçin.':
+      'That isn\'t WhatsApp\'s voice message folder. Choose the "WhatsApp Voice Notes" folder.',
+  'Klasörü seç': 'Choose folder',
+  'Sesli mesaj yazıya çevrilemedi.': 'Couldn\'t transcribe the voice message.',
+  'Sesli mesajda anlaşılır konuşma bulunamadı.':
+      'No clear speech found in the voice message.',
+  'WhatsApp ses klasörü seçilmedi.': 'WhatsApp\'s voice folder wasn\'t chosen.',
+  'WhatsApp sesli mesajları': 'WhatsApp voice messages',
+  'WhatsApp sesli mesajları bildirime koymuyor, telefondaki kendi klasöründe saklıyor. Yazıya çevirmek için Mesa\'nın o klasörü okuması gerekiyor.\n\nAçılan sayfada "Bu klasörü kullan"a, sonra "İzin ver"e dokunun. Ses telefondan çıkmaz; yazıya çevirme telefonda yapılır.':
+      'WhatsApp doesn\'t put voice messages in its notifications; it keeps them in its own folder on the phone. To transcribe them, Mesa needs to read that folder.\n\nOn the next page, tap "Use this folder", then "Allow". The audio never leaves your phone; transcription happens on the phone.',
+  'Yazıya çevir': 'Transcribe',
+  'Yazıya çevirmek için Android mikrofon izni istiyor; mikrofon kullanılmaz.':
+      'Android asks for microphone permission to transcribe; the microphone isn\'t used.',
+  'Yazıya çevrildi': 'Transcribed',
+  'Yazıya çevriliyor…': 'Transcribing…',
 };

@@ -79,6 +79,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   /// Bu sohbetin planlı mesajları.
   List<ScheduledMessage> _scheduled = const [];
 
+  /// Şu an yazıya çevrilen sesli mesajlar.
+  final Set<String> _transcribing = {};
+
+  /// Bu ekranda az önce çevrilenler (liste yenilenene kadar).
+  final Map<String, String> _transcripts = {};
+
   /// WhatsApp yanıt servisi açık mı; bilinmiyorsa null (öneri de otomatik
   /// gönderim yazısı da gösterilmez).
   bool? _ownReplies;
@@ -1042,6 +1048,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   onOpenMedia: () => _openMedia(m),
                   onLongPress: () => _messageActions(m),
                 ),
+                if (m.isVoice && !m.deleted)
+                  VoiceTranscript(
+                    text: m.transcript ?? _transcripts[m.id],
+                    busy: _transcribing.contains(m.id),
+                    mine: m.outgoing,
+                    onTranscribe: () => _transcribe(m),
+                  ),
                 if (_smartActionsFor(m, now) case final smart
                     when smart.isNotEmpty)
                   SmartChips(
@@ -1056,6 +1069,91 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         );
       },
     );
+  }
+
+  /// Sesli mesajı telefonda yazıya çevirir. Gerekirse önce mikrofon izni
+  /// (Android konuşma tanıma için istiyor) ve WhatsApp'ın ses klasörü istenir.
+  Future<void> _transcribe(Message m) async {
+    if (_transcribing.contains(m.id)) return;
+    setState(() => _transcribing.add(m.id));
+    try {
+      var (text, error) = await widget.bridge.transcribe(m.id);
+      if (error == 'MIC' && await widget.bridge.micPermission()) {
+        (text, error) = await widget.bridge.transcribe(m.id);
+      }
+      if (error == 'NEED_FOLDER' && await _askVoiceFolder(m)) {
+        (text, error) = await widget.bridge.transcribe(m.id);
+      }
+      if (!mounted) return;
+      if (text != null) {
+        setState(() => _transcripts[m.id] = text!);
+        return;
+      }
+      _snack(switch (error) {
+        'MIC' => tr(
+          'Yazıya çevirmek için Android mikrofon izni istiyor; mikrofon kullanılmaz.',
+        ),
+        'NEED_FOLDER' => tr('WhatsApp ses klasörü seçilmedi.'),
+        'NOT_FOUND' => tr(
+          'Bu sesli mesajın dosyası telefonda bulunamadı. WhatsApp\'ta bir kez açıp indirin, sonra yeniden deneyin.',
+        ),
+        'NO_SPEECH' => tr('Sesli mesajda anlaşılır konuşma bulunamadı.'),
+        'LANGUAGE' => tr(
+          'Bu dilin konuşma paketi indiriliyor; biraz sonra yeniden deneyin.',
+        ),
+        'UNSUPPORTED' => tr(
+          'Bu telefon sesli mesajı yazıya çeviremiyor (Android 13 gerekli).',
+        ),
+        'BUSY' => tr(
+          'Başka bir sesli mesaj çevriliyor; az sonra yeniden deneyin.',
+        ),
+        _ => tr('Sesli mesaj yazıya çevrilemedi.'),
+      }, long: true);
+    } catch (_) {
+      _snack(tr('Sesli mesaj yazıya çevrilemedi.'));
+    } finally {
+      if (mounted) setState(() => _transcribing.remove(m.id));
+    }
+  }
+
+  /// WhatsApp'ın ses klasörüne bir kez izin: ne olduğunu anlatır, seçici o klasörde açılır.
+  Future<bool> _askVoiceFolder(Message m) async {
+    final package = _isPerson
+        ? (_sourceOf[m.id] ?? _active.packageName)
+        : _active.packageName;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.graphic_eq_rounded),
+        title: Text(tr('WhatsApp sesli mesajları')),
+        content: Text(
+          tr(
+            'WhatsApp sesli mesajları bildirime koymuyor, telefondaki kendi klasöründe saklıyor. Yazıya çevirmek için Mesa\'nın o klasörü okuması gerekiyor.\n\nAçılan sayfada "Bu klasörü kullan"a, sonra "İzin ver"e dokunun. Ses telefondan çıkmaz; yazıya çevirme telefonda yapılır.',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(tr('Vazgeç')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(tr('Klasörü seç')),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return false;
+    final picked = await widget.bridge.pickVoiceFolder(package);
+    if (!picked && mounted) {
+      _snack(
+        tr(
+          'Bu, WhatsApp\'ın sesli mesaj klasörü değil. "WhatsApp Voice Notes" klasörünü seçin.',
+        ),
+        long: true,
+      );
+    }
+    return picked;
   }
 
   /// Mesajdaki işe yarar parçalar (kod, telefon, IBAN, tarih…). Silinmiş ve
@@ -2757,6 +2855,110 @@ class _UploadStatusState extends State<_UploadStatus> {
 }
 
 /// "Yanıtlar WhatsApp açılmadan gitsin": gönderim kaynak uygulamayı açacakken.
+/// Sesli mesajın altında: yazıya çevrilmiş hali ya da "Yazıya çevir".
+class VoiceTranscript extends StatelessWidget {
+  const VoiceTranscript({
+    super.key,
+    required this.text,
+    required this.busy,
+    required this.mine,
+    required this.onTranscribe,
+  });
+
+  final String? text;
+  final bool busy;
+  final bool mine;
+  final VoidCallback onTranscribe;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final transcript = text;
+    final Widget child;
+    if (transcript != null) {
+      child = Container(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: scheme.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.subtitles_outlined, size: 14, color: scheme.primary),
+                const SizedBox(width: 4),
+                Text(
+                  tr('Yazıya çevrildi'),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: scheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            SelectableText(transcript, style: theme.textTheme.bodyMedium),
+          ],
+        ),
+      );
+    } else {
+      child = Material(
+        color: scheme.surfaceContainerHigh,
+        shape: StadiumBorder(side: BorderSide(color: scheme.outlineVariant)),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: busy ? null : onTranscribe,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (busy)
+                  SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: scheme.primary,
+                    ),
+                  )
+                else
+                  Icon(
+                    Icons.subtitles_outlined,
+                    size: 16,
+                    color: scheme.primary,
+                  ),
+                const SizedBox(width: 6),
+                Text(
+                  busy ? tr('Yazıya çevriliyor…') : tr('Yazıya çevir'),
+                  style: theme.textTheme.labelMedium,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 4,
+        bottom: 4,
+        left: mine ? 48 : 4,
+        right: mine ? 4 : 48,
+      ),
+      child: Align(
+        alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+        child: child,
+      ),
+    );
+  }
+}
+
 /// Balonun altındaki tek dokunuşluk işler: kodu kopyala, ara, takvime ekle…
 class SmartChips extends StatelessWidget {
   const SmartChips({

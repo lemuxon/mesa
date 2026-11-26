@@ -4,4 +4,14 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <application>
+        <!-- Yalnizca gelistirme surumu: yazıya cevirme motorunu cihazda denemek icin (TranscribeProbeReceiver.kt). -->
+        <receiver
+            android:name=".TranscribeProbeReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.mesajmerkezi.mesaj_merkezi.debug.TRANSCRIBE_PROBE" />
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>
