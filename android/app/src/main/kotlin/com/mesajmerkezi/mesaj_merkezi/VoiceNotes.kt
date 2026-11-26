@@ -115,9 +115,11 @@ object VoiceNotes {
     private fun listCandidates(context: Context, tree: Uri, messageTime: Long): List<Candidate> {
         val rootId = DocumentsContract.getTreeDocumentId(tree)
         val root = children(context, tree, rootId)
-        val weeks = root.filter { it.isDir && it.name.matches(Regex("""\d{6}""")) }
-            .sortedByDescending { it.name }
-            .take(3)
+        val weekDirs = root.filter { it.isDir && it.name.matches(Regex("""\d{6}""")) }
+        // Mesajın haftası (ve komşuları) ile en yeni üç hafta: eski sesli mesajlar da bulunur.
+        val codes = weekCodes(messageTime)
+        val weeks = (weekDirs.filter { it.name in codes } + weekDirs.sortedByDescending { it.name }.take(3))
+            .distinctBy { it.id }
         val day = SimpleDateFormat("yyyyMMdd", Locale.US)
         val days = setOf(-1, 0, 1).map { day.format(messageTime + it * 86_400_000L) }
         val files = (root + weeks.flatMap { children(context, tree, it.id) })
@@ -127,6 +129,20 @@ object VoiceNotes {
         return files.map { doc ->
             val uri = DocumentsContract.buildDocumentUriUsingTree(tree, doc.id)
             Candidate(uri, doc.name, doc.modified, duration(context, uri))
+        }
+    }
+
+    /**
+     * WhatsApp'ın haftalık klasör adları ("202647" = yıl + hafta) mesajın
+     * gününe göre; hafta numarası yerel ayara göre değişebildiği için ABD ve
+     * ISO numaralandırmasıyla, bir hafta önce ve sonrası da.
+     */
+    internal fun weekCodes(time: Long): Set<String> = buildSet {
+        for (locale in listOf(Locale.US, Locale.forLanguageTag("tr-TR"))) {
+            for (days in listOf(-7, 0, 7)) {
+                val calendar = java.util.GregorianCalendar(locale).apply { timeInMillis = time + days * 86_400_000L }
+                add(String.format(Locale.US, "%04d%02d", calendar.weekYear, calendar.get(java.util.Calendar.WEEK_OF_YEAR)))
+            }
         }
     }
 

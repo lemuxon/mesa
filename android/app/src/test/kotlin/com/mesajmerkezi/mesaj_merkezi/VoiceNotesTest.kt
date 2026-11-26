@@ -57,6 +57,15 @@ class VoiceNotesTest {
     }
 
     @Test
+    fun weekFoldersAroundTheMessageAreSearched() {
+        // 27 Kasım 2026 (Cuma): ISO 48. hafta; ABD numarasıyla da 48. Bir hafta önce ve sonrası da aranır.
+        val codes = VoiceNotes.weekCodes(java.util.GregorianCalendar(2026, java.util.Calendar.NOVEMBER, 27, 12, 0).timeInMillis)
+        assertEquals(true, "202648" in codes)
+        assertEquals(true, "202647" in codes)
+        assertEquals(true, "202649" in codes)
+    }
+
+    @Test
     fun nothingIsChosenWhenUnsure() {
         // Saatler uyuşmuyor.
         assertNull(VoiceNotes.choose(listOf(file("PTT-1.opus", t0 + 3_600_000, 12.0)), t0, 12))
