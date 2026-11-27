@@ -58,7 +58,12 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.ensureVisible(find.byTooltip('Bağlantıyı kes'));
+    // Liste tembel çizilir: bağlı bilgisayar satırı aşağıda, kaydırınca oluşur.
+    await tester.scrollUntilVisible(
+      find.byTooltip('Bağlantıyı kes'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Bağlantıyı kes'));
     await tester.pumpAndSettle();
