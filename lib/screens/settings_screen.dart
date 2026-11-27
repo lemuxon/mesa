@@ -17,6 +17,7 @@ import 'own_replies.dart';
 import 'secure_connection_screen.dart';
 import 'storage_card.dart';
 import 'assistant_screen.dart';
+import 'desktop_screen.dart';
 import 'telegram_screen.dart';
 import 'translation_packs.dart';
 
@@ -392,6 +393,21 @@ class _SettingsScreenState extends State<SettingsScreen>
                       value: settings.hideTelegramChannels,
                       onChanged: (v) =>
                           _update((s) => s.copyWith(hideTelegramChannels: v)),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.computer_rounded),
+                      title: Text(tr('Bilgisayardan Mesa')),
+                      subtitle: Text(
+                        tr(
+                          'Aynı Wi-Fi\'deki bilgisayarın tarayıcısından okuyun ve yanıtlayın',
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => DesktopScreen(bridge: widget.bridge),
+                        ),
+                      ),
                     ),
                   ],
                 ),

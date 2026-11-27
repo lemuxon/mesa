@@ -108,6 +108,13 @@
     <string name="focus_and_more">%1$s et %2$d autres</string>
     <string name="notif_copy_code">Copier %1$s</string>
     <string name="code_copied">Code copié</string>
+    <string name="desktop_name">Mesa sur l\'ordinateur</string>
+    <string name="desktop_running">Ouvrez-le dans le navigateur d\'un ordinateur sur le même Wi-Fi</string>
+    <string name="desktop_channel_desc">Quand un ordinateur demande à se connecter</string>
+    <string name="desktop_pair_title">Un ordinateur veut se connecter</string>
+    <string name="desktop_pair_text">%1$s · code %2$s. N\'autorisez que si l\'ordinateur affiche le même code.</string>
+    <string name="desktop_allow">Autoriser</string>
+    <string name="desktop_deny">Refuser</string>
     <string name="own_replies_label">Mesa : mes réponses WhatsApp</string>
     <string name="own_replies_desc">Ajoute dans Mesa, dans la même discussion, les nouveaux messages de la discussion WhatsApp ouverte, reçus comme envoyés par vous (et crée la discussion dans Mesa si elle n\'existe pas), marque comme lues les discussions ouvertes dans WhatsApp et envoie via WhatsApp les messages écrits dans Mesa. Seul WhatsApp est lu et rien ne quitte votre téléphone.</string>
     <string name="auto_send_progress">Envoi via WhatsApp…</string>

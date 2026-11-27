@@ -29,6 +29,14 @@
   its notifications, so Mesa asks once for read access to WhatsApp's "WhatsApp Voice Notes" folder and matches the file
   by time and duration; when more than one file could fit, it doesn't guess. Telegram voice messages are downloaded as
   before. The text is kept with the message; the audio never leaves the phone.
+- **Mesa on your computer.** Turn it on in Settings → Connections → Mesa on computer and open the address it shows
+  (https://<phone IP>:8743) in a browser on a computer on the same Wi-Fi: your chats appear on the left, messages on the
+  right, new ones arrive live, and you can reply wherever Mesa can reply directly (Telegram, and chats with a reply path
+  from their notification). The phone serves the page itself over an encrypted connection with a certificate it creates
+  (the browser warns once because no authority signed it); nothing goes through the internet. A browser connects only
+  after you allow the four-digit code it shows in a notification on your unlocked phone, and connected computers can be
+  disconnected from Mesa. Only local network addresses are served, requests that name another site are refused, and the
+  page works in eight languages, light and dark.
 - **Optional AI assistant with Claude.** Enter your own Anthropic API key in Settings → AI assistant and a strip above
   the message box offers "Suggest replies" (three short replies in the chat's language and your tone; tapping one puts it
   in the box), "Summarize" (what needs your attention first, written as it arrives) and "Ask" (a question answered from

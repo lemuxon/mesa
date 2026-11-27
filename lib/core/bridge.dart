@@ -176,6 +176,21 @@ class CoreBridge {
     return (m?['text'] as String?, m?['error'] as String?);
   }
 
+  // ---- Bilgisayardan Mesa ----
+
+  Future<DesktopStatus> desktopStatus() async => DesktopStatus.fromMap(
+    await _channel.invokeMapMethod<String, Object?>('desktopStatus') ??
+        const {},
+  );
+
+  /// Açılınca sunucu bağlantı servisiyle birlikte başlar.
+  Future<void> desktopSetEnabled(bool value) =>
+      _channel.invokeMethod<void>('desktopSetEnabled', {'value': value});
+
+  /// Eşleştirilmiş tarayıcının oturumunu kapatır.
+  Future<void> desktopRevoke(String id) =>
+      _channel.invokeMethod<void>('desktopRevoke', {'id': id});
+
   // ---- Yapay zekâ asistanı (Claude, kullanıcının kendi anahtarıyla) ----
 
   /// Kayıtlı Claude API anahtarı (telefonda şifreli); yoksa null.

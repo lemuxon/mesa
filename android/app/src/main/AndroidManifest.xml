@@ -78,6 +78,10 @@
         <receiver
             android:name=".ReplyStashReceiver"
             android:exported="false" />
+        <!-- Bilgisayardan Mesa: eslestirme bildirimindeki "Izin ver" / "Reddet". -->
+        <receiver
+            android:name=".DesktopReceiver"
+            android:exported="false" />
         <!-- Birlesik bildirimlerdeki "Yanitla" ve "Okundu" dugmeleri. -->
         <receiver
             android:name=".UnifiedNotifier$NotificationActionReceiver"

@@ -180,6 +180,39 @@ p("focus_summary", en={"one": "Focus ended · %d message arrived", "other": "Foc
 s("notif_copy_code", en="Copy %1$s", tr="%1$s kopyala", es="Copiar %1$s", pt="Copiar %1$s", de="%1$s kopieren", fr="Copier %1$s", ar="نسخ %1$s", ru="Копировать %1$s")
 s("code_copied", en="Code copied", tr="Kod kopyalandı", es="Código copiado", pt="Código copiado", de="Code kopiert", fr="Code copié", ar="تم نسخ الرمز", ru="Код скопирован")
 
+# ---- Bilgisayardan Mesa ----
+s("desktop_name", en="Mesa on computer", tr="Bilgisayardan Mesa", es="Mesa en el ordenador", pt="Mesa no computador", de="Mesa am Computer", fr="Mesa sur l'ordinateur", ar="Mesa على الكمبيوتر", ru="Mesa на компьютере")
+s("desktop_running",
+  en="Open it in a browser on a computer on the same Wi-Fi",
+  tr="Aynı Wi-Fi'deki bilgisayarın tarayıcısından açabilirsiniz",
+  es="Ábrelo en el navegador de un ordenador conectado a la misma Wi-Fi",
+  pt="Abra no navegador de um computador na mesma Wi-Fi",
+  de="Im Browser eines Computers im selben WLAN öffnen",
+  fr="Ouvrez-le dans le navigateur d'un ordinateur sur le même Wi-Fi",
+  ar="افتحه من متصفح كمبيوتر متصل بشبكة Wi-Fi نفسها",
+  ru="Откройте в браузере компьютера в той же сети Wi-Fi")
+s("desktop_channel_desc",
+  en="When a computer asks to connect",
+  tr="Bir bilgisayar bağlanmak istediğinde",
+  es="Cuando un ordenador pide conectarse",
+  pt="Quando um computador pede para se conectar",
+  de="Wenn ein Computer sich verbinden möchte",
+  fr="Quand un ordinateur demande à se connecter",
+  ar="عندما يطلب كمبيوتر الاتصال",
+  ru="Когда компьютер просит подключиться")
+s("desktop_pair_title", en="A computer wants to connect", tr="Bir bilgisayar bağlanmak istiyor", es="Un ordenador quiere conectarse", pt="Um computador quer se conectar", de="Ein Computer möchte sich verbinden", fr="Un ordinateur veut se connecter", ar="كمبيوتر يريد الاتصال", ru="Компьютер хочет подключиться")
+s("desktop_pair_text",
+  en="%1$s · code %2$s. Allow only if the computer shows the same code.",
+  tr="%1$s · kod %2$s. Yalnızca bilgisayarda aynı kod görünüyorsa izin verin.",
+  es="%1$s · código %2$s. Permítelo solo si el ordenador muestra el mismo código.",
+  pt="%1$s · código %2$s. Permita só se o computador mostrar o mesmo código.",
+  de="%1$s · Code %2$s. Nur zulassen, wenn der Computer denselben Code zeigt.",
+  fr="%1$s · code %2$s. N'autorisez que si l'ordinateur affiche le même code.",
+  ar="%1$s · الرمز %2$s. اسمح فقط إذا ظهر الرمز نفسه على الكمبيوتر.",
+  ru="%1$s · код %2$s. Разрешайте, только если на компьютере тот же код.")
+s("desktop_allow", en="Allow", tr="İzin ver", es="Permitir", pt="Permitir", de="Zulassen", fr="Autoriser", ar="سماح", ru="Разрешить")
+s("desktop_deny", en="Deny", tr="Reddet", es="Rechazar", pt="Recusar", de="Ablehnen", fr="Refuser", ar="رفض", ru="Отклонить")
+
 # ---- WhatsApp'ta yazılan yanıtlar (erişilebilirlik servisi) ----
 s("own_replies_label", en="Mesa: my WhatsApp replies", tr="Mesa: WhatsApp yanıtlarım", es="Mesa: mis respuestas de WhatsApp", pt="Mesa: minhas respostas do WhatsApp", de="Mesa: meine WhatsApp-Antworten", fr="Mesa : mes réponses WhatsApp", ar="Mesa: ردودي في WhatsApp", ru="Mesa: мои ответы в WhatsApp")
 s("own_replies_desc",

@@ -250,6 +250,58 @@ class ListenerStatus {
   );
 }
 
+/// Bilgisayardan Mesa'nın durumu: açık mı, adresler, bağlı tarayıcılar.
+class DesktopStatus {
+  const DesktopStatus({
+    this.enabled = false,
+    this.running = false,
+    this.urls = const [],
+    this.sessions = const [],
+  });
+
+  factory DesktopStatus.fromMap(Map<Object?, Object?> m) => DesktopStatus(
+    enabled: m['enabled'] as bool? ?? false,
+    running: m['running'] as bool? ?? false,
+    urls: (m['urls'] as List? ?? const []).whereType<String>().toList(),
+    sessions: [
+      for (final s in (m['sessions'] as List? ?? const []))
+        if (s is Map)
+          DesktopSession(
+            id: s['id']! as String,
+            name: s['name']! as String,
+            lastSeen: DateTime.fromMillisecondsSinceEpoch(
+              (s['lastSeen']! as num).toInt(),
+            ),
+          ),
+    ],
+  );
+
+  final bool enabled;
+
+  /// Sunucu açık ve bağlantı bekliyor.
+  final bool running;
+
+  /// Bilgisayarda açılacak adresler (ör. https://192.168.1.23:8743); Wi-Fi yoksa boş.
+  final List<String> urls;
+
+  /// Eşleştirilmiş tarayıcılar.
+  final List<DesktopSession> sessions;
+}
+
+class DesktopSession {
+  const DesktopSession({
+    required this.id,
+    required this.name,
+    required this.lastSeen,
+  });
+
+  final String id;
+
+  /// "Chrome · Windows".
+  final String name;
+  final DateTime lastSeen;
+}
+
 class Message {
   const Message({
     required this.id,

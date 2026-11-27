@@ -94,7 +94,11 @@ android {
         // Turkce yerel ayarda Robolectric'in Conscrypt'i "windows"u "wındows" yapip
         // yerel kitapligini bulamiyor (I/ı tuzagi). Turkce'ye ozgu testler
         // yerel ayari kendileri secer.
-        unitTests.all { it.jvmArgs("-Duser.language=en", "-Duser.country=US") }
+        // Robolectric'in TLS kitaplığı (Conscrypt) Java 17+ üzerinde java.net'e yansımayla erişir
+        // (Bilgisayardan Mesa'nın şifreli sunucu testleri).
+        unitTests.all {
+            it.jvmArgs("-Duser.language=en", "-Duser.country=US", "--add-opens=java.base/java.net=ALL-UNNAMED")
+        }
     }
 }
 

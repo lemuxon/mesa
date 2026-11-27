@@ -274,10 +274,14 @@ object Hub {
      */
     val bubbleListeners = java.util.concurrent.CopyOnWriteArrayList<(String) -> Unit>()
 
+    /** Diğer dinleyiciler (Bilgisayardan Mesa'nın canlı güncellemeleri). */
+    val changeListeners = java.util.concurrent.CopyOnWriteArrayList<(String) -> Unit>()
+
     fun notifyChanged(key: String) {
         main.post {
             onChanged?.invoke(key)
             bubbleListeners.forEach { it(key) }
+            changeListeners.forEach { it(key) }
         }
         appContext?.let(MessagesWidget::refresh)
     }

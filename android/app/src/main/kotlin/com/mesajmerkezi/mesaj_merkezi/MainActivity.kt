@@ -340,6 +340,17 @@ open class MainActivity : FlutterFragmentActivity() {
                 }
                 openBackupFolder.launch(VoiceNotes.initialUri(packageName))
             }
+            // ---- Bilgisayardan Mesa ----
+            "desktopStatus" -> background(result) { Desktop.status(this) }
+            "desktopSetEnabled" -> {
+                val value = call.argument<Boolean>("value") == true
+                Desktop.setEnabled(this, value)
+                // Eşleştirme izni bildirimle sorulur.
+                if (value) requestNotificationPermission()
+                ConnectionService.refresh(this)
+                result.success(null)
+            }
+            "desktopRevoke" -> background(result) { Desktop.revoke(this, call.argument<String>("id")!!) }
             // ---- Yapay zekâ asistanı (Claude, kullanıcının kendi anahtarıyla) ----
             "assistantKey" -> background(result) { AssistantKey.get(this) }
             "assistantHasKey" -> background(result) { AssistantKey.present(this) }

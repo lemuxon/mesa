@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Mesa</title>
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="app.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<div id="pair" class="pair" hidden>
+  <div class="pair-card">
+    <img src="icon.png" alt="" class="pair-logo">
+    <h1 data-t="title"></h1>
+    <p class="pair-intro" data-t="intro"></p>
+    <div id="pair-code" class="pair-code" hidden></div>
+    <p id="pair-status" class="pair-status" role="status"></p>
+    <button id="pair-start" class="button" type="button" data-t="connect"></button>
+    <p class="pair-note" data-t="note"></p>
+  </div>
+</div>
+
+<div id="app" class="app" hidden>
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <img src="icon.png" alt="" class="logo">
+      <input id="search" class="search" type="search" autocomplete="off" spellcheck="false">
+      <button id="logout" class="icon-button" type="button">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M10 3h9a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-9v-2h9V5h-9V3zm-1.6 4.6L9.8 9l-2 2H16v2H7.8l2 2-1.4 1.4L4 12l4.4-4.4z"/></svg>
+      </button>
+    </div>
+    <div id="banner" class="banner" hidden></div>
+    <ul id="list" class="list"></ul>
+  </aside>
+
+  <main class="chat">
+    <div id="empty" class="empty"><p data-t="pick"></p></div>
+    <section id="thread" class="thread" hidden>
+      <header class="thread-head">
+        <button id="back" class="icon-button back" type="button">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg>
+        </button>
+        <div id="thread-avatar" class="avatar"></div>
+        <div class="thread-names">
+          <div id="thread-title" class="thread-title"></div>
+          <div id="thread-app" class="thread-app"></div>
+        </div>
+      </header>
+      <div id="messages" class="messages" aria-live="polite"></div>
+      <p id="no-reply" class="no-reply" hidden data-t="noReply"></p>
+      <form id="composer" class="composer">
+        <textarea id="input" class="input" rows="1"></textarea>
+        <button id="send" class="button send" type="submit" data-t="send"></button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast" role="alert" hidden></div>
+</body>
+</html>

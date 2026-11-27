@@ -108,6 +108,13 @@
     <string name="focus_and_more">%1$s and %2$d more</string>
     <string name="notif_copy_code">Copy %1$s</string>
     <string name="code_copied">Code copied</string>
+    <string name="desktop_name">Mesa on computer</string>
+    <string name="desktop_running">Open it in a browser on a computer on the same Wi-Fi</string>
+    <string name="desktop_channel_desc">When a computer asks to connect</string>
+    <string name="desktop_pair_title">A computer wants to connect</string>
+    <string name="desktop_pair_text">%1$s · code %2$s. Allow only if the computer shows the same code.</string>
+    <string name="desktop_allow">Allow</string>
+    <string name="desktop_deny">Deny</string>
     <string name="own_replies_label">Mesa: my WhatsApp replies</string>
     <string name="own_replies_desc">Adds new messages in the WhatsApp chat you have open, both received and sent by you, to the same chat in Mesa (and starts the chat in Mesa if it isn\'t there), marks chats you open in WhatsApp as read, and sends messages you write in Mesa through WhatsApp for you. Only WhatsApp is read and nothing leaves your phone.</string>
     <string name="auto_send_progress">Sending via WhatsApp…</string>

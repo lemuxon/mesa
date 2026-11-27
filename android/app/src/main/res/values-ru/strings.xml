@@ -108,6 +108,13 @@
     <string name="focus_and_more">%1$s и ещё %2$d</string>
     <string name="notif_copy_code">Копировать %1$s</string>
     <string name="code_copied">Код скопирован</string>
+    <string name="desktop_name">Mesa на компьютере</string>
+    <string name="desktop_running">Откройте в браузере компьютера в той же сети Wi-Fi</string>
+    <string name="desktop_channel_desc">Когда компьютер просит подключиться</string>
+    <string name="desktop_pair_title">Компьютер хочет подключиться</string>
+    <string name="desktop_pair_text">%1$s · код %2$s. Разрешайте, только если на компьютере тот же код.</string>
+    <string name="desktop_allow">Разрешить</string>
+    <string name="desktop_deny">Отклонить</string>
     <string name="own_replies_label">Mesa: мои ответы в WhatsApp</string>
     <string name="own_replies_desc">Добавляет новые сообщения из открытого чата WhatsApp, полученные и отправленные вами, в тот же чат в Mesa (и создаёт чат в Mesa, если его нет), отмечает прочитанными чаты, открытые в WhatsApp, и отправляет через WhatsApp сообщения, написанные в Mesa. Читается только WhatsApp, и ничего не покидает телефон.</string>
     <string name="auto_send_progress">Отправка через WhatsApp…</string>

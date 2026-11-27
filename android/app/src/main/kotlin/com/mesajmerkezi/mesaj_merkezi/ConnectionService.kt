@@ -34,6 +34,7 @@ class ConnectionService : Service() {
 
     override fun onDestroy() {
         instance = null
+        Desktop.stop()
         super.onDestroy()
     }
 
@@ -43,16 +44,19 @@ class ConnectionService : Service() {
     private fun apply() {
         val telegram = telegramWanted(this)
         val web = WebServices.all(this).filter { it.background }
-        if (!telegram && web.isEmpty()) {
+        val desktop = Desktop.enabled(this)
+        if (!telegram && web.isEmpty() && !desktop) {
+            Desktop.stop()
             stopSelf()
             return
         }
         if (telegram) TelegramClient.start(this)
         WebHost.sync(this)
-        startInForeground(telegram, web.map { it.name })
+        Desktop.sync(this)
+        startInForeground(telegram, web.map { it.name }, desktop)
     }
 
-    private fun startInForeground(telegram: Boolean = false, web: List<String> = emptyList()) {
+    private fun startInForeground(telegram: Boolean = false, web: List<String> = emptyList(), desktop: Boolean = false) {
         val manager = NotificationManagerCompat.from(this)
         manager.deleteNotificationChannel(OLD_CHANNEL_ID)
         manager.createNotificationChannel(
@@ -68,19 +72,24 @@ class ConnectionService : Service() {
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE,
         )
+        val desktopName = Lang.str(this, R.string.desktop_name)
         val names = (if (telegram) listOf("Telegram") else emptyList()) + web
+        // Yalnızca Bilgisayardan Mesa açıksa kendi başlığı; değilse bağlı servislerin yanında anılır.
+        val title = when {
+            names.isEmpty() && desktop -> desktopName
+            names.isEmpty() -> "Mesa"
+            names.size == 1 -> Lang.str(this, R.string.connected_one, names[0])
+            else -> Lang.plural(this, R.plurals.connected_services, names.size)
+        }
+        val text = when {
+            names.isEmpty() && desktop -> Lang.str(this, R.string.desktop_running)
+            names.size > 1 || desktop -> (names + (if (desktop) listOf(desktopName) else emptyList())).joinToString(", ")
+            else -> Lang.str(this, R.string.connected_text)
+        }
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(
-                when (names.size) {
-                    0 -> "Mesa"
-                    1 -> Lang.str(this, R.string.connected_one, names[0])
-                    else -> Lang.plural(this, R.plurals.connected_services, names.size)
-                }
-            )
-            .setContentText(
-                if (names.size > 1) names.joinToString(", ") else Lang.str(this, R.string.connected_text)
-            )
+            .setContentTitle(title)
+            .setContentText(text)
             .setOngoing(true)
             .setSilent(true)
             .setContentIntent(openApp)
@@ -102,7 +111,8 @@ class ConnectionService : Service() {
         private fun telegramWanted(context: Context) =
             TelegramPrefs.enabled(context) && TelegramConfig.isConfigured
 
-        fun needed(context: Context) = telegramWanted(context) || WebServices.anyBackground(context)
+        fun needed(context: Context) =
+            telegramWanted(context) || WebServices.anyBackground(context) || Desktop.enabled(context)
 
         /**
          * Telegram ya da arka plan web servisi ayarı değişti: servis gerekiyorsa
