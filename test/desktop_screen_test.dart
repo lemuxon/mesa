@@ -58,7 +58,8 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.scrollUntilVisible(find.byTooltip('Bağlantıyı kes'), 200);
+    await tester.ensureVisible(find.byTooltip('Bağlantıyı kes'));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Bağlantıyı kes'));
     await tester.pumpAndSettle();
     expect(bridge.revoked, ['s1']);
@@ -77,6 +78,9 @@ void main() {
     expect(status.enabled, isTrue);
     expect(status.urls.single, 'https://10.0.0.5:8743');
     expect(status.sessions.single.name, 'Firefox · Linux');
-    expect(status.sessions.single.lastSeen.millisecondsSinceEpoch, 1795000000000);
+    expect(
+      status.sessions.single.lastSeen.millisecondsSinceEpoch,
+      1795000000000,
+    );
   });
 }
