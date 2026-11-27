@@ -262,6 +262,7 @@ void main() {
       final (prefs, _, _) = await open(tester);
       expect(prefs.assistantModel, 'claude-opus-5-5');
       await tester.ensureVisible(find.text('Claude Haiku 5.5'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Claude Haiku 5.5'));
       await tester.pumpAndSettle();
       expect(prefs.assistantModel, 'claude-haiku-5-5');
