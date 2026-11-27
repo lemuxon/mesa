@@ -16,6 +16,7 @@ import 'language_tile.dart';
 import 'own_replies.dart';
 import 'secure_connection_screen.dart';
 import 'storage_card.dart';
+import 'assistant_screen.dart';
 import 'telegram_screen.dart';
 import 'translation_packs.dart';
 
@@ -495,6 +496,30 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                   ],
                 ),
+                if (scope != null)
+                  SectionCard(
+                    title: tr('Yapay zekâ'),
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.auto_awesome_rounded),
+                        title: Text(tr('Yapay zekâ asistanı')),
+                        subtitle: Text(
+                          tr(
+                            'Claude ile sohbet özeti, sohbete soru, yanıt önerisi ve mesaj düzeltme',
+                          ),
+                        ),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => AssistantScreen(
+                              bridge: widget.bridge,
+                              prefs: scope.prefs,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 if (scope != null)
                   SectionCard(
                     title: tr('Yazma'),

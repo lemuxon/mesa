@@ -1,6 +1,8 @@
 import 'package:mesaj_merkezi/l10n/l10n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'assistant.dart';
+
 /// Yerel taraftaki (AppSettings.kt) ayarlar: bildirim servisi ve Telegram
 /// istemcisi de bunlara uyar.
 class AppSettings {
@@ -149,6 +151,17 @@ class LocalPrefs {
   bool get unifiedPromoDismissed => _prefs.getBool(_unifiedPromoKey) ?? false;
 
   Future<void> dismissUnifiedPromo() => _prefs.setBool(_unifiedPromoKey, true);
+
+  static const _assistantModelKey = 'assistant_model';
+
+  /// Yapay zekâ asistanının modeli (claude-opus-5-5 …).
+  String get assistantModel {
+    final value = _prefs.getString(_assistantModelKey);
+    return assistantModels.containsKey(value) ? value! : defaultAssistantModel;
+  }
+
+  Future<void> setAssistantModel(String model) =>
+      _prefs.setString(_assistantModelKey, model);
 
   /// Sohbetteki "görüldü gönderilmez" ipucu kapatıldı.
   bool get ghostHintSeen => _prefs.getBool(_ghostHintKey) ?? false;

@@ -11,6 +11,7 @@ import '../ui/bidi.dart';
 import '../l10n/stored_labels.dart';
 import '../core/app_scope.dart';
 import '../core/apps.dart';
+import '../core/assistant.dart';
 import '../core/bridge.dart';
 import '../core/format.dart';
 import '../core/language_guess.dart';
@@ -22,6 +23,7 @@ import '../core/telegram.dart';
 import '../ui/avatars.dart';
 import '../ui/text_dialog.dart';
 import '../ui/theme.dart';
+import 'assistant_ui.dart';
 import 'engagement.dart';
 import 'media_gallery_screen.dart';
 import 'media_viewer.dart';
@@ -39,9 +41,13 @@ class ChatScreen extends StatefulWidget {
     required this.bridge,
     required this.conversation,
     this.members = const [],
+    this.assistant,
   });
 
   final CoreBridge bridge;
+
+  /// Yapay zekâ asistanı; verilmezse Claude (Ayarlar'daki anahtarla). Testlerde sahtesi.
+  final Assistant? assistant;
 
   /// Açılan sohbet; kişi ekranında yanıtın varsayılan uygulaması.
   final Conversation conversation;
@@ -85,6 +91,22 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   /// Bu ekranda az önce çevrilenler (liste yenilenene kadar).
   final Map<String, String> _transcripts = {};
+
+  /// Yapay zekâ asistanı: şeridi yalnızca anahtar girildiyse görünür.
+  late final Assistant _assistant =
+      widget.assistant ??
+      ClaudeAssistant(
+        apiKey: widget.bridge.assistantKey,
+        model: () => _assistantModel,
+        language: () => currentLanguage,
+      );
+  bool _assistantReady = false;
+  List<String>? _suggestions;
+  bool _suggesting = false;
+  bool _rewriting = false;
+
+  /// Açılırken okunmamış gelen mesaj sayısı (özet bunlara odaklanır).
+  late final int _unreadAtOpen;
 
   /// Şu an çevrilen mesajlar; dil paketi inenler ayrıca.
   final Set<String> _translating = {};
@@ -223,6 +245,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _load();
     _loadShareKinds();
     _loadOwnReplies();
+    _unreadAtOpen = widget.conversation.unread;
+    _loadAssistant();
     _setActive(true);
     // Telegram sohbetlerinde son mesajlar sunucudan indirilir; gelince
     // değişiklik olayı listeyi yeniler.
@@ -260,6 +284,105 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _load();
       _confirmHandoff();
       _loadOwnReplies();
+      _loadAssistant();
+    }
+  }
+
+  /// Asistan şeridi yalnızca Claude API anahtarı girildiyse görünür.
+  Future<void> _loadAssistant() async {
+    bool ready;
+    if (widget.assistant != null) {
+      ready = true;
+    } else {
+      try {
+        ready = await widget.bridge.assistantHasKey();
+      } catch (_) {
+        ready = false;
+      }
+    }
+    if (mounted && ready != _assistantReady) {
+      setState(() => _assistantReady = ready);
+    }
+  }
+
+  String get _assistantModel =>
+      (mounted ? AppScope.maybeOf(context)?.prefs.assistantModel : null) ??
+      defaultAssistantModel;
+
+  AssistantChat _assistantChat() => AssistantChat(
+    title: _title,
+    appName: _appName,
+    isGroup: _active.isGroup && !_isPerson,
+    messages: _messages,
+    unread: _unreadAtOpen,
+  );
+
+  /// Sıradaki mesaj için üç kısa öneri; dokununca kutuya yazılır.
+  Future<void> _suggestReplies() async {
+    if (_suggesting) return;
+    setState(() => _suggesting = true);
+    try {
+      final replies = await _assistant.suggestReplies(_assistantChat());
+      if (mounted) setState(() => _suggestions = replies);
+    } catch (e) {
+      _snack(assistantErrorText(e), long: true);
+    } finally {
+      if (mounted) setState(() => _suggesting = false);
+    }
+  }
+
+  void _useSuggestion(String reply) {
+    _input.text = reply;
+    _input.selection = TextSelection.collapsed(offset: reply.length);
+    setState(() => _suggestions = null);
+    _inputFocus.requestFocus();
+  }
+
+  Future<void> _summarize() => showAssistantResult(
+    context,
+    title: tr('{title} sohbetinin özeti', {'title': _title}),
+    modelName: assistantModels[_assistantModel] ?? 'Claude',
+    run: (onText) => _assistant.summarize(_assistantChat(), onText: onText),
+  );
+
+  Future<void> _askChat() async {
+    final question = await showTextDialog(
+      context,
+      title: tr('Sohbete sor'),
+      confirmLabel: tr('Sor'),
+      hint: tr('Örn. Ne zaman buluşuyorduk?'),
+      maxLines: 3,
+    );
+    if (question == null || question.trim().isEmpty || !mounted) return;
+    await showAssistantResult(
+      context,
+      title: question.trim(),
+      modelName: assistantModels[_assistantModel] ?? 'Claude',
+      run: (onText) =>
+          _assistant.ask(_assistantChat(), question, onText: onText),
+    );
+  }
+
+  /// Yazılanı düzeltir; öneri ancak onaylanırsa kutuya yazılır.
+  Future<void> _rewriteDraft() async {
+    final draft = _input.text.trim();
+    if (draft.isEmpty || _rewriting) return;
+    final mode = await pickRewriteMode(context);
+    if (mode == null || !mounted) return;
+    setState(() => _rewriting = true);
+    try {
+      final text = await _assistant.rewrite(_assistantChat(), draft, mode);
+      if (!mounted) return;
+      // Soru açıkken arkada gösterge dönmesin.
+      setState(() => _rewriting = false);
+      if (await confirmRewrite(context, text) && mounted) {
+        _input.text = text;
+        _input.selection = TextSelection.collapsed(offset: text.length);
+      }
+    } catch (e) {
+      _snack(assistantErrorText(e), long: true);
+    } finally {
+      if (mounted && _rewriting) setState(() => _rewriting = false);
     }
   }
 
@@ -614,7 +737,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Future<void> _send() async {
     final text = _input.text.trim();
     if (text.isEmpty || _sending) return;
-    setState(() => _sending = true);
+    setState(() {
+      _sending = true;
+      _suggestions = null;
+    });
     try {
       if (_mode == ReplyMode.direct) {
         try {
@@ -1531,6 +1657,19 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       ),
                   ],
                 ),
+              ),
+            if (_assistantReady && recording == null)
+              AssistantBar(
+                hasText: hasText,
+                suggestions: _suggestions,
+                suggesting: _suggesting,
+                rewriting: _rewriting,
+                onSuggest: _suggestReplies,
+                onSummarize: _summarize,
+                onAsk: _askChat,
+                onRewrite: _rewriteDraft,
+                onUseSuggestion: _useSuggestion,
+                onCloseSuggestions: () => setState(() => _suggestions = null),
               ),
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),

@@ -176,6 +176,21 @@ class CoreBridge {
     return (m?['text'] as String?, m?['error'] as String?);
   }
 
+  // ---- Yapay zekâ asistanı (Claude, kullanıcının kendi anahtarıyla) ----
+
+  /// Kayıtlı Claude API anahtarı (telefonda şifreli); yoksa null.
+  Future<String?> assistantKey() =>
+      _channel.invokeMethod<String>('assistantKey');
+
+  Future<bool> assistantHasKey() async =>
+      await _channel.invokeMethod<bool>('assistantHasKey') ?? false;
+
+  Future<void> assistantSetKey(String key) =>
+      _channel.invokeMethod<void>('assistantSetKey', {'key': key});
+
+  Future<void> assistantClearKey() =>
+      _channel.invokeMethod<void>('assistantClearKey');
+
   /// Mesajı telefonda [target] diline ("tr"…) çevirir ve saklar (Google ML
   /// Kit; mesajın metni telefondan çıkmaz). [download]: eksik dil paketleri
   /// indirilsin (kullanıcı onayladı). [hint]: dil tanıma emin olamazsa

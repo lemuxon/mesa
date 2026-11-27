@@ -29,6 +29,13 @@
   its notifications, so Mesa asks once for read access to WhatsApp's "WhatsApp Voice Notes" folder and matches the file
   by time and duration; when more than one file could fit, it doesn't guess. Telegram voice messages are downloaded as
   before. The text is kept with the message; the audio never leaves the phone.
+- **Optional AI assistant with Claude.** Enter your own Anthropic API key in Settings → AI assistant and a strip above
+  the message box offers "Suggest replies" (three short replies in the chat's language and your tone; tapping one puts it
+  in the box), "Summarize" (what needs your attention first, written as it arrives) and "Ask" (a question answered from
+  that chat only); while you type it offers "Improve": fix mistakes, make it more polite or shorter, or translate it into
+  the other person's language, applied only after you approve. Claude Opus 5.5 by default, Sonnet 5.5 or Haiku 5.5 to
+  choose from. Nothing is sent until you tap, the key is checked with Anthropic and stored encrypted, and on Opus and
+  Sonnet a request that Claude's safety filter wrongly declines is retried on the model Anthropic recommends.
 - **Translate messages on the phone.** A message that looks like it's in another language gets a "Translate" button
   (long-press any message for "Translate" too); the translation appears under it and is kept with the message. It runs
   offline with Google's ML Kit: the first time, Mesa asks before downloading the language pack (about 30 MB per

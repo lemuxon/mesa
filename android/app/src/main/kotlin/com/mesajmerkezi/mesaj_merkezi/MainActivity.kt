@@ -340,6 +340,11 @@ open class MainActivity : FlutterFragmentActivity() {
                 }
                 openBackupFolder.launch(VoiceNotes.initialUri(packageName))
             }
+            // ---- Yapay zekâ asistanı (Claude, kullanıcının kendi anahtarıyla) ----
+            "assistantKey" -> background(result) { AssistantKey.get(this) }
+            "assistantHasKey" -> background(result) { AssistantKey.present(this) }
+            "assistantSetKey" -> background(result) { AssistantKey.set(this, call.argument<String>("key")!!) }
+            "assistantClearKey" -> background(result) { AssistantKey.clear(this) }
             // ---- Mesaj çevirisi (telefonda) ----
             "translate" -> MessageTranslator.translateMessage(
                 this,
